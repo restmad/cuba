@@ -28,7 +28,6 @@ import com.haulmont.cuba.core.global.filter.Op;
 import com.haulmont.cuba.gui.*;
 import com.haulmont.cuba.gui.components.Filter;
 import com.haulmont.cuba.gui.components.Frame;
-import com.haulmont.cuba.gui.components.sys.ValuePathHelper;
 import com.haulmont.cuba.gui.components.Window;
 import com.haulmont.cuba.gui.components.filter.ConditionParamBuilder;
 import com.haulmont.cuba.gui.components.filter.ConditionsTree;
@@ -38,6 +37,7 @@ import com.haulmont.cuba.gui.components.filter.condition.AbstractCondition;
 import com.haulmont.cuba.gui.components.filter.condition.CustomCondition;
 import com.haulmont.cuba.gui.components.filter.condition.PropertyCondition;
 import com.haulmont.cuba.gui.components.filter.descriptor.PropertyConditionDescriptor;
+import com.haulmont.cuba.gui.components.sys.ValuePathHelper;
 import com.haulmont.cuba.gui.config.WindowConfig;
 import com.haulmont.cuba.gui.data.CollectionDatasource;
 import com.haulmont.cuba.gui.data.impl.DsContextImplementation;
@@ -100,7 +100,7 @@ public class RelatedEntitiesBean implements RelatedEntitiesAPI {
         Preconditions.checkNotNullArgument(metaClass, "MetaClass can't be null");
         Preconditions.checkNotNullArgument(metaProperty, "MetaProperty can't be null");
 
-        WindowManagerImpl windowManager = windowManagerProvider.get();
+        WindowManager windowManager = windowManagerProvider.get();
         if (!selectedEntities.isEmpty()) {
             Map<String, Object> params = new HashMap<>();
 

@@ -20,7 +20,6 @@ import com.haulmont.bali.datastruct.Pair;
 import com.haulmont.bali.util.ReflectionHelper;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.*;
-import com.haulmont.cuba.gui.WindowManager.OpenMode;
 import com.haulmont.cuba.gui.WindowManager.OpenType;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.config.WindowInfo;
@@ -34,6 +33,7 @@ import com.haulmont.cuba.gui.executors.BackgroundWorker;
 import com.haulmont.cuba.gui.logging.UIPerformanceLogger;
 import com.haulmont.cuba.gui.logging.UIPerformanceLogger.LifeCycle;
 import com.haulmont.cuba.gui.logging.UserActionsLogger;
+import com.haulmont.cuba.gui.screen.OpenMode;
 import com.haulmont.cuba.gui.settings.Settings;
 import com.haulmont.cuba.gui.settings.SettingsImpl;
 import com.haulmont.cuba.gui.sys.*;
@@ -58,6 +58,8 @@ import java.util.concurrent.Callable;
 
 /**
  * GenericUI class intended for creation and opening application screens.
+ *
+ * todo remove completely
  */
 public abstract class WindowManagerImpl {
     private org.slf4j.Logger userActionsLog = LoggerFactory.getLogger(UserActionsLogger.class);
@@ -67,10 +69,6 @@ public abstract class WindowManagerImpl {
      * the screen is closed by window manager. Propagated to {@link Window.CloseListener#windowClosed}.
      */
     public static final String MAIN_MENU_ACTION_ID = "mainMenu";
-
-    public interface WindowCloseListener {
-        void onWindowClose(Window window, boolean anyOpenWindowExist);
-    }
 
     protected DataSupplier defaultDataSupplier;
 
@@ -150,7 +148,7 @@ public abstract class WindowManagerImpl {
         //noinspection unchecked
         windowLoader.loadComponent();
 
-        clientSpecificWindow.setWindowManager(this);
+//        clientSpecificWindow.setWindowManager(this);
 
         loadDescriptorWatch.stop();
 
@@ -253,7 +251,7 @@ public abstract class WindowManagerImpl {
         }
 
         window.setId(windowInfo.getId());
-        window.setWindowManager(this);
+//        window.setWindowManager(this);
 
         init(window, params);
 

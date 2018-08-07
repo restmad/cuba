@@ -19,7 +19,7 @@ package com.haulmont.cuba.gui.components.filter;
 
 import com.haulmont.bali.datastruct.Tree;
 import com.haulmont.cuba.core.global.AppBeans;
-import com.haulmont.cuba.gui.WindowManagerImpl;
+import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.WindowManagerProvider;
 import com.haulmont.cuba.gui.components.Filter;
 import com.haulmont.cuba.gui.components.Window;
@@ -50,7 +50,7 @@ public class AddConditionHelper {
 
     public static final int PROPERTIES_HIERARCHY_DEPTH = 2;
 
-    protected WindowManagerImpl windowManager;
+    protected WindowManager windowManager;
     protected WindowConfig windowConfig;
     protected Filter filter;
     protected Handler handler;

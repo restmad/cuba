@@ -32,7 +32,7 @@ import com.haulmont.cuba.web.gui.MainTabSheetMode;
 import com.haulmont.cuba.web.gui.ManagedMainTabSheetMode;
 import com.haulmont.cuba.web.gui.components.WebAbstractComponent;
 import com.haulmont.cuba.web.gui.components.WebComponentsHelper;
-import com.haulmont.cuba.web.sys.WebWindowManagerImpl;
+import com.haulmont.cuba.web.sys.WebScreens;
 import com.haulmont.cuba.web.widgets.CubaManagedTabSheet;
 import com.haulmont.cuba.web.widgets.CubaSingleModeContainer;
 import com.haulmont.cuba.web.widgets.CubaTabSheet;
@@ -227,11 +227,11 @@ public class WebAppWorkArea extends WebAbstractComponent<CssLayout> implements A
             cubaTabSheet.addActionHandler(actionHandler);
 
             cubaTabSheet.setCloseOthersHandler(container -> {
-                WebWindowManagerImpl windowManager = App.getInstance().getWindowManager();
+                WebScreens windowManager = App.getInstance().getWindowManager();
                 windowManager.closeAllTabbedWindowsExcept(container);
             });
             cubaTabSheet.setCloseAllTabsHandler(container -> {
-                WebWindowManagerImpl windowManager = App.getInstance().getWindowManager();
+                WebScreens windowManager = App.getInstance().getWindowManager();
                 windowManager.closeAllTabbedWindows();
             });
         } else {
@@ -250,11 +250,11 @@ public class WebAppWorkArea extends WebAbstractComponent<CssLayout> implements A
             cubaManagedTabSheet.addActionHandler(actionHandler);
 
             cubaManagedTabSheet.setCloseOthersHandler(container -> {
-                WebWindowManagerImpl windowManager = App.getInstance().getWindowManager();
+                WebScreens windowManager = App.getInstance().getWindowManager();
                 windowManager.closeAllTabbedWindowsExcept(container);
             });
             cubaManagedTabSheet.setCloseAllTabsHandler(container -> {
-                WebWindowManagerImpl windowManager = App.getInstance().getWindowManager();
+                WebScreens windowManager = App.getInstance().getWindowManager();
                 windowManager.closeAllTabbedWindows();
             });
         }

@@ -36,8 +36,8 @@ import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.core.global.filter.DenyingClause;
 import com.haulmont.cuba.core.global.filter.QueryFilter;
 import com.haulmont.cuba.gui.ComponentsHelper;
+import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.WindowManager.OpenType;
-import com.haulmont.cuba.gui.WindowManagerImpl;
 import com.haulmont.cuba.gui.WindowManagerProvider;
 import com.haulmont.cuba.gui.WindowParams;
 import com.haulmont.cuba.gui.components.*;
@@ -127,7 +127,7 @@ public class FilterDelegateImpl implements FilterDelegate {
     protected GlobalConfig globalConfig;
     protected AddConditionHelper addConditionHelper;
     protected ThemeConstants theme;
-    protected WindowManagerImpl windowManager;
+    protected WindowManager windowManager;
 
     protected Filter filter;
     protected FilterEntity adHocFilter;

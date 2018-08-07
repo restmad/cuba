@@ -17,7 +17,7 @@
 
 package com.haulmont.cuba.gui.exception;
 
-import com.haulmont.cuba.gui.WindowManagerImpl;
+import com.haulmont.cuba.gui.WindowManager;
 
 /**
  * Interface to be implemented by exception handlers defined on GUI level.
@@ -42,5 +42,5 @@ public interface GenericExceptionHandler {
      * @param windowManager WindowManagerImpl instance
      * @return              true if the exception has been successfully handled, false if not
      */
-    boolean handle(Throwable exception, WindowManagerImpl windowManager);
+    boolean handle(Throwable exception, WindowManager windowManager);
 }

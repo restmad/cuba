@@ -18,7 +18,7 @@
 package com.haulmont.cuba.gui.screen;
 
 /**
- * JavaDoc
+ * Marker interface for objects that can be passed as screen parameters to a {@link Screen}.
  */
 public interface ScreenOptions {
 }

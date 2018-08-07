@@ -26,7 +26,7 @@ import com.haulmont.cuba.core.global.AppBeans;
 import com.haulmont.cuba.core.global.ExtendedEntities;
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.core.global.Metadata;
-import com.haulmont.cuba.gui.WindowManagerImpl;
+import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.WindowParams;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.config.WindowConfig;
@@ -765,7 +765,7 @@ public class WebTokenList<V> extends WebAbstractField<WebTokenList.CubaTokenList
                         params.putAll(lookupScreenParams);
                     }
 
-                    WindowManagerImpl wm = App.getInstance().getWindowManager();
+                    WindowManager wm = App.getInstance().getWindowManager();
 
                     Window.Lookup lookup = wm.openLookup(windowInfo, items -> {
                         if (lookupPickerField.isRefreshOptionsOnLookupClose()) {

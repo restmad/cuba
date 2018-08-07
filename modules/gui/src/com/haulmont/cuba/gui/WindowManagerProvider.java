@@ -18,15 +18,14 @@
 package com.haulmont.cuba.gui;
 
 /**
- * Provides current client specific WindowManagerImpl
+ * Provides current client specific WindowManagerImpl.
  *
+ * @deprecated Use {@link UiServices} instead.
  */
+@Deprecated
 public interface WindowManagerProvider {
 
     String NAME = "cuba_WindowManagerProvider";
 
-    // todo fix
-    WindowManagerImpl get();
-
-    WindowManager getWm();
+    WindowManager get();
 }

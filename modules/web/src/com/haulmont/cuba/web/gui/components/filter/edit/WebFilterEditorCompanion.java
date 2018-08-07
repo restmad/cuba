@@ -17,13 +17,13 @@
 
 package com.haulmont.cuba.web.gui.components.filter.edit;
 
-import com.haulmont.cuba.gui.WindowManagerImpl;
+import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.components.Frame;
 import com.haulmont.cuba.gui.components.filter.edit.FilterEditor;
 
 public class WebFilterEditorCompanion implements FilterEditor.Companion {
     @Override
-    public void showComponentName(WindowManagerImpl windowManager, String title, String message) {
+    public void showComponentName(WindowManager windowManager, String title, String message) {
         windowManager.showMessageDialog(title, message, Frame.MessageType.CONFIRMATION);
     }
 }

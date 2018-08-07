@@ -37,8 +37,11 @@ import com.haulmont.cuba.gui.data.DsContext;
 import com.haulmont.cuba.gui.events.sys.UiEventsMulticaster;
 import com.haulmont.cuba.gui.icons.Icons;
 import com.haulmont.cuba.gui.screen.Screen;
+import com.haulmont.cuba.gui.screen.StandardCloseAction;
 import com.haulmont.cuba.gui.settings.Settings;
 import com.haulmont.cuba.gui.sys.TestIdManager;
+import com.haulmont.cuba.gui.sys.UiServices;
+import com.haulmont.cuba.gui.util.OperationResult;
 import com.haulmont.cuba.web.AppUI;
 import com.haulmont.cuba.web.WebConfig;
 import com.haulmont.cuba.web.gui.components.WebComponentsHelper;
@@ -66,6 +69,7 @@ import javax.inject.Inject;
 import java.util.*;
 
 import static com.haulmont.bali.util.Preconditions.checkNotNullArgument;
+import static com.haulmont.cuba.gui.Screens.LaunchMode;
 
 public class WebWindow implements Window, Component.Wrapper,
                                   Component.HasXmlDescriptor, WrappedWindow, Component.Disposable,
@@ -108,8 +112,9 @@ public class WebWindow implements Window, Component.Wrapper,
 
     protected Runnable doAfterClose;
 
+    protected UiServices uiServices;
+
     protected WebWindowManagerImpl windowManagerImpl; // todo remove
-    protected WindowManager windowManager;
 
     protected WindowDelegate delegate;
 
@@ -422,13 +427,13 @@ public class WebWindow implements Window, Component.Wrapper,
         return handleValidationErrors(errors);
     }
 
-    public void setWindowManager(WindowManager windowManager) {
-        this.windowManager = windowManager;
+    public void setUiServices(UiServices uiServices) {
+        this.uiServices = uiServices;
     }
 
     @Override
-    public WindowManager getWindowManager() {
-        return windowManager;
+    public UiServices getUiServices() {
+        return uiServices;
     }
 
     protected void validateAdditionalRules(ValidationErrors errors) {
@@ -445,16 +450,6 @@ public class WebWindow implements Window, Component.Wrapper,
         WebComponentsHelper.focusProblemComponent(errors);
 
         return false;
-    }
-
-    @Override
-    public WebWindowManagerImpl getWindowManagerImpl() {
-        return windowManagerImpl;
-    }
-
-    @Override
-    public void setWindowManager(WindowManagerImpl windowManager) {
-        this.windowManagerImpl = (WebWindowManagerImpl) windowManager;
     }
 
     @Override
@@ -1018,7 +1013,6 @@ public class WebWindow implements Window, Component.Wrapper,
 
         // todo move all this to screen !
 
-        Configuration configuration = AppBeans.get(Configuration.NAME); // todo get rid of AppBeans
         ClientConfig clientConfig = configuration.getConfig(ClientConfig.class);
 
         if (!forceClose && isModified()) {
@@ -1076,14 +1070,6 @@ public class WebWindow implements Window, Component.Wrapper,
             return false;
         }
 
-        if (!clientConfig.getManualScreenSettingsSaving()) {
-            if (getWrapper() != null) {
-                getWrapper().saveSettings();
-            } else {
-                saveSettings();
-            }
-        }
-
         delegate.disposeComponents();
 
         windowManager.close(this);
@@ -1096,9 +1082,11 @@ public class WebWindow implements Window, Component.Wrapper,
 
         // return res;
 
-        windowManager.remove(this.getController());
+        // todo move to controller
 
-        return true;
+        OperationResult result = getController().close(new StandardCloseAction(actionId));
+
+        return result.getStatus() == OperationResult.Status.SUCCESS;
     }
 
     public boolean findAndFocusChildComponent() {
@@ -1322,12 +1310,12 @@ public class WebWindow implements Window, Component.Wrapper,
     }
 
     @Override
-    public void setLaunchMode(WindowManager.LaunchMode launchMode) {
+    public void setLaunchMode(LaunchMode launchMode) {
         this.launchMode = launchMode;
     }
 
     @Override
-    public WindowManager.LaunchMode getLaunchMode() {
+    public LaunchMode getLaunchMode() {
         return launchMode;
     }
 

@@ -121,6 +121,6 @@ public class AbstractMainWindow extends AbstractTopLevelWindow implements MainSc
     public void ready() {
         super.ready();
 
-        getWindowManagerImpl().openDefaultScreen();
+        getWindowManager().openDefaultScreen();
     }
 }

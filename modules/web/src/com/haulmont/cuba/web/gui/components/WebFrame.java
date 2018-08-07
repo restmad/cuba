@@ -18,10 +18,10 @@ package com.haulmont.cuba.web.gui.components;
 
 import com.haulmont.cuba.gui.ComponentsHelper;
 import com.haulmont.cuba.gui.FrameContext;
-import com.haulmont.cuba.gui.WindowManagerImpl;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.data.DsContext;
 import com.haulmont.cuba.gui.events.sys.UiEventsMulticaster;
+import com.haulmont.cuba.gui.sys.UiServices;
 import com.haulmont.cuba.web.AppUI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,9 +49,6 @@ public class WebFrame extends WebVBoxLayout implements Frame, WrappedFrame {
     protected Map<String, Component> allComponents = new HashMap<>();
 
     protected WebFrameActionsHolder actionsHolder = new WebFrameActionsHolder(this);
-
-    // todo assign WindowManager
-    protected WindowManagerImpl windowManager;
 
     public WebFrame() {
         component.addActionHandler(actionsHolder);
@@ -252,8 +249,8 @@ public class WebFrame extends WebVBoxLayout implements Frame, WrappedFrame {
     }
 
     @Override
-    public WindowManagerImpl getWindowManagerImpl() {
-        return windowManager;
+    public UiServices getUiServices() {
+        throw new UnsupportedOperationException("TODO"); // todo
     }
 
     protected boolean handleValidationErrors(ValidationErrors errors) {

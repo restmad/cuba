@@ -27,7 +27,7 @@ import com.haulmont.cuba.core.global.AppBeans;
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.core.global.View;
 import com.haulmont.cuba.gui.ComponentsHelper;
-import com.haulmont.cuba.gui.WindowManagerImpl;
+import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.components.EntityLinkField;
 import com.haulmont.cuba.gui.components.Frame;
 import com.haulmont.cuba.gui.components.ListComponent;
@@ -242,12 +242,12 @@ public class WebEntityLinkField<V> extends WebAbstractField<CubaButtonField, V> 
             return;
         }
 
-        WindowManagerImpl wm;
+        WindowManager wm;
         Window window = ComponentsHelper.getWindow(this);
         if (window == null) {
             throw new IllegalStateException("Please specify Frame for EntityLinkField");
         } else {
-            wm = window.getWindowManagerImpl();
+            wm = window.getWindowManager();
         }
 
         if (entity instanceof SoftDelete && ((SoftDelete) entity).isDeleted()) {

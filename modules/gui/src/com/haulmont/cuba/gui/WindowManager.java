@@ -21,9 +21,7 @@ import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.config.WindowInfo;
 import com.haulmont.cuba.gui.data.Datasource;
-import com.haulmont.cuba.gui.screen.FrameOwner;
-import com.haulmont.cuba.gui.screen.Screen;
-import com.haulmont.cuba.gui.screen.ScreenOptions;
+import com.haulmont.cuba.gui.screen.OpenMode;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -32,75 +30,11 @@ import java.util.Map;
 /**
  * JavaDoc
  */
-public interface WindowManager {
+public interface WindowManager extends Screens {
 
+    // todo create alias
+    @Deprecated
     String NAME = "cuba_WindowManager";
-
-    default <T extends Screen> T create(Class<T> screenClass, LaunchMode launchMode) {
-        return create(screenClass, launchMode, FrameOwner.NO_OPTIONS);
-    }
-
-    /**
-     * JavaDoc
-     */
-    <T extends Screen> T create(Class<T> screenClass, LaunchMode launchMode, ScreenOptions options);
-
-    /**
-     * JavaDoc
-     */
-    void show(Screen screen);
-
-    /**
-     * Removes window from UI and releases all the resources of screen.
-     *
-     * @param screen screen
-     */
-    void remove(Screen screen);
-
-    /**
-     * JavaDoc
-     */
-    void removeAll();
-
-    /**
-     * JavaDoc
-     *
-     * @return true if there are windows with unsaved changes
-     */
-    boolean hasUnsavedChanges();
-
-    /**
-     * JavaDoc
-     */
-    interface LaunchMode {
-    }
-
-    /**
-     * JavaDoc
-     */
-    enum OpenMode implements LaunchMode {
-        /**
-         * Open a screen in new tab of the main window.
-         * <br> In Web Client with {@code AppWindow.Mode.SINGLE} the new screen replaces current screen.
-         */
-        NEW_TAB,
-        /**
-         * Open a screen on top of the current tab screens stack.
-         */
-        THIS_TAB,
-        /**
-         * Open a screen as modal dialog.
-         */
-        DIALOG,
-        /**
-         * In Desktop Client open a screen in new main window, in Web Client the same as new {@link #NEW_TAB}
-         */
-        NEW_WINDOW,
-        /**
-         * In Web Client opens a screen as main
-         */
-        ROOT
-    }
 
     /*
      * Deprecated methods

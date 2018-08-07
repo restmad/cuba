@@ -17,32 +17,22 @@
 
 package com.haulmont.cuba.web.sys;
 
+import com.haulmont.cuba.core.global.BeanLocator;
 import com.haulmont.cuba.gui.WindowManager;
-import com.haulmont.cuba.gui.WindowManagerImpl;
 import com.haulmont.cuba.gui.WindowManagerProvider;
-
-import com.haulmont.cuba.web.App;
-import com.haulmont.cuba.web.AppUI;
 import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
+
+@Deprecated
 @Component(WindowManagerProvider.NAME)
 public class WebWindowManagerProvider implements WindowManagerProvider {
 
-    @Override
-    public WindowManagerImpl get() {
-        if (!App.isBound())
-            throw new IllegalStateException("Could not get WindowManagerImpl without bounded App");
-
-        return App.getInstance().getWindowManager();
-    }
+    @Inject
+    protected BeanLocator beanLocator;
 
     @Override
-    public WindowManager getWm() {
-        AppUI ui = AppUI.getCurrent();
-        if (ui == null) {
-            throw new IllegalStateException("Could not get WindowManager without bounded App UI");
-        }
-
-        return ui.getWindowManager();
+    public WindowManager get() {
+        return beanLocator.get(WindowManager.class);
     }
 }

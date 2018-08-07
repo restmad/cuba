@@ -19,6 +19,9 @@ package com.haulmont.cuba.web;
 
 import com.haulmont.cuba.client.ClientUserSession;
 import com.haulmont.cuba.core.global.*;
+import com.haulmont.cuba.gui.Dialogs;
+import com.haulmont.cuba.gui.Notifications;
+import com.haulmont.cuba.gui.Screens;
 import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.components.RootWindow;
 import com.haulmont.cuba.gui.components.Window;
@@ -36,6 +39,7 @@ import com.haulmont.cuba.web.gui.icons.IconResolver;
 import com.haulmont.cuba.web.security.events.AppInitializedEvent;
 import com.haulmont.cuba.web.security.events.SessionHeartbeatEvent;
 import com.haulmont.cuba.web.sys.LinkHandler;
+import com.haulmont.cuba.gui.sys.UiServices;
 import com.haulmont.cuba.web.sys.WebJarResourceResolver;
 import com.haulmont.cuba.web.widgets.*;
 import com.vaadin.annotations.PreserveOnRefresh;
@@ -60,7 +64,7 @@ import java.util.*;
 @Push(transport = Transport.WEBSOCKET_XHR)
 @PreserveOnRefresh
 public class AppUI extends CubaUI
-        implements ErrorHandler, EnhancedUI, CubaHistoryControl.HistoryBackHandler {
+        implements ErrorHandler, EnhancedUI, CubaHistoryControl.HistoryBackHandler, UiServices {
 
     public static final String NAME = "cuba_AppUI";
 
@@ -116,7 +120,9 @@ public class AppUI extends CubaUI
 
     protected RootWindow topLevelWindow;
 
-    protected WindowManager windowManager;
+    protected Screens screens;
+    protected Dialogs dialogs;
+    protected Notifications notifications;
 
     public AppUI() {
     }
@@ -171,12 +177,35 @@ public class AppUI extends CubaUI
         return AppBeans.getPrototype(App.NAME);
     }
 
+    @Deprecated
     public WindowManager getWindowManager() {
-        return windowManager;
+        return ((WindowManager) screens);
     }
 
-    public void setWindowManager(WindowManager windowManager) {
-        this.windowManager = windowManager;
+    public Screens getScreens() {
+        return screens;
+    }
+
+    public void setScreens(Screens screens) {
+        this.screens = screens;
+    }
+
+    @Override
+    public Dialogs getDialogs() {
+        return dialogs;
+    }
+
+    public void setDialogs(Dialogs dialogs) {
+        this.dialogs = dialogs;
+    }
+
+    @Override
+    public Notifications getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(Notifications notifications) {
+        this.notifications = notifications;
     }
 
     @Override

@@ -19,7 +19,7 @@ package com.haulmont.cuba.gui.exception;
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.core.global.validation.MethodParametersValidationException;
 import com.haulmont.cuba.core.global.validation.MethodResultValidationException;
-import com.haulmont.cuba.gui.WindowManagerImpl;
+import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.components.Frame.NotificationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +45,7 @@ public class ServiceCallValidationExceptionHandler extends AbstractGenericExcept
     }
 
     @Override
-    protected void doHandle(String className, String message, @Nullable Throwable throwable, WindowManagerImpl wm) {
+    protected void doHandle(String className, String message, @Nullable Throwable throwable, WindowManager wm) {
         if (throwable == null) {
             return;
         }

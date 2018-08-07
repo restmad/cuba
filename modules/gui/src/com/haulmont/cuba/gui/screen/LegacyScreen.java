@@ -16,13 +16,10 @@
 
 package com.haulmont.cuba.gui.screen;
 
-import com.haulmont.cuba.gui.WindowManagerImpl;
-
 /**
  * Marker interface for legacy screens with datasource infrastructure.
  */
 public interface LegacyScreen {
-    WindowManagerImpl getWindowManagerImpl();
 
     // todo move legacy screen open methods here
 }

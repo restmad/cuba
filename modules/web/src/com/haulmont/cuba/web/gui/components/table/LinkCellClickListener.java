@@ -23,7 +23,6 @@ import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.core.global.View;
 import com.haulmont.cuba.gui.ComponentsHelper;
 import com.haulmont.cuba.gui.WindowManager;
-import com.haulmont.cuba.gui.WindowManagerImpl;
 import com.haulmont.cuba.gui.components.Frame;
 import com.haulmont.cuba.gui.components.Table;
 import com.haulmont.cuba.gui.components.Window;
@@ -36,7 +35,7 @@ import org.springframework.context.ApplicationContext;
 
 import java.lang.reflect.Method;
 
-import static com.haulmont.cuba.gui.WindowManager.*;
+import static com.haulmont.cuba.gui.WindowManager.OpenType;
 
 public class LinkCellClickListener implements Table.CellClickListener {
 
@@ -69,12 +68,12 @@ public class LinkCellClickListener implements Table.CellClickListener {
             entity = rowItem;
         }
 
-        WindowManagerImpl wm;
+        WindowManager wm;
         Window window = ComponentsHelper.getWindow(table);
         if (window == null) {
             throw new IllegalStateException("Please specify Frame for Table");
         } else {
-            wm = window.getWindowManagerImpl();
+            wm = window.getWindowManager();
         }
 
         Messages messages = applicationContext.getBean(Messages.NAME, Messages.class);

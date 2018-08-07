@@ -573,7 +573,7 @@ public class WebAccordion extends WebAbstractComponent<CubaAccordion> implements
                     if (appUI.isTestMode()) {
                         context.addPostInitTask((context1, window1) -> {
                             RootWindow appWindow = appUI.getTopLevelWindow();
-                            ((WebWindowManagerImpl) appWindow.getWindowManagerImpl()).initDebugIds(window1);
+                            ((WebWindowManagerImpl) appWindow.getWindowManager()).initDebugIds(window1);
                         });
                     }
                 }

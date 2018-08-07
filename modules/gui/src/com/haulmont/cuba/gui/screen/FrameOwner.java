@@ -25,12 +25,7 @@ import com.haulmont.cuba.gui.components.Window;
  */
 public interface FrameOwner {
 
-    CloseAction WINDOW_CLOSE_ACTION = new CloseAction() {
-        @Override
-        public String toString() {
-            return Window.CLOSE_ACTION_ID;
-        }
-    };
+    CloseAction WINDOW_CLOSE_ACTION = new StandardCloseAction(Window.CLOSE_ACTION_ID);
 
     ScreenOptions NO_OPTIONS = new ScreenOptions() {
         @Override

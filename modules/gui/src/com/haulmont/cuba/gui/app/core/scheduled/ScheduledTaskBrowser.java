@@ -22,7 +22,6 @@ import com.haulmont.cuba.core.entity.ScheduledTask;
 import com.haulmont.cuba.core.global.RunTaskOnceException;
 import com.haulmont.cuba.gui.ComponentsHelper;
 import com.haulmont.cuba.gui.WindowManager;
-import com.haulmont.cuba.gui.WindowManagerImpl;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.components.actions.EditAction;
 import com.haulmont.cuba.gui.components.actions.ItemTrackingAction;
@@ -33,7 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public class ScheduledTaskBrowser extends AbstractWindow {
 

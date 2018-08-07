@@ -33,7 +33,7 @@ import com.haulmont.cuba.core.entity.annotation.IgnoreUserTimeZone;
 import com.haulmont.cuba.core.entity.annotation.Lookup;
 import com.haulmont.cuba.core.entity.annotation.LookupType;
 import com.haulmont.cuba.core.global.*;
-import com.haulmont.cuba.gui.WindowManagerImpl;
+import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.WindowManagerProvider;
 import com.haulmont.cuba.gui.WindowParams;
 import com.haulmont.cuba.gui.components.*;
@@ -672,7 +672,7 @@ public class Param {
                 try {
                     v = datatype.parse((String) e.getValue(), userSessionSource1.getLocale());
                 } catch (ParseException ex) {
-                    WindowManagerImpl wm = AppBeans.get(WindowManagerProvider.class).get();
+                    WindowManager wm = AppBeans.get(WindowManagerProvider.class).get();
                     wm.showNotification(messages.getMainMessage("filter.param.numberInvalid"), Frame.NotificationType.TRAY);
                     return;
                 }

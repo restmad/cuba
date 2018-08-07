@@ -17,7 +17,7 @@
 package com.haulmont.cuba.gui.components.filter.dateinterval;
 
 import com.haulmont.cuba.core.global.AppBeans;
-import com.haulmont.cuba.gui.WindowManagerImpl;
+import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.WindowManagerProvider;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.config.WindowConfig;
@@ -75,7 +75,7 @@ public class DateInIntervalComponent {
         openEditorBtn.setAction(new AbstractAction("openEditor") {
             @Override
             public void actionPerform(Component component) {
-                WindowManagerImpl windowManager = windowManagerProvider.get();
+                WindowManager windowManager = windowManagerProvider.get();
                 WindowInfo windowInfo = windowConfig.getWindowInfo("date-interval-editor");
                 DateIntervalEditor editor = (DateIntervalEditor) windowManager.openWindow(windowInfo,
                         OpenType.DIALOG,

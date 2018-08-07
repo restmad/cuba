@@ -16,11 +16,11 @@
  */
 package com.haulmont.cuba.web.sys;
 
-import com.google.common.base.Strings;
 import com.haulmont.bali.events.EventHub;
 import com.haulmont.cuba.client.ClientConfig;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.*;
+import com.haulmont.cuba.gui.Screens;
 import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.app.core.dev.LayoutAnalyzer;
 import com.haulmont.cuba.gui.app.core.dev.LayoutTip;
@@ -30,6 +30,7 @@ import com.haulmont.cuba.gui.components.Window.BeforeCloseWithCloseButtonEvent;
 import com.haulmont.cuba.gui.components.Window.BeforeCloseWithShortcutEvent;
 import com.haulmont.cuba.gui.components.Window.HasWorkArea;
 import com.haulmont.cuba.gui.components.mainwindow.AppWorkArea;
+import com.haulmont.cuba.gui.components.mainwindow.AppWorkArea.Mode;
 import com.haulmont.cuba.gui.components.mainwindow.FoldersPane;
 import com.haulmont.cuba.gui.components.mainwindow.UserIndicator;
 import com.haulmont.cuba.gui.components.sys.WindowImplementation;
@@ -53,12 +54,10 @@ import com.haulmont.cuba.web.gui.components.WebTabWindow;
 import com.haulmont.cuba.web.gui.components.mainwindow.WebAppWorkArea;
 import com.haulmont.cuba.web.gui.components.util.ShortcutListenerDelegate;
 import com.haulmont.cuba.web.gui.icons.IconResolver;
-import com.haulmont.cuba.web.widgets.ContentSwitchMode;
-import com.haulmont.cuba.web.widgets.CubaWindow;
-import com.haulmont.cuba.web.widgets.HasTabSheetBehaviour;
-import com.haulmont.cuba.web.widgets.TabSheetBehaviour;
+import com.haulmont.cuba.web.widgets.*;
 import com.vaadin.event.Action;
 import com.vaadin.event.ShortcutAction;
+import com.vaadin.event.ShortcutListener;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
@@ -79,8 +78,8 @@ import static com.haulmont.cuba.gui.ComponentsHelper.walkComponents;
 import static com.haulmont.cuba.gui.components.Window.CLOSE_ACTION_ID;
 
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-@Component(WindowManager.NAME)
-public class WebWindowManager implements WindowManager {
+@Component(Screens.NAME)
+public class WebScreens implements Screens, WindowManager {
 
     @Inject
     protected WindowConfig windowConfig;
@@ -112,7 +111,7 @@ public class WebWindowManager implements WindowManager {
 
     protected AppUI ui;
 
-    public WebWindowManager(AppUI ui) {
+    public WebScreens(AppUI ui) {
         this.ui = ui;
     }
 
@@ -170,20 +169,26 @@ public class WebWindowManager implements WindowManager {
         if (StringUtils.isNotEmpty(templatePath)) {
             // todo support relative design path
 
-            Element element = screenXmlLoader.load(templatePath, windowInfo.getId(),
-                    Collections.emptyMap()); // todo support legacy params map
+            Map<String, Object> params = Collections.emptyMap();
+            if (options instanceof MapScreenOptions) {
+                params = ((MapScreenOptions) options).getParams();
+            }
+
+            Element element = screenXmlLoader.load(templatePath, windowInfo.getId(), params);
 
             // todo load XML markup if annotation present, or screen is legacy screen
 
-            ComponentLoaderContext componentLoaderContext =
-                    new ComponentLoaderContext(Collections.emptyMap()); // todo support legacy parameters map
+            ComponentLoaderContext componentLoaderContext = new ComponentLoaderContext(params);
             componentLoaderContext.setFullFrameId(windowInfo.getId());
             componentLoaderContext.setCurrentFrameId(windowInfo.getId());
             componentLoaderContext.setFrame(window);
 
             ComponentLoader windowLoader = createLayout(windowInfo, window, element, componentLoaderContext);
 
-            screenViewsLoader.deployViews(element); // todo will be removed from new screens
+            // deploy views only if screen is legacy
+            if (controller instanceof LegacyScreen) {
+                screenViewsLoader.deployViews(element);
+            }
 
             // todo load datasources here
 
@@ -327,14 +332,17 @@ public class WebWindowManager implements WindowManager {
         windowContainer.addComponent(currentWindowComposition);
 
         WebAppWorkArea workArea = getConfiguredWorkArea();
-        if (workArea.getMode() == AppWorkArea.Mode.TABBED) {
+        if (workArea.getMode() == Mode.TABBED) {
             TabSheetBehaviour tabSheet = workArea.getTabbedWindowContainer().getTabSheetBehaviour();
 
             String tabId = tabSheet.getTab(windowContainer);
-            String formattedCaption = formatTabCaption(currentWindow.getCaption(), currentWindow.getDescription());
-            tabSheet.setTabCaption(tabId, formattedCaption);
-            String formattedDescription = formatTabDescription(currentWindow.getCaption(), currentWindow.getDescription());
 
+            TabWindow tabWindow = (TabWindow) currentWindow;
+
+            String formattedCaption = tabWindow.formatTabCaption();
+            String formattedDescription = tabWindow.formatTabDescription();
+
+            tabSheet.setTabCaption(tabId, formattedCaption);
             if (!Objects.equals(formattedCaption, formattedDescription)) {
                 tabSheet.setTabDescription(tabId, formattedDescription);
             } else {
@@ -349,7 +357,7 @@ public class WebWindowManager implements WindowManager {
         }
     }
 
-    protected void removeRootWindow(Screen screen) {
+    protected void removeRootWindow(@SuppressWarnings("unused") Screen screen) {
         ui.setTopLevelWindow(null);
     }
 
@@ -364,7 +372,7 @@ public class WebWindowManager implements WindowManager {
         WebAppWorkArea workArea = getConfiguredWorkArea();
 
         boolean allWindowsRemoved;
-        if (workArea.getMode() == AppWorkArea.Mode.TABBED) {
+        if (workArea.getMode() == Mode.TABBED) {
             TabSheetBehaviour tabSheet = workArea.getTabbedWindowContainer().getTabSheetBehaviour();
             tabSheet.silentCloseTabAndSelectPrevious(windowContainer);
             tabSheet.removeComponent(windowContainer);
@@ -622,7 +630,7 @@ public class WebWindowManager implements WindowManager {
             throw new UnsupportedOperationException("Unsupported launch mode");
         }
 
-        ((WebWindow) window).setWindowManager(this);
+        ((WebWindow) window).setUiServices(ui);
 
         return window;
     }
@@ -680,8 +688,7 @@ public class WebWindowManager implements WindowManager {
                     @Override
                     public void stateChanged(AppWorkArea.State newState) {
                         if (newState == AppWorkArea.State.WINDOW_CONTAINER) {
-//                            todo implement
-//                            initTabShortcuts();
+                            initTabShortcuts();
 
                             // listener used only once
                             getConfiguredWorkArea().removeStateChangeListener(this);
@@ -692,12 +699,176 @@ public class WebWindowManager implements WindowManager {
         }
     }
 
+    protected void initTabShortcuts() {
+        RootWindow topLevelWindow = ui.getTopLevelWindow();
+        CubaOrderedActionsLayout actionsLayout = topLevelWindow.unwrap(CubaOrderedActionsLayout.class);
+
+        if (getConfiguredWorkArea().getMode() == Mode.TABBED) {
+            actionsLayout.addShortcutListener(createNextWindowTabShortcut(topLevelWindow));
+            actionsLayout.addShortcutListener(createPreviousWindowTabShortcut(topLevelWindow));
+        }
+        actionsLayout.addShortcutListener(createCloseShortcut(topLevelWindow));
+    }
+
+    protected ShortcutListener createCloseShortcut(RootWindow topLevelWindow) {
+        String closeShortcut = clientConfig.getCloseShortcut();
+        KeyCombination combination = KeyCombination.create(closeShortcut);
+
+        return new ShortcutListenerDelegate("onClose", combination.getKey().getCode(),
+                KeyCombination.Modifier.codes(combination.getModifiers()))
+                .withHandler((sender, target) ->
+                        closeWindowByShortcut(topLevelWindow)
+                );
+    }
+
+    protected ShortcutListener createNextWindowTabShortcut(RootWindow topLevelWindow) {
+        String nextTabShortcut = clientConfig.getNextTabShortcut();
+        KeyCombination combination = KeyCombination.create(nextTabShortcut);
+
+        return new ShortcutListenerDelegate(
+                "onNextTab", combination.getKey().getCode(),
+                KeyCombination.Modifier.codes(combination.getModifiers())
+        ).withHandler((sender, target) -> {
+            WebAppWorkArea workArea = getConfiguredWorkArea();
+            TabSheetBehaviour tabSheet = workArea.getTabbedWindowContainer().getTabSheetBehaviour();
+
+            if (tabSheet != null
+                    && !hasModalWindow()
+                    && tabSheet.getComponentCount() > 1) {
+                com.vaadin.ui.Component selectedTabComponent = tabSheet.getSelectedTab();
+                String tabId = tabSheet.getTab(selectedTabComponent);
+                int tabPosition = tabSheet.getTabPosition(tabId);
+                int newTabPosition = (tabPosition + 1) % tabSheet.getComponentCount();
+
+                String newTabId = tabSheet.getTab(newTabPosition);
+                tabSheet.setSelectedTab(newTabId);
+
+                moveFocus(tabSheet, newTabId);
+            }
+        });
+    }
+
+    protected ShortcutListener createPreviousWindowTabShortcut(RootWindow topLevelWindow) {
+        String previousTabShortcut = clientConfig.getPreviousTabShortcut();
+        KeyCombination combination = KeyCombination.create(previousTabShortcut);
+
+        return new ShortcutListenerDelegate("onPreviousTab", combination.getKey().getCode(),
+                KeyCombination.Modifier.codes(combination.getModifiers())
+        ).withHandler((sender, target) -> {
+            WebAppWorkArea workArea = getConfiguredWorkArea();
+            TabSheetBehaviour tabSheet = workArea.getTabbedWindowContainer().getTabSheetBehaviour();
+
+            if (tabSheet != null
+                    && !hasModalWindow()
+                    && tabSheet.getComponentCount() > 1) {
+                com.vaadin.ui.Component selectedTabComponent = tabSheet.getSelectedTab();
+                String selectedTabId = tabSheet.getTab(selectedTabComponent);
+                int tabPosition = tabSheet.getTabPosition(selectedTabId);
+                int newTabPosition = (tabSheet.getComponentCount() + tabPosition - 1) % tabSheet.getComponentCount();
+
+                String newTabId = tabSheet.getTab(newTabPosition);
+                tabSheet.setSelectedTab(newTabId);
+
+                moveFocus(tabSheet, newTabId);
+            }
+        });
+    }
+
+    protected void closeWindowByShortcut(RootWindow topLevelWindow) {
+        WebAppWorkArea workArea = getConfiguredWorkArea();
+        if (workArea.getState() != AppWorkArea.State.WINDOW_CONTAINER) {
+            return;
+        }
+
+        if (workArea.getMode() == Mode.TABBED) {
+            TabSheetBehaviour tabSheet = workArea.getTabbedWindowContainer().getTabSheetBehaviour();
+            if (tabSheet != null) {
+                TabWindowContainer layout = (TabWindowContainer) tabSheet.getSelectedTab();
+                if (layout != null) {
+                    tabSheet.focus();
+
+                    WindowBreadCrumbs breadCrumbs = layout.getBreadCrumbs();
+
+                    if (!canWindowBeClosed(breadCrumbs.getCurrentWindow())) {
+                        return;
+                    }
+
+                    if (isCloseWithShortcutPrevented(breadCrumbs.getCurrentWindow())) {
+                        return;
+                    }
+
+                    if (breadCrumbs.getWindows().isEmpty()) {
+                        com.vaadin.ui.Component previousTab = tabSheet.getPreviousTab(layout);
+                        if (previousTab != null) {
+                            breadCrumbs.getCurrentWindow().closeAndRun(Window.CLOSE_ACTION_ID, () ->
+                                    tabSheet.setSelectedTab(previousTab)
+                            );
+                        } else {
+                            breadCrumbs.getCurrentWindow().close(Window.CLOSE_ACTION_ID);
+                        }
+                    } else {
+                        breadCrumbs.getCurrentWindow().close(Window.CLOSE_ACTION_ID);
+                    }
+                }
+            }
+        } else {
+            Iterator<WindowBreadCrumbs> it = getTabs(workArea).iterator();
+            if (it.hasNext()) {
+                Window currentWindow = it.next().getCurrentWindow();
+                if (!isCloseWithShortcutPrevented(currentWindow)) {
+                    ui.focus();
+                    currentWindow.close(Window.CLOSE_ACTION_ID);
+                }
+            }
+        }
+    }
+
+    protected List<WindowBreadCrumbs> getTabs(WebAppWorkArea workArea) {
+        TabSheetBehaviour tabSheet = workArea.getTabbedWindowContainer().getTabSheetBehaviour();
+
+        List<WindowBreadCrumbs> allBreadCrumbs = new ArrayList<>();
+        for (int i = 0; i < tabSheet.getComponentCount(); i++) {
+            String tabId = tabSheet.getTab(i);
+
+            TabWindowContainer tabComponent = (TabWindowContainer) tabSheet.getTabComponent(tabId);
+            allBreadCrumbs.add(tabComponent.getBreadCrumbs());
+        }
+        return allBreadCrumbs;
+    }
+
+    protected void moveFocus(TabSheetBehaviour tabSheet, String tabId) {
+        TabWindowContainer windowContainer = (TabWindowContainer) tabSheet.getTabComponent(tabId);
+        Window window = windowContainer.getBreadCrumbs().getCurrentWindow();
+
+        if (window != null) {
+            boolean focused = false;
+            String focusComponentId = window.getFocusComponent();
+            if (focusComponentId != null) {
+                com.haulmont.cuba.gui.components.Component focusComponent = window.getComponent(focusComponentId);
+                if (focusComponent instanceof com.haulmont.cuba.gui.components.Component.Focusable
+                        && focusComponent.isEnabledRecursive()
+                        && focusComponent.isVisibleRecursive()) {
+                    ((com.haulmont.cuba.gui.components.Component.Focusable) focusComponent).focus();
+                    focused = true;
+                }
+            }
+
+            if (!focused && window instanceof Window.Wrapper) {
+                Window.Wrapper wrapper = (Window.Wrapper) window;
+                focused = ((WebWindow) wrapper.getWrappedWindow()).findAndFocusChildComponent();
+                if (!focused) {
+                    tabSheet.focus();
+                }
+            }
+        }
+    }
+
     protected void showNewTabWindow(Screen screen) {
         WebAppWorkArea workArea = getConfiguredWorkArea();
         workArea.switchTo(AppWorkArea.State.WINDOW_CONTAINER);
 
         // close previous windows
-        if (workArea.getMode() == AppWorkArea.Mode.SINGLE) {
+        if (workArea.getMode() == Mode.SINGLE) {
             VerticalLayout mainLayout = workArea.getSingleWindowContainer();
             if (mainLayout.getComponentCount() > 0) {
                 TabWindowContainer oldLayout = (TabWindowContainer) mainLayout.getComponent(0);
@@ -761,7 +932,7 @@ public class WebWindowManager implements WindowManager {
         WebAppWorkArea appWorkArea = getConfiguredWorkArea();
         WindowBreadCrumbs windowBreadCrumbs = new WindowBreadCrumbs(appWorkArea);
 
-        boolean showBreadCrumbs = webConfig.getShowBreadCrumbs() || appWorkArea.getMode() == AppWorkArea.Mode.SINGLE;
+        boolean showBreadCrumbs = webConfig.getShowBreadCrumbs() || appWorkArea.getMode() == Mode.SINGLE;
         windowBreadCrumbs.setVisible(showBreadCrumbs);
 
         return windowBreadCrumbs;
@@ -786,7 +957,7 @@ public class WebWindowManager implements WindowManager {
 
         WebAppWorkArea workArea = getConfiguredWorkArea();
 
-        if (workArea.getMode() == AppWorkArea.Mode.TABBED) {
+        if (workArea.getMode() == Mode.TABBED) {
             windowContainer.addStyleName("c-app-tabbed-window");
 
             TabSheetBehaviour tabSheet = workArea.getTabbedWindowContainer().getTabSheetBehaviour();
@@ -818,9 +989,11 @@ public class WebWindowManager implements WindowManager {
             ContentSwitchMode contentSwitchMode = ContentSwitchMode.valueOf(windowContentSwitchMode);
             tabSheet.setContentSwitchMode(tabId, contentSwitchMode);
 
-            String formattedCaption = formatTabCaption(window.getCaption(), window.getDescription());
+            TabWindow tabWindow = (TabWindow) window;
+            String formattedCaption = tabWindow.formatTabCaption();
+            String formattedDescription = tabWindow.formatTabDescription();
+
             tabSheet.setTabCaption(tabId, formattedCaption);
-            String formattedDescription = formatTabDescription(window.getCaption(), window.getDescription());
             if (!Objects.equals(formattedCaption, formattedDescription)) {
                 tabSheet.setTabDescription(tabId, formattedDescription);
             } else {
@@ -845,7 +1018,7 @@ public class WebWindowManager implements WindowManager {
         workArea.switchTo(AppWorkArea.State.WINDOW_CONTAINER);
 
         TabWindowContainer windowContainer;
-        if (workArea.getMode() == AppWorkArea.Mode.TABBED) {
+        if (workArea.getMode() == Mode.TABBED) {
             TabSheetBehaviour tabSheet = workArea.getTabbedWindowContainer().getTabSheetBehaviour();
             windowContainer = (TabWindowContainer) tabSheet.getSelectedTab();
         } else {
@@ -868,14 +1041,16 @@ public class WebWindowManager implements WindowManager {
 
         breadCrumbs.addWindow(newWindow);
 
-        if (workArea.getMode() == AppWorkArea.Mode.TABBED) {
+        if (workArea.getMode() == Mode.TABBED) {
             TabSheetBehaviour tabSheet = workArea.getTabbedWindowContainer().getTabSheetBehaviour();
             String tabId = tabSheet.getTab(windowContainer);
 
-            String formattedCaption = formatTabCaption(newWindow.getCaption(), newWindow.getDescription());
-            tabSheet.setTabCaption(tabId, formattedCaption);
-            String formattedDescription = formatTabDescription(newWindow.getCaption(), newWindow.getDescription());
+            TabWindow tabWindow = (TabWindow) newWindow;
 
+            String formattedCaption = tabWindow.formatTabCaption();
+            String formattedDescription = tabWindow.formatTabDescription();
+
+            tabSheet.setTabCaption(tabId, formattedCaption);
             if (!Objects.equals(formattedCaption, formattedDescription)) {
                 tabSheet.setTabDescription(tabId, formattedDescription);
             } else {
@@ -977,24 +1152,6 @@ public class WebWindowManager implements WindowManager {
         throw new IllegalStateException("RootWindow does not have any configured work area");
     }
 
-    protected String formatTabCaption(String caption, String description) {
-        String s = formatTabDescription(caption, description);
-        int maxLength = webConfig.getMainTabCaptionLength();
-        if (s.length() > maxLength) {
-            return s.substring(0, maxLength) + "...";
-        } else {
-            return s;
-        }
-    }
-
-    protected String formatTabDescription(String caption, String description) {
-        if (!StringUtils.isEmpty(description)) {
-            return String.format("%s: %s", caption, description);
-        } else {
-            return Strings.nullToEmpty(caption);
-        }
-    }
-
     protected void handleWindowBreadCrumbsNavigate(WindowBreadCrumbs breadCrumbs, Window window) {
         Runnable op = new Runnable() {
             @Override
@@ -1037,18 +1194,21 @@ public class WebWindowManager implements WindowManager {
             Window windowToClose = breadCrumbs.getCurrentWindow();
             if (windowToClose != null) {
                 if (!isCloseWithCloseButtonPrevented(windowToClose)) {
+                    // todo call controller method
                     windowToClose.closeAndRun(CLOSE_ACTION_ID, new TabCloseTask(breadCrumbs));
                 }
             }
         }
     }
 
+    // todo provide single BeforeClose event, move to screen
     protected boolean isCloseWithShortcutPrevented(Window window) {
         BeforeCloseWithShortcutEvent event = new BeforeCloseWithShortcutEvent(window);
         ((WebWindow) window).fireBeforeCloseWithShortcut(event);
         return event.isClosePrevented();
     }
 
+    // todo provide single BeforeClose event, move to screen
     protected boolean isCloseWithCloseButtonPrevented(Window window) {
         BeforeCloseWithCloseButtonEvent event = new BeforeCloseWithCloseButtonEvent(window);
         ((WebWindow) window).fireBeforeCloseWithCloseButton(event);

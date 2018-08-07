@@ -18,13 +18,16 @@
 package com.haulmont.cuba.web;
 
 import com.haulmont.cuba.core.global.*;
+import com.haulmont.cuba.gui.Dialogs;
+import com.haulmont.cuba.gui.Notifications;
+import com.haulmont.cuba.gui.Screens;
 import com.haulmont.cuba.gui.WindowManager;
-import com.haulmont.cuba.gui.WindowManager.OpenMode;
 import com.haulmont.cuba.gui.components.Frame;
 import com.haulmont.cuba.gui.components.RootWindow;
 import com.haulmont.cuba.gui.config.WindowConfig;
 import com.haulmont.cuba.gui.config.WindowInfo;
 import com.haulmont.cuba.gui.executors.IllegalConcurrentAccessException;
+import com.haulmont.cuba.gui.screen.OpenMode;
 import com.haulmont.cuba.gui.screen.Screen;
 import com.haulmont.cuba.gui.settings.SettingsClient;
 import com.haulmont.cuba.gui.theme.ThemeConstants;
@@ -288,14 +291,26 @@ public abstract class App {
      * Called on each browser tab initialization.
      */
     public void createTopLevelWindow(AppUI ui) {
-        WindowManager wm = beanLocator.getPrototype(WindowManager.NAME, ui);
-        ui.setWindowManager(wm);
+        setUiServices(ui);
 
         String topLevelWindowId = routeTopLevelWindowId();
         WindowInfo windowInfo = windowConfig.getWindowInfo(topLevelWindowId);
 
-        Screen screen = wm.create(windowInfo.getScreenClass(), OpenMode.ROOT);
-        wm.show(screen);
+        Screens screens = ui.getScreens();
+
+        Screen screen = screens.create(windowInfo.getScreenClass(), OpenMode.ROOT);
+        screens.show(screen);
+    }
+
+    protected void setUiServices(AppUI ui) {
+        Screens wm = beanLocator.getPrototype(Screens.NAME, ui);
+        ui.setScreens(wm);
+
+        Dialogs dialogs = beanLocator.getPrototype(Dialogs.NAME, ui);
+        ui.setDialogs(dialogs);
+
+        Notifications notifications = beanLocator.getPrototype(Notifications.NAME, ui);
+        ui.setNotifications(notifications);
     }
 
     protected abstract String routeTopLevelWindowId();
@@ -388,7 +403,7 @@ public abstract class App {
     /**
      * @return WindowManagerImpl instance or null if the current UI has no MainWindow
      */
-    public WebWindowManagerImpl getWindowManager() {
+    public WebScreens getWindowManager() {
         if (getAppUI() == null) {
             return null;
         }
@@ -396,7 +411,7 @@ public abstract class App {
         // todo change this, WindowManager should be bound to UI
         RootWindow topLevelWindow = getTopLevelWindow();
 
-        return topLevelWindow != null ? (WebWindowManagerImpl) topLevelWindow.getWindowManagerImpl() : null;
+        return topLevelWindow != null ? (WebScreens) topLevelWindow.getWindowManager() : null;
     }
 
     public AppLog getAppLog() {
@@ -531,7 +546,7 @@ public abstract class App {
             if (topLevelWindow != null) {
                 topLevelWindow.saveSettings();
 
-                WebWindowManager windowManager = (WebWindowManager) topLevelWindow.getWindowManager();
+                WebScreens windowManager = (WebScreens) topLevelWindow.getWindowManager();
 
                 if (!windowManager.hasUnsavedChanges()) {
                     closeAllWindows();

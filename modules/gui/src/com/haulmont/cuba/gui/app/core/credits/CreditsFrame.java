@@ -21,7 +21,6 @@ import com.haulmont.bali.util.ParamsMap;
 import com.haulmont.cuba.gui.ComponentsHelper;
 import com.haulmont.cuba.gui.DialogOptions;
 import com.haulmont.cuba.gui.WindowManager;
-import com.haulmont.cuba.gui.WindowManagerImpl;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.export.ByteArrayDataProvider;
 import com.haulmont.cuba.gui.export.ExportDisplay;

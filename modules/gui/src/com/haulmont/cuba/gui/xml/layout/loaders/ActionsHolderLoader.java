@@ -19,7 +19,6 @@ package com.haulmont.cuba.gui.xml.layout.loaders;
 
 import com.haulmont.cuba.gui.GuiDevelopmentException;
 import com.haulmont.cuba.gui.WindowManager;
-import com.haulmont.cuba.gui.WindowManagerImpl;
 import com.haulmont.cuba.gui.components.Action;
 import com.haulmont.cuba.gui.components.ActionsHolder;
 import com.haulmont.cuba.gui.components.ListComponent;

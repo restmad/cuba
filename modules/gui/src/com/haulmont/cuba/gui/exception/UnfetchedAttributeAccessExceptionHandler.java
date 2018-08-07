@@ -17,7 +17,7 @@
 
 package com.haulmont.cuba.gui.exception;
 
-import com.haulmont.cuba.gui.WindowManagerImpl;
+import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.components.Frame;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
@@ -44,7 +44,7 @@ public class UnfetchedAttributeAccessExceptionHandler extends AbstractGenericExc
     }
 
     @Override
-    protected void doHandle(String className, String message, @Nullable Throwable throwable, WindowManagerImpl windowManager) {
+    protected void doHandle(String className, String message, @Nullable Throwable throwable, WindowManager windowManager) {
         String msg = "It usually occurs when the attribute is not included into a view";
         String defaultMsg = "\n\nSee the log to find out what attribute caused the exception";
 

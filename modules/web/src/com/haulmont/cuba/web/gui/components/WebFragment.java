@@ -17,9 +17,9 @@
 package com.haulmont.cuba.web.gui.components;
 
 import com.haulmont.cuba.gui.FrameContext;
-import com.haulmont.cuba.gui.WindowManagerImpl;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.data.DsContext;
+import com.haulmont.cuba.gui.sys.UiServices;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -95,8 +95,8 @@ public class WebFragment extends WebVBoxLayout implements Fragment {
     }
 
     @Override
-    public WindowManagerImpl getWindowManagerImpl() {
-        return null;
+    public UiServices getUiServices() {
+        throw new UnsupportedOperationException("TODO"); // todo
     }
 
     @Override

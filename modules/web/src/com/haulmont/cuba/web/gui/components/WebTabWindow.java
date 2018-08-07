@@ -16,11 +16,15 @@
 
 package com.haulmont.cuba.web.gui.components;
 
+import com.google.common.base.Strings;
 import com.haulmont.cuba.core.global.BeanLocator;
+import com.haulmont.cuba.core.global.Configuration;
 import com.haulmont.cuba.gui.components.TabWindow;
+import com.haulmont.cuba.web.WebConfig;
 import com.haulmont.cuba.web.gui.WebWindow;
 import com.haulmont.cuba.web.gui.icons.IconResolver;
 import com.vaadin.ui.TabSheet;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -64,5 +68,29 @@ public class WebTabWindow extends WebWindow implements TabWindow {
             }
         }
         return null;
+    }
+
+    @Override
+    public String formatTabCaption() {
+        String s = formatTabDescription(getCaption(), getDescription());
+
+        WebConfig webConfig = beanLocator.get(Configuration.class)
+                .getConfig(WebConfig.class);
+
+        int maxLength = webConfig.getMainTabCaptionLength();
+        if (s.length() > maxLength) {
+            return s.substring(0, maxLength) + "...";
+        } else {
+            return s;
+        }
+    }
+
+    @Override
+    public String formatTabDescription() {
+        if (!StringUtils.isEmpty(getDescription())) {
+            return String.format("%s: %s", getCaption(), getDescription());
+        } else {
+            return Strings.nullToEmpty(getCaption());
+        }
     }
 }

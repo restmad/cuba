@@ -22,10 +22,11 @@ import com.haulmont.cuba.core.global.Configuration;
 import com.haulmont.cuba.core.global.DevelopmentException;
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.gui.FrameContext;
-import com.haulmont.cuba.gui.WindowManagerImpl;
+import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.data.DsContext;
 import com.haulmont.cuba.gui.icons.Icons;
 import com.haulmont.cuba.gui.screen.LegacyScreen;
+import com.haulmont.cuba.gui.sys.UiServices;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationListener;
 
@@ -51,6 +52,11 @@ public class AbstractFrame implements Frame, Frame.Wrapper, Component.Wrapper, O
     protected Messages messages;
 
     public AbstractFrame() {
+    }
+
+    @Override
+    public UiServices getUiServices() {
+        throw new UnsupportedOperationException("TODO"); // todo
     }
 
     /** INTERNAL. Don't call from application code. */
@@ -400,11 +406,6 @@ public class AbstractFrame implements Frame, Frame.Wrapper, Component.Wrapper, O
     @Override
     public boolean validateAll() {
         return frame.validateAll();
-    }
-
-    @Override
-    public WindowManagerImpl getWindowManagerImpl() {
-        return frame.getWindowManagerImpl();
     }
 
     /**

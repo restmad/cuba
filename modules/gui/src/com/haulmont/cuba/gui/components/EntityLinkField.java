@@ -19,7 +19,6 @@ package com.haulmont.cuba.gui.components;
 
 import com.haulmont.chile.core.model.MetaClass;
 import com.haulmont.cuba.gui.WindowManager;
-import com.haulmont.cuba.gui.WindowManagerImpl;
 
 import javax.annotation.Nullable;
 import java.util.Map;

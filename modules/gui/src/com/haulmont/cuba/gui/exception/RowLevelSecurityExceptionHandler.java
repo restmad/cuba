@@ -19,7 +19,7 @@ package com.haulmont.cuba.gui.exception;
 import com.haulmont.chile.core.model.MetaClass;
 import com.haulmont.cuba.core.app.ConstraintLocalizationService;
 import com.haulmont.cuba.core.global.*;
-import com.haulmont.cuba.gui.WindowManagerImpl;
+import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.components.Frame;
 import com.haulmont.cuba.security.entity.ConstraintOperationType;
 import com.haulmont.cuba.security.entity.LocalizedConstraintMessage;
@@ -47,7 +47,7 @@ public class RowLevelSecurityExceptionHandler extends AbstractGenericExceptionHa
     }
 
     @Override
-    protected void doHandle(String className, String message, @Nullable Throwable throwable, WindowManagerImpl windowManager) {
+    protected void doHandle(String className, String message, @Nullable Throwable throwable, WindowManager windowManager) {
         try {
             Messages messages = AppBeans.get(Messages.NAME);
             String userCaption = null;

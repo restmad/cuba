@@ -210,7 +210,7 @@ public class EditorWindowDelegate extends WindowDelegate {
             if (lockInfo == null) {
                 justLocked = true;
             } else if (!(lockInfo instanceof LockNotSupported)) {
-                window.getWindowManagerImpl().showNotification(
+                window.getWindowManager().showNotification(
                         messages.getMainMessage("entityLocked.msg"),
                         String.format(messages.getMainMessage("entityLocked.desc"),
                                 lockInfo.getUser().getLogin(),

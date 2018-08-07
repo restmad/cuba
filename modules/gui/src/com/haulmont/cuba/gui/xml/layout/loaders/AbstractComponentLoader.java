@@ -28,7 +28,6 @@ import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.core.sys.AppContext;
 import com.haulmont.cuba.gui.GuiDevelopmentException;
 import com.haulmont.cuba.gui.WindowManager;
-import com.haulmont.cuba.gui.WindowManagerImpl;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.components.Component.Alignment;
 import com.haulmont.cuba.gui.components.validators.*;

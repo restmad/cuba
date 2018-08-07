@@ -18,7 +18,7 @@
 package com.haulmont.cuba.gui.exception;
 
 import com.haulmont.cuba.core.global.SilentException;
-import com.haulmont.cuba.gui.WindowManagerImpl;
+import com.haulmont.cuba.gui.WindowManager;
 import org.springframework.core.Ordered;
 
 import org.springframework.stereotype.Component;
@@ -36,7 +36,7 @@ public class SilentExceptionHandler extends AbstractGenericExceptionHandler impl
     }
 
     @Override
-    protected void doHandle(String className, String message, @Nullable Throwable throwable, WindowManagerImpl windowManager) {
+    protected void doHandle(String className, String message, @Nullable Throwable throwable, WindowManager windowManager) {
         // do nothing
     }
 

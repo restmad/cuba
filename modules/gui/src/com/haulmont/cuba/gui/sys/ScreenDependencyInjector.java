@@ -73,7 +73,6 @@ public class ScreenDependencyInjector {
 
     protected Screen screen;
     protected ScreenOptions options;
-    protected WindowManager windowManager;
 
     // todo get rif of legacy here
     protected Map<String, Object> params;
@@ -81,10 +80,9 @@ public class ScreenDependencyInjector {
     protected BeanLocator beanLocator;
     protected ScreenReflectionInspector screenReflectionInspector;
 
-    public ScreenDependencyInjector(Screen screen, ScreenOptions options, WindowManager windowManager) {
+    public ScreenDependencyInjector(Screen screen, ScreenOptions options) {
         this.screen = screen;
         this.options = options;
-        this.windowManager = windowManager;
     }
 
     @Inject
@@ -322,11 +320,6 @@ public class ScreenDependencyInjector {
             // Injecting an ExportDisplay
             return AppConfig.createExportDisplay(window);
 
-        } else if (ThemeConstants.class.isAssignableFrom(type)) {
-            // Injecting a Theme
-            ThemeConstantsManager themeManager = beanLocator.get(ThemeConstantsManager.NAME);
-            return themeManager.getConstants();
-
         } else if (Config.class.isAssignableFrom(type)) {
             ClientConfiguration configuration = beanLocator.get(Configuration.NAME);
             //noinspection unchecked
@@ -336,9 +329,25 @@ public class ScreenDependencyInjector {
             // injecting logger
             return LoggerFactory.getLogger(((Field) element).getDeclaringClass());
 
-        } else if (WindowManager.class == type) {
-            // injecting window manager
-            return windowManager;
+        } else if (Screens.class == type) {
+            // injecting screens
+            UiServices uiServices = screen.getWindow().getUiServices();
+            return uiServices.getScreens();
+
+        } else if (Dialogs.class == type) {
+            // injecting screens
+            UiServices uiServices = screen.getWindow().getUiServices();
+            return uiServices.getDialogs();
+
+        } else if (Notifications.class == type) {
+            // injecting screens
+            UiServices uiServices = screen.getWindow().getUiServices();
+            return uiServices.getNotifications();
+
+        } else if (ThemeConstants.class.isAssignableFrom(type)) {
+            // Injecting a Theme
+            ThemeConstantsManager themeManager = beanLocator.get(ThemeConstantsManager.NAME);
+            return themeManager.getConstants();
 
         } else {
             Object instance;

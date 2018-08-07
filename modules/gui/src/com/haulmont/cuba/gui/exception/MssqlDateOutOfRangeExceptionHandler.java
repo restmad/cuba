@@ -19,7 +19,7 @@ package com.haulmont.cuba.gui.exception;
 
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.core.global.RemoteException;
-import com.haulmont.cuba.gui.WindowManagerImpl;
+import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.components.Frame;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
@@ -44,7 +44,7 @@ public class MssqlDateOutOfRangeExceptionHandler implements GenericExceptionHand
 
     @Override
     @SuppressWarnings("unchecked")
-    public boolean handle(Throwable exception, WindowManagerImpl windowManager) {
+    public boolean handle(Throwable exception, WindowManager windowManager) {
         List<Throwable> list = ExceptionUtils.getThrowableList(exception);
         for (Throwable throwable : list) {
             if (className.contains(throwable.getClass().getName()) && isDateOutOfRangeMessage(throwable.getMessage())) {
@@ -68,7 +68,7 @@ public class MssqlDateOutOfRangeExceptionHandler implements GenericExceptionHand
         return message != null && message.contains(MESSAGE);
     }
 
-    protected void doHandle(WindowManagerImpl windowManager) {
+    protected void doHandle(WindowManager windowManager) {
         String msg = messages.formatMessage(getClass(), "mssqlDateOutOfRangeException.message");
         windowManager.showNotification(msg, Frame.NotificationType.WARNING);
     }

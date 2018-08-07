@@ -22,7 +22,7 @@ import com.haulmont.cuba.client.ClientConfig;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.ComponentsHelper;
-import com.haulmont.cuba.gui.WindowManagerImpl;
+import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.WindowParam;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.components.filter.AddConditionHelper;
@@ -148,7 +148,7 @@ public class FilterEditor extends AbstractWindow {
     protected Set<Entity> modifiedGlobalDefaultFilters = new HashSet<>();
 
     public interface Companion {
-        void showComponentName(WindowManagerImpl windowManager, String title, String message);
+        void showComponentName(WindowManager windowManager, String title, String message);
     }
 
     @Override
@@ -464,7 +464,7 @@ public class FilterEditor extends AbstractWindow {
     public void showComponentName() {
         AbstractCondition item = conditionsDs.getItem();
         String message = (item != null && item.getParam() != null) ? item.getParam().getName() : messages.getMainMessage("filter.editor.showComponentName.conditionIsNotSelected");
-        companion.showComponentName(getWindowManagerImpl(), messages.getMainMessage("filter.editor.showComponentName.title"), message);
+        companion.showComponentName(getWindowManager(), messages.getMainMessage("filter.editor.showComponentName.title"), message);
     }
 
     public FilterEntity getFilterEntity() {

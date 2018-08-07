@@ -21,12 +21,12 @@ import com.haulmont.cuba.core.app.DataService;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.core.sys.AppContext;
-import com.haulmont.cuba.gui.screen.Screen;
 import com.haulmont.cuba.gui.WindowManager;
-import com.haulmont.cuba.gui.WindowManager.OpenMode;
 import com.haulmont.cuba.gui.WindowManager.OpenType;
 import com.haulmont.cuba.gui.WindowManagerProvider;
 import com.haulmont.cuba.gui.WindowParams;
+import com.haulmont.cuba.gui.screen.OpenMode;
+import com.haulmont.cuba.gui.screen.Screen;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.dom4j.Element;
@@ -39,7 +39,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-// todo convert to bean MenuCommandExecutor
 public class MenuCommand {
 
     protected MenuItem item;
@@ -159,13 +158,14 @@ public class MenuCommand {
             String id = windowInfo.getId();
 
             // todo demo
-            WindowManager wm = AppBeans.get(WindowManagerProvider.class).getWm();
+            WindowManager wm = AppBeans.get(WindowManagerProvider.class).get();
 
             Screen screen = wm.create(windowInfo.getScreenClass(), OpenMode.NEW_TAB);
             wm.show(screen);
 
             // todo implement
-            /*WindowManagerImpl wm = AppBeans.get(WindowManagerProvider.class).get();
+            /*
+            WindowManager wm = AppBeans.get(WindowManagerProvider.class).get();
             if (id.endsWith(Window.CREATE_WINDOW_SUFFIX)
                     || id.endsWith(Window.EDITOR_WINDOW_SUFFIX)) {
                 Entity entityItem;
@@ -187,7 +187,8 @@ public class MenuCommand {
                 wm.openEditor(windowInfo, entityItem, openType, params);
             } else {
                 wm.openWindow(windowInfo, openType, params);
-            }*/
+            }
+            */
         }
 
         @Override

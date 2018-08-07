@@ -19,7 +19,6 @@ package com.haulmont.cuba.gui.app.core.locking;
 import com.haulmont.cuba.core.app.LockService;
 import com.haulmont.cuba.core.global.LockInfo;
 import com.haulmont.cuba.gui.WindowManager;
-import com.haulmont.cuba.gui.WindowManagerImpl;
 import com.haulmont.cuba.gui.components.AbstractWindow;
 import com.haulmont.cuba.gui.components.Table;
 import com.haulmont.cuba.gui.components.actions.CreateAction;

@@ -19,7 +19,6 @@ package com.haulmont.cuba.gui.components.listeditor;
 import com.google.common.base.Joiner;
 import com.haulmont.bali.events.EventRouter;
 import com.haulmont.cuba.gui.WindowManager;
-import com.haulmont.cuba.gui.WindowManagerImpl;
 import com.haulmont.cuba.gui.WindowManagerProvider;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.components.actions.BaseAction;
@@ -80,7 +79,7 @@ public class ListEditorDelegateImpl implements ListEditorDelegate {
 
     @PostConstruct
     public void init() {
-        WindowManagerImpl windowManager = windowManagerProvider.get();
+        WindowManager windowManager = windowManagerProvider.get();
 
         layout = componentsFactory.createComponent(HBoxLayout.class);
         layout.setStyleName("c-listeditor-layout");

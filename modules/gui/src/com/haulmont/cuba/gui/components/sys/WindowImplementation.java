@@ -1,7 +1,7 @@
 package com.haulmont.cuba.gui.components.sys;
 
+import com.haulmont.cuba.gui.Screens.LaunchMode;
 import com.haulmont.cuba.gui.screen.Screen;
-import com.haulmont.cuba.gui.WindowManager.LaunchMode;
 
 /**
  * Internal. Provides API for WindowManager implementations.

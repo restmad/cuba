@@ -121,7 +121,7 @@ public class LocalizedTaskWrapper<T, V> extends BackgroundTask<T, V> {
     protected void showExecutionError(Exception ex) {
         Frame ownerFrame = wrappedTask.getOwnerFrame();
         if (ownerFrame != null) {
-            window.getWindowManagerImpl().showExceptionDialog(
+            window.getWindowManager().showExceptionDialog(
                     ex,
                     AppBeans.get(Messages.class).getMessage(LocalizedTaskWrapper.class, "backgroundWorkProgress.executionError"),
                     ex.getLocalizedMessage());

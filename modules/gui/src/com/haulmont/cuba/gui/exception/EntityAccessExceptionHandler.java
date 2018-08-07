@@ -19,7 +19,7 @@ package com.haulmont.cuba.gui.exception;
 
 import com.haulmont.cuba.core.global.EntityAccessException;
 import com.haulmont.cuba.core.global.Messages;
-import com.haulmont.cuba.gui.WindowManagerImpl;
+import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.components.Frame;
 
 import org.springframework.stereotype.Component;
@@ -41,7 +41,7 @@ public class EntityAccessExceptionHandler extends AbstractGenericExceptionHandle
     }
 
     @Override
-    protected void doHandle(String className, String message, @Nullable Throwable throwable, WindowManagerImpl windowManager) {
+    protected void doHandle(String className, String message, @Nullable Throwable throwable, WindowManager windowManager) {
         String msg = messages.formatMessage(getClass(), "entityAccessException.message");
         windowManager.showNotification(msg, Frame.NotificationType.WARNING);
     }

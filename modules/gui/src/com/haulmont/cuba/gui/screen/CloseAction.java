@@ -21,4 +21,5 @@ package com.haulmont.cuba.gui.screen;
  * JavaDoc
  */
 public interface CloseAction {
+    // todo add optional cause - event of window that triggered this event
 }

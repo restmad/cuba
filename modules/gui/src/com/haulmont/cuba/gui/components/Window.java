@@ -22,14 +22,14 @@ import com.haulmont.cuba.core.global.validation.groups.UiCrossFieldChecks;
 import com.haulmont.cuba.gui.DialogOptions;
 import com.haulmont.cuba.gui.WindowContext;
 import com.haulmont.cuba.gui.WindowManager;
-import com.haulmont.cuba.gui.WindowManager.OpenMode;
-import com.haulmont.cuba.gui.WindowManagerImpl;
 import com.haulmont.cuba.gui.components.mainwindow.AppWorkArea;
 import com.haulmont.cuba.gui.components.mainwindow.FoldersPane;
 import com.haulmont.cuba.gui.components.mainwindow.UserIndicator;
 import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.screen.MainScreen;
+import com.haulmont.cuba.gui.screen.OpenMode;
 import com.haulmont.cuba.gui.settings.Settings;
+import com.haulmont.cuba.gui.sys.UiServices;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -149,6 +149,7 @@ public interface Window extends Frame, Component.HasCaption, Component.HasIcon {
      *
      * todo return Promise object instead of boolean
      */
+    @Deprecated
     boolean close(String actionId);
 
     /**
@@ -164,6 +165,7 @@ public interface Window extends Frame, Component.HasCaption, Component.HasIcon {
      *
      * todo deprecate this, use WindowManager.remove() instead
      */
+    @Deprecated
     boolean close(String actionId, boolean force);
 
     /**
@@ -171,6 +173,7 @@ public interface Window extends Frame, Component.HasCaption, Component.HasIcon {
      *
      * todo deprecate and use "Promise close()" method instead.
      */
+    @Deprecated
     void closeAndRun(String actionId, Runnable runnable);
 
     /**
@@ -209,21 +212,18 @@ public interface Window extends Frame, Component.HasCaption, Component.HasIcon {
     boolean validateAll();
 
     /**
-     * @return window manager instance
-     */
-    WindowManager getWindowManager();
-
-    /**
-     * todo remove
+     * JavaDoc
      *
-     * @return window manager instance
+     * @return todo
      */
-    WindowManagerImpl getWindowManagerImpl();
+    UiServices getUiServices();
 
     /**
-     * INTERNAL. Don't call from application code.
+     * @return window manager instance
      */
-    void setWindowManager(WindowManagerImpl windowManager);
+    default WindowManager getWindowManager() {
+        return (WindowManager) getUiServices().getScreens();
+    }
 
     /**
      * @return dialog options of window. Options will be applied only if window opened with {@link OpenMode#DIALOG}.
@@ -473,8 +473,6 @@ public interface Window extends Frame, Component.HasCaption, Component.HasIcon {
     /**
      * Marker interface implemented by top-level windows of the application: login window and main window. Only one
      * top-level window exists at a time, depending on the connection state.
-     *
-     * todo create separate interface for UI component
      *
      * @deprecated Is not required for screen controllers anymore
      */

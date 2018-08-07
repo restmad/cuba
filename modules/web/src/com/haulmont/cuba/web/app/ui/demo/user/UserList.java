@@ -17,14 +17,10 @@
 package com.haulmont.cuba.web.app.ui.demo.user;
 
 import com.haulmont.cuba.gui.WindowManager;
-import com.haulmont.cuba.gui.WindowManager.OpenMode;
 import com.haulmont.cuba.gui.components.Button;
 import com.haulmont.cuba.gui.components.Label;
 import com.haulmont.cuba.gui.components.actions.BaseAction;
-import com.haulmont.cuba.gui.screen.InitEvent;
-import com.haulmont.cuba.gui.screen.Screen;
-import com.haulmont.cuba.gui.screen.Subscribe;
-import com.haulmont.cuba.gui.screen.UiController;
+import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.gui.xml.layout.ComponentsFactory;
 
 import javax.inject.Inject;

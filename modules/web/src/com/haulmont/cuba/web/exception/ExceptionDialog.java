@@ -20,6 +20,7 @@ import com.haulmont.cuba.client.ClientConfig;
 import com.haulmont.cuba.core.app.ExceptionReportService;
 import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.GuiDevelopmentException;
+import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.components.Action.Status;
 import com.haulmont.cuba.gui.components.DialogAction.Type;
@@ -29,7 +30,6 @@ import com.haulmont.cuba.security.entity.User;
 import com.haulmont.cuba.web.App;
 import com.haulmont.cuba.web.AppUI;
 import com.haulmont.cuba.web.Connection;
-import com.haulmont.cuba.web.sys.WebWindowManagerImpl;
 import com.haulmont.cuba.web.controllers.ControllerUtils;
 import com.haulmont.cuba.web.widgets.CubaButton;
 import com.haulmont.cuba.web.widgets.CubaCopyButtonExtension;
@@ -371,7 +371,8 @@ public class ExceptionDialog extends CubaWindow {
 
     protected void logoutPrompt() {
         App app = AppUI.getCurrent().getApp();
-        final WebWindowManagerImpl wm = app.getWindowManager();
+
+        WindowManager wm = app.getWindowManager();
         wm.showOptionDialog(
                 messages.getMainMessage("exceptionDialog.logoutCaption"),
                 messages.getMainMessage("exceptionDialog.logoutMessage"),
@@ -395,9 +396,9 @@ public class ExceptionDialog extends CubaWindow {
 
     protected void forceLogout() {
         App app = ((AppUI) getUI()).getApp();
-        WebWindowManagerImpl wm = app.getWindowManager();
+        WindowManager wm = app.getWindowManager();
         try {
-            Connection connection = wm.getApp().getConnection();
+            Connection connection = app.getConnection();
             if (connection.isConnected()) {
                 connection.logout();
             }

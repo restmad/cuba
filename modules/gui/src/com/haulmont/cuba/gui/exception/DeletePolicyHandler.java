@@ -20,7 +20,7 @@ import com.haulmont.chile.core.model.MetaClass;
 import com.haulmont.cuba.core.global.DeletePolicyException;
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.core.global.Metadata;
-import com.haulmont.cuba.gui.WindowManagerImpl;
+import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.components.Frame;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.Ordered;
@@ -46,7 +46,7 @@ public class DeletePolicyHandler implements GenericExceptionHandler, Ordered {
     protected Metadata metadata;
 
     @Override
-    public boolean handle(Throwable exception, WindowManagerImpl windowManager) {
+    public boolean handle(Throwable exception, WindowManager windowManager) {
         Throwable t = exception;
         try {
             while (t != null) {
@@ -71,7 +71,7 @@ public class DeletePolicyHandler implements GenericExceptionHandler, Ordered {
                 DeletePolicyException.class.getName() + ": " + DeletePolicyException.ERR_MESSAGE.replace("%s", "(\\w+\\$\\w+)"));
     }
 
-    protected void doHandle(String message, WindowManagerImpl windowManager) {
+    protected void doHandle(String message, WindowManager windowManager) {
         String caption = null;
         String notificationMessage = null;
 

@@ -27,13 +27,12 @@ import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.components.Frame;
 import com.haulmont.cuba.gui.components.Window;
 import com.haulmont.cuba.gui.config.WindowConfig;
+import com.haulmont.cuba.gui.screen.OpenMode;
 import com.haulmont.cuba.security.entity.EntityOp;
 import com.haulmont.cuba.security.entity.ScreenHistoryEntity;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
-
-import static com.haulmont.cuba.gui.WindowManager.OpenMode;
 
 /**
  * Class that encapsulates screen opening history functionality. It is used by WindowManagerImpl and should not be invoked

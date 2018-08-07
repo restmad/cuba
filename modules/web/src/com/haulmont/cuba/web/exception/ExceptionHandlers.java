@@ -18,6 +18,7 @@ package com.haulmont.cuba.web.exception;
 
 import com.haulmont.bali.util.ReflectionHelper;
 import com.haulmont.cuba.core.global.AppBeans;
+import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.exception.GenericExceptionHandler;
 import com.haulmont.cuba.web.App;
 import com.haulmont.cuba.web.sys.WebWindowManagerImpl;
@@ -98,7 +99,7 @@ public class ExceptionHandlers {
                 return;
         }
 
-        WebWindowManagerImpl wm = app.getWindowManager();
+        WindowManager wm = app.getWindowManager();
         if (wm != null) {
             for (GenericExceptionHandler handler : genericHandlers) {
                 if (handler.handle(event.getThrowable(), wm))
