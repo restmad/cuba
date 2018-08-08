@@ -19,6 +19,8 @@ package com.haulmont.cuba.gui.components.actions;
 
 import com.haulmont.bali.util.ParamsMap;
 import com.haulmont.cuba.core.global.AppBeans;
+import com.haulmont.cuba.core.global.Messages;
+import com.haulmont.cuba.core.global.UserSessionSource;
 import com.haulmont.cuba.gui.WindowManager.OpenType;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.icons.CubaIcon;
@@ -27,6 +29,7 @@ import com.haulmont.cuba.gui.screen.OpenMode;
 import com.haulmont.cuba.gui.theme.ThemeConstants;
 import com.haulmont.cuba.gui.theme.ThemeConstantsManager;
 import com.haulmont.cuba.security.entity.ConstraintOperationType;
+import com.haulmont.cuba.security.global.UserSession;
 import org.springframework.context.annotation.Scope;
 
 import java.util.Collections;
@@ -68,9 +71,12 @@ public class BulkEditAction extends ItemTrackingAction implements Action.HasBefo
         super(target, "bulkEdit");
 
         this.icon = AppBeans.get(Icons.class).get(CubaIcon.BULK_EDIT_ACTION);
+
+        Messages messages = AppBeans.get(Messages.NAME);
         this.caption = messages.getMessage(getClass(), "actions.BulkEdit");
         this.constraintOperationType = ConstraintOperationType.UPDATE;
 
+        UserSession userSession = AppBeans.get(UserSessionSource.class).getUserSession();
         boolean permitted = userSession.isSpecificPermitted(BulkEditor.PERMISSION);
 
         setVisible(permitted);
@@ -140,12 +146,15 @@ public class BulkEditAction extends ItemTrackingAction implements Action.HasBefo
                 return;
         }
 
+        UserSession userSession = AppBeans.get(UserSessionSource.class).getUserSession();
         if (!userSession.isSpecificPermitted(BulkEditor.PERMISSION)) {
+            Messages messages = AppBeans.get(Messages.NAME);
             target.getFrame().showNotification(messages.getMainMessage("accessDenied.message"), Frame.NotificationType.ERROR);
             return;
         }
 
         if (target.getSelected().isEmpty()) {
+            Messages messages = AppBeans.get(Messages.NAME);
             target.getFrame().showNotification(messages.getMainMessage("actions.BulkEdit.emptySelection"),
                     Frame.NotificationType.HUMANIZED);
             return;

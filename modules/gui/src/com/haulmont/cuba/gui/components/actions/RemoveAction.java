@@ -23,6 +23,7 @@ import com.haulmont.cuba.client.ClientConfig;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.AppBeans;
 import com.haulmont.cuba.core.global.Configuration;
+import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.gui.components.Action;
 import com.haulmont.cuba.gui.components.Component;
 import com.haulmont.cuba.gui.components.DialogAction;
@@ -132,6 +133,8 @@ public class RemoveAction extends ItemTrackingAction implements Action.HasBefore
 
         this.target = target;
         this.autocommit = autocommit;
+
+        Messages messages = AppBeans.get(Messages.NAME);
         this.caption = messages.getMainMessage("actions.Remove");
 
         this.icon = AppBeans.get(Icons.class).get(CubaIcon.REMOVE_ACTION);
@@ -292,8 +295,10 @@ public class RemoveAction extends ItemTrackingAction implements Action.HasBefore
     public String getConfirmationMessage() {
         if (confirmationMessage != null)
             return confirmationMessage;
-        else
+        else {
+            Messages messages = AppBeans.get(Messages.NAME);
             return messages.getMainMessage("dialogs.Confirmation.Remove");
+        }
     }
 
     /**
@@ -310,8 +315,10 @@ public class RemoveAction extends ItemTrackingAction implements Action.HasBefore
     public String getConfirmationTitle() {
         if (confirmationTitle != null)
             return confirmationTitle;
-        else
+        else {
+            Messages messages = AppBeans.get(Messages.NAME);
             return messages.getMainMessage("dialogs.Confirmation");
+        }
     }
 
     /**

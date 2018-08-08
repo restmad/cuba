@@ -16,9 +16,13 @@
  */
 package com.haulmont.cuba.gui.components;
 
+// todo remove
+@Deprecated
 public interface WrappedWindow {
 
+    @Deprecated
     Window wrapBy(Class<?> wrapperClass);
 
+    @Deprecated
     Window getWrapper();
 }

@@ -72,7 +72,7 @@ public class WebTabWindow extends WebWindow implements TabWindow {
 
     @Override
     public String formatTabCaption() {
-        String s = formatTabDescription(getCaption(), getDescription());
+        String s = formatTabDescription();
 
         WebConfig webConfig = beanLocator.get(Configuration.class)
                 .getConfig(WebConfig.class);

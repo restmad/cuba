@@ -23,6 +23,8 @@ import com.haulmont.cuba.client.ClientConfig;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.AppBeans;
 import com.haulmont.cuba.core.global.Configuration;
+import com.haulmont.cuba.core.global.Messages;
+import com.haulmont.cuba.core.global.UserSessionSource;
 import com.haulmont.cuba.gui.WindowManager.OpenType;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.config.WindowConfig;
@@ -32,6 +34,7 @@ import com.haulmont.cuba.gui.data.PropertyDatasource;
 import com.haulmont.cuba.gui.icons.CubaIcon;
 import com.haulmont.cuba.gui.icons.Icons;
 import com.haulmont.cuba.security.entity.EntityOp;
+import com.haulmont.cuba.security.global.UserSession;
 import org.springframework.context.annotation.Scope;
 
 import java.util.*;
@@ -169,6 +172,7 @@ public class EditAction extends ItemTrackingAction implements Action.HasOpenType
             return;
 
         if (!captionInitialized) {
+            Messages messages = AppBeans.get(Messages.NAME);
             if (security.isEntityOpPermitted(target.getDatasource().getMetaClass(), EntityOp.UPDATE)) {
                 setCaption(messages.getMainMessage("actions.Edit"));
             } else {
@@ -222,6 +226,7 @@ public class EditAction extends ItemTrackingAction implements Action.HasOpenType
 
             internalOpenEditor(datasource, datasource.getItem(), parentDs, params);
         } else if (selected.size() > 1 && bulkEditorIntegration.isEnabled()) {
+            UserSession userSession = AppBeans.get(UserSessionSource.class).getUserSession();
             boolean isBulkEditorPermitted = userSession.isSpecificPermitted(BulkEditor.PERMISSION);
             if (isBulkEditorPermitted) {
                 // if bulk editor integration enabled and permitted for user

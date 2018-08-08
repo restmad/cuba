@@ -29,13 +29,15 @@ public final class FailedOperationResult implements OperationResult {
     }
 
     @Override
-    public void then(Runnable runnable) {
+    public OperationResult then(Runnable runnable) {
         // do nothing
+        return this;
     }
 
     @Override
-    public void otherwise(Runnable runnable) {
+    public OperationResult otherwise(Runnable runnable) {
         runnable.run();
+        return this;
     }
 
     @Override

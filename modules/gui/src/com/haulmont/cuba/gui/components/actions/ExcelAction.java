@@ -18,6 +18,7 @@ package com.haulmont.cuba.gui.components.actions;
 
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.AppBeans;
+import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.gui.AppConfig;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.components.DialogAction.Type;
@@ -56,6 +57,8 @@ public class ExcelAction extends BaseAction implements Action.HasBeforeActionPer
     protected String fileName = null;
 
     protected BeforeActionPerformedHandler beforeActionPerformedHandler;
+
+    protected Messages messages = AppBeans.get(Messages.NAME);
 
     /**
      * If true and table is aggregatable will export aggregation row to excel document.

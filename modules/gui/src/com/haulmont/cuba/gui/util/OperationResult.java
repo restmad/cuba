@@ -22,8 +22,8 @@ package com.haulmont.cuba.gui.util;
 public interface OperationResult {
     Status getStatus();
 
-    void then(Runnable runnable);
-    void otherwise(Runnable runnable);
+    OperationResult then(Runnable runnable);
+    OperationResult otherwise(Runnable runnable);
 
     enum Status {
         UNKNOWN,

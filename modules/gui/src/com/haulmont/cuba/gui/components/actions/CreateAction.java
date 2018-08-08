@@ -148,6 +148,8 @@ public class CreateAction extends BaseAction implements Action.HasOpenType, Acti
 
         this.target = target;
         this.openType = openType;
+
+        Messages messages = AppBeans.get(Messages.NAME);
         this.caption = messages.getMainMessage("actions.Create");
 
         this.icon = AppBeans.get(Icons.class).get(CubaIcon.CREATE_ACTION);

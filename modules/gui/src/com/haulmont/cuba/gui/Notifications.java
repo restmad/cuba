@@ -26,12 +26,20 @@ public interface Notifications {
 
     String NAME = "cuba_Notifications";
 
+    Notification createNotification();
+
     interface Notification {
         // todo
-        void setNotificationType(NotificationType notificationType);
-        NotificationType getNotificationType();
+        Notification setCaption(String caption);
+        String getCaption();
 
-        void setContentMode(ContentMode contentMode);
+        Notification setDescription(String description);
+        String getDescription();
+
+        Notification setType(NotificationType notificationType);
+        NotificationType getType();
+
+        Notification setContentMode(ContentMode contentMode);
         ContentMode getContentMode();
     }
 

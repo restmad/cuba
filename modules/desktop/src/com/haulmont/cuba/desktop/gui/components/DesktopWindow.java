@@ -78,7 +78,7 @@ import java.util.List;
 import static com.haulmont.bali.util.Preconditions.checkNotNullArgument;
 
 public class DesktopWindow implements Window, Component.Disposable,
-        Component.Wrapper, Component.HasXmlDescriptor, Component.SecuredActionsHolder, WrappedWindow, DesktopContainer {
+        Component.Wrapper, Component.HasXmlDescriptor, SecuredActionsHolder, WrappedWindow, DesktopContainer {
 
     protected static final Logger log = LoggerFactory.getLogger(DesktopWindow.class);
     protected Logger userActionsLog = LoggerFactory.getLogger(UserActionsLogger.class);
@@ -777,128 +777,8 @@ public class DesktopWindow implements Window, Component.Disposable,
     }
 
     @Override
-    public Window openWindow(String windowAlias, WindowManager.OpenType openType, Map<String, Object> params) {
-        return delegate.openWindow(windowAlias, openType, params);
-    }
-
-    @Override
-    public Window openWindow(String windowAlias, WindowManager.OpenType openType) {
-        return delegate.openWindow(windowAlias, openType);
-    }
-
-    @Override
-    public Window.Editor openEditor(Entity item, WindowManager.OpenType openType) {
-        return delegate.openEditor(item, openType);
-    }
-
-    @Override
-    public Window.Editor openEditor(Entity item, WindowManager.OpenType openType, Map<String, Object> params) {
-        return delegate.openEditor(item, openType, params);
-    }
-
-    @Override
-    public Window.Editor openEditor(Entity item, WindowManager.OpenType openType, Map<String, Object> params, Datasource parentDs) {
-        return delegate.openEditor(item, openType, params, parentDs);
-    }
-
-    @Override
-    public Window.Editor openEditor(String windowAlias, Entity item, WindowManager.OpenType openType, Map<String, Object> params, Datasource parentDs) {
-        return delegate.openEditor(windowAlias, item, openType, params, parentDs);
-    }
-
-    @Override
-    public Window.Editor openEditor(String windowAlias, Entity item, WindowManager.OpenType openType, Map<String, Object> params) {
-        return delegate.openEditor(windowAlias, item, openType, params);
-    }
-
-    @Override
-    public Window.Editor openEditor(String windowAlias, Entity item, WindowManager.OpenType openType, Datasource parentDs) {
-        return delegate.openEditor(windowAlias, item, openType, parentDs);
-    }
-
-    @Override
-    public Window.Editor openEditor(String windowAlias, Entity item, WindowManager.OpenType openType) {
-        return delegate.openEditor(windowAlias, item, openType);
-    }
-
-    @Override
-    public Window.Lookup openLookup(Class<? extends Entity> entityClass, Window.Lookup.Handler handler, WindowManager.OpenType openType) {
-        return delegate.openLookup(entityClass, handler, openType);
-    }
-
-    @Override
-    public Window.Lookup openLookup(Class<? extends Entity> entityClass, Window.Lookup.Handler handler, WindowManager.OpenType openType, Map<String, Object> params) {
-        return delegate.openLookup(entityClass, handler, openType, params);
-    }
-
-    @Override
-    public Window.Lookup openLookup(String windowAlias, Window.Lookup.Handler handler, WindowManager.OpenType openType, Map<String, Object> params) {
-        return delegate.openLookup(windowAlias, handler, openType, params);
-    }
-
-    @Override
-    public Window.Lookup openLookup(String windowAlias, Window.Lookup.Handler handler, WindowManager.OpenType openType) {
-        return delegate.openLookup(windowAlias, handler, openType);
-    }
-
-    @Override
-    public Frame openFrame(Component parent, String windowAlias) {
-        return delegate.openFrame(parent, windowAlias);
-    }
-
-    @Override
-    public Frame openFrame(Component parent, String windowAlias, Map<String, Object> params) {
-        return delegate.openFrame(parent, windowAlias, params);
-    }
-
-    @Override
-    public DesktopWindowManager getWindowManagerImpl() {
-        return windowManager;
-    }
-
-    @Override
-    public void setWindowManager(WindowManagerImpl windowManager) {
-        this.windowManager = (DesktopWindowManager) windowManager;
-    }
-
-    @Override
     public DialogOptions getDialogOptions() {
         return dialogOptions;
-    }
-
-    @Override
-    public void showMessageDialog(String title, String message, MessageType messageType) {
-        getWindowManagerImpl().showMessageDialog(title, message, messageType);
-    }
-
-    @Override
-    public void showOptionDialog(String title, String message, MessageType messageType, Action[] actions) {
-        getWindowManagerImpl().showOptionDialog(title, message, messageType, actions);
-    }
-
-    @Override
-    public void showOptionDialog(String title, String message, MessageType messageType, java.util.List<Action> actions) {
-        getWindowManagerImpl().showOptionDialog(title, message, messageType, actions.toArray(new Action[actions.size()]));
-    }
-
-    @Override
-    public void showNotification(String caption) {
-        getWindowManagerImpl().showNotification(caption);
-    }
-
-    @Override
-    public void showNotification(String caption, NotificationType type) {
-        getWindowManagerImpl().showNotification(caption, type);
-    }
-
-    @Override
-    public void showNotification(String caption, String description, NotificationType type) {
-        getWindowManagerImpl().showNotification(caption, description, type);
-    }
-
-    @Override
-    public void showWebPage(String url, @Nullable Map<String, Object> params) {
-        getWindowManagerImpl().showWebPage(url, params);
     }
 
     @Override
@@ -1177,15 +1057,6 @@ public class DesktopWindow implements Window, Component.Disposable,
     @Override
     public void setId(String id) {
         this.id = id;
-    }
-
-    @Override
-    public String getDebugId() {
-        return null;
-    }
-
-    @Override
-    public void setDebugId(String id) {
     }
 
     @Override

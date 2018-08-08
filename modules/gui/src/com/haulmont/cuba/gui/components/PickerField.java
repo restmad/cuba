@@ -618,6 +618,7 @@ public interface PickerField<V extends Entity> extends Field<V>, ActionsHolder, 
             Map<String, Object> screenParams = prepareScreenParams();
 
             if (entity instanceof SoftDelete && ((SoftDelete) entity).isDeleted()) {
+                Messages messages = AppBeans.get(Messages.NAME);
                 wm.showNotification(
                         messages.getMainMessage("OpenAction.objectIsDeleted"),
                         Frame.NotificationType.HUMANIZED);

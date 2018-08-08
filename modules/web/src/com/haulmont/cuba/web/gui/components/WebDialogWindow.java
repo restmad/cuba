@@ -95,12 +95,9 @@ public class WebDialogWindow extends WebWindow implements DialogWindow {
 
     @Override
     public void setCloseable(boolean closeable) {
-        dialogWindow.setClosable(closeable);
-    }
+        super.setCloseable(closeable);
 
-    @Override
-    public boolean isCloseable() {
-        return dialogWindow.isClosable();
+        dialogWindow.setClosable(closeable);
     }
 
     @Override

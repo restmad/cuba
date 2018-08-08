@@ -17,6 +17,8 @@
 package com.haulmont.cuba.gui.components;
 
 import com.haulmont.cuba.core.global.AppBeans;
+import com.haulmont.cuba.core.global.Messages;
+import com.haulmont.cuba.gui.Dialogs;
 import com.haulmont.cuba.gui.components.actions.BaseAction;
 import com.haulmont.cuba.gui.icons.CubaIcon;
 import com.haulmont.cuba.gui.icons.Icons;
@@ -36,7 +38,7 @@ import com.haulmont.cuba.gui.icons.Icons;
  *                     }),
  *                     new DialogAction(Type.NO)
  *                             .withCaption("Print selected")
- *                             .withIcon("icons/print-seletcted.png")
+ *                             .withIcon("icons/print-selected.png")
  *                             .withHandler(event -> {
  *                         // add action logic here
  *                     }),
@@ -44,7 +46,7 @@ import com.haulmont.cuba.gui.icons.Icons;
  *             });
  * }</pre>
  *
- * @see Window#showOptionDialog(String, String, Frame.MessageType, Action[])
+ * @see Dialogs
  */
 public class DialogAction extends BaseAction {
 
@@ -83,8 +85,11 @@ public class DialogAction extends BaseAction {
     public DialogAction(Type type) {
         super(type.id);
         this.type = type;
-        this.caption = messages.getMainMessage(type.msgKey);
 
+        // todo move to Dialogs mechanism
+        Messages messages = AppBeans.get(Messages.NAME);
+        this.caption = messages.getMainMessage(type.msgKey);
+        // todo move to Dialogs mechanism
         this.icon = AppBeans.get(Icons.class)
                 .get(type.iconKey);
     }

@@ -12,16 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package com.haulmont.cuba.gui.screen;
+package com.haulmont.cuba.gui.components;
 
-/**
- * JavaDoc
- */
-public interface CloseAction {
-    // todo add optional cause - event of window that triggered this event
+public interface SingleModeWindow extends Window {
+    /**
+     * Name that is used to register a client type specific screen implementation in
+     * {@link com.haulmont.cuba.gui.xml.layout.ComponentsFactory}
+     */
+    String NAME = "singleModeWindow";
 
-    boolean isCheckForUnsavedChanges();
+
 }

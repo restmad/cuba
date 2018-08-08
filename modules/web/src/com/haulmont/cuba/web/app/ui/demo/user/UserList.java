@@ -16,7 +16,7 @@
 
 package com.haulmont.cuba.web.app.ui.demo.user;
 
-import com.haulmont.cuba.gui.WindowManager;
+import com.haulmont.cuba.gui.Screens;
 import com.haulmont.cuba.gui.components.Button;
 import com.haulmont.cuba.gui.components.Label;
 import com.haulmont.cuba.gui.components.actions.BaseAction;
@@ -30,7 +30,7 @@ public class UserList extends Screen {
     @Inject
     protected ComponentsFactory componentsFactory;
     @Inject
-    protected WindowManager windowManager;
+    protected Screens screens;
 
     @Subscribe
     protected void init(InitEvent event) {
@@ -43,8 +43,8 @@ public class UserList extends Screen {
         button.setAction(new BaseAction("onClick")
                 .withCaption("Demo")
                 .withHandler(e -> {
-                    UserList newScreen = windowManager.create(UserList.class, OpenMode.THIS_TAB);
-                    windowManager.show(newScreen);
+                    UserList newScreen = screens.create(UserList.class, OpenMode.THIS_TAB);
+                    screens.show(newScreen);
                 })
         );
 

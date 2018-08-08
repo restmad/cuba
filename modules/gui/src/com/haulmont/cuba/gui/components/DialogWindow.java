@@ -34,9 +34,6 @@ public interface DialogWindow extends Window {
     void setDraggable(boolean draggable);
     boolean isDraggable();
 
-    void setCloseable(boolean closeable);
-    boolean isCloseable();
-
     void setModal(boolean modal);
     boolean isModal();
 

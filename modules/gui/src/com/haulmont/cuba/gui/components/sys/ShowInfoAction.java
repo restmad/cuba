@@ -18,7 +18,8 @@ package com.haulmont.cuba.gui.components.sys;
 import com.haulmont.bali.util.ParamsMap;
 import com.haulmont.chile.core.model.MetaClass;
 import com.haulmont.cuba.core.entity.Entity;
-import com.haulmont.cuba.gui.AppConfig;
+import com.haulmont.cuba.core.global.AppBeans;
+import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.gui.WindowManager.OpenType;
 import com.haulmont.cuba.gui.components.Component;
 import com.haulmont.cuba.gui.components.Frame;
@@ -32,11 +33,9 @@ public class ShowInfoAction extends BaseAction {
 
     public ShowInfoAction() {
         super(ACTION_ID);
-    }
 
-    @Override
-    public String getCaption() {
-        return messages.getMessage(AppConfig.getMessagesPack(), "table.showInfoAction");
+        Messages messages = AppBeans.get(Messages.NAME);
+        setCaption(messages.getMainMessage("table.showInfoAction"));
     }
 
     @Override

@@ -66,6 +66,9 @@ public interface Window extends Frame, Component.HasCaption, Component.HasIcon {
 
     String CREATE_WINDOW_SUFFIX = ".create";
 
+    void setCloseable(boolean closeable);
+    boolean isCloseable();
+
     /**
      * @return current window context
      */

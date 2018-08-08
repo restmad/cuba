@@ -61,6 +61,7 @@ import java.util.concurrent.Callable;
  *
  * todo remove completely
  */
+@Deprecated
 public abstract class WindowManagerImpl {
     private org.slf4j.Logger userActionsLog = LoggerFactory.getLogger(UserActionsLogger.class);
 
@@ -809,7 +810,7 @@ public abstract class WindowManagerImpl {
      * <p>
      * Default screen can be defined with the {@code cuba.web.defaultScreenId} application property.
      *
-     * todo move to WindowManagerTools
+     * todo move to ScreenTools
      */
     public abstract void openDefaultScreen();
 

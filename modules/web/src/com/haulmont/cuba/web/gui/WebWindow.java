@@ -47,7 +47,6 @@ import com.haulmont.cuba.web.WebConfig;
 import com.haulmont.cuba.web.gui.components.WebComponentsHelper;
 import com.haulmont.cuba.web.gui.components.WebFrameActionsHolder;
 import com.haulmont.cuba.web.gui.components.WebWrapperUtils;
-import com.haulmont.cuba.web.sys.WebWindowManagerImpl;
 import com.haulmont.cuba.web.widgets.CubaSingleModeContainer;
 import com.haulmont.cuba.web.widgets.CubaVerticalActionsLayout;
 import com.vaadin.server.ClientConnector;
@@ -74,7 +73,6 @@ import static com.haulmont.cuba.gui.Screens.LaunchMode;
 public class WebWindow implements Window, Component.Wrapper,
                                   Component.HasXmlDescriptor, WrappedWindow, Component.Disposable,
                                   SecuredActionsHolder, Component.HasIcon,
-                                  Window.TopLevelWindow, // todo remove
                                   WindowImplementation {
 
     private static final Logger log = LoggerFactory.getLogger(WebWindow.class);
@@ -107,14 +105,7 @@ public class WebWindow implements Window, Component.Wrapper,
     protected String caption;
     protected String description;
 
-    protected boolean forceClose = false;
-    protected boolean closing = false;
-
-    protected Runnable doAfterClose;
-
     protected UiServices uiServices;
-
-    protected WebWindowManagerImpl windowManagerImpl; // todo remove
 
     protected WindowDelegate delegate;
 
@@ -132,6 +123,8 @@ public class WebWindow implements Window, Component.Wrapper,
 
     protected ContentSwitchMode contentSwitchMode = ContentSwitchMode.DEFAULT;
     protected WindowManager.LaunchMode launchMode;
+
+    protected boolean closeable = true;
 
     public WebWindow() {
         component = createLayout();
@@ -455,6 +448,16 @@ public class WebWindow implements Window, Component.Wrapper,
     @Override
     public DialogOptions getDialogOptions() {
         return dialogOptions;
+    }
+
+    @Override
+    public void setCloseable(boolean closeable) {
+        this.closeable = closeable;
+    }
+
+    @Override
+    public boolean isCloseable() {
+        return closeable;
     }
 
     @Override
@@ -989,103 +992,19 @@ public class WebWindow implements Window, Component.Wrapper,
 
     @Override
     public void closeAndRun(String actionId, Runnable runnable) {
-        this.doAfterClose = runnable;
-        close(actionId);
+        getController().close(new StandardCloseAction(actionId))
+            .then(runnable);
     }
 
     @Override
     public boolean close(String actionId, boolean force) {
-        forceClose = force;
-        return close(actionId);
+        OperationResult result = getController().close(new StandardCloseAction(actionId, force));
+        return result.getStatus() == OperationResult.Status.SUCCESS;
     }
 
     @Override
     public boolean close(String actionId) {
-        /*
-        if (!forceClose) {
-            if (!delegate.preClose(actionId))
-                return false;
-        }
-
-        if (closing) {
-            return true;
-        }
-
-        // todo move all this to screen !
-
-        ClientConfig clientConfig = configuration.getConfig(ClientConfig.class);
-
-        if (!forceClose && isModified()) {
-            final Committable committable = (getWrapper() instanceof Committable) ? (Committable) getWrapper() :
-                        (this instanceof Committable) ? (Committable) this : null;
-            if ((committable != null) && clientConfig.getUseSaveConfirmation()) {
-                windowManager.showOptionDialog(
-                        messages.getMainMessage("closeUnsaved.caption"),
-                        messages.getMainMessage("saveUnsaved"),
-                        MessageType.WARNING,
-                        new Action[]{
-                                new DialogAction(Type.OK, Status.PRIMARY)
-                                    .withCaption(messages.getMainMessage("closeUnsaved.save"))
-                                    .withHandler(event ->
-
-                                        committable.commitAndClose()
-                                ),
-                                new BaseAction("discard")
-                                    .withIcon(icons.get(CubaIcon.DIALOG_CANCEL))
-                                    .withCaption(messages.getMainMessage("closeUnsaved.discard"))
-                                    .withHandler(event ->
-
-                                        committable.close(actionId, true)
-                                ),
-                                new DialogAction(Type.CANCEL)
-                                    .withIcon(null)
-                                    .withHandler(event -> {
-
-                                    doAfterClose = null;
-                                    // try to move focus back
-                                    findAndFocusChildComponent();
-                                })
-                        }
-                );
-            } else {
-                windowManager.showOptionDialog(
-                        messages.getMainMessage("closeUnsaved.caption"),
-                        messages.getMainMessage("closeUnsaved"),
-                        MessageType.WARNING,
-                        new Action[]{
-                                new DialogAction(Type.YES)
-                                        .withHandler(event ->
-                                        getWrapper().close(actionId, true)
-                                ),
-                                new DialogAction(Type.NO, Status.PRIMARY)
-                                        .withHandler(event -> {
-                                    doAfterClose = null;
-                                    // try to move focus back
-                                    findAndFocusChildComponent();
-                                })
-                        }
-                );
-            }
-            closing = false;
-            return false;
-        }
-
-        delegate.disposeComponents();
-
-        windowManager.close(this);
-        boolean res = onClose(actionId);
-        if (res && doAfterClose != null) {
-            doAfterClose.run();
-        }
-        closing = res;
-        */
-
-        // return res;
-
-        // todo move to controller
-
         OperationResult result = getController().close(new StandardCloseAction(actionId));
-
         return result.getStatus() == OperationResult.Status.SUCCESS;
     }
 
@@ -1152,22 +1071,18 @@ public class WebWindow implements Window, Component.Wrapper,
         this.caption = caption;
 
         if (component.isAttached()) {
-            com.vaadin.ui.Window dialogWindow = asDialogWindow();
-            if (dialogWindow != null) {
-                dialogWindow.setCaption(caption);
+            TabSheet.Tab tabWindow = asTabWindow();
+            if (tabWindow != null) {
+                setTabCaptionAndDescription(tabWindow);
+                // todo
+                // windowManagerImpl.getBreadCrumbs((com.vaadin.ui.ComponentContainer) tabWindow.getComponent()).update();
             } else {
-                TabSheet.Tab tabWindow = asTabWindow();
-                if (tabWindow != null) {
-                    setTabCaptionAndDescription(tabWindow);
-                    windowManagerImpl.getBreadCrumbs((com.vaadin.ui.ComponentContainer) tabWindow.getComponent()).update();
-                } else {
-                    Layout singleModeWindow = asSingleWindow();
-                    if (singleModeWindow != null) {
-                        windowManagerImpl.getBreadCrumbs(singleModeWindow).update();
-                    }
+                Layout singleModeWindow = asSingleWindow();
+                if (singleModeWindow != null) {
+                    // todo
+                    // windowManagerImpl.getBreadCrumbs(singleModeWindow).update();
                 }
             }
-
         }
     }
 
@@ -1181,50 +1096,19 @@ public class WebWindow implements Window, Component.Wrapper,
         this.description = description;
 
         if (component.isAttached()) {
-            com.vaadin.ui.Window dialogWindow = asDialogWindow();
-            if (dialogWindow != null) {
-                dialogWindow.setDescription(description);
-            } else {
-                TabSheet.Tab tabWindow = asTabWindow();
-                if (tabWindow != null) {
-                    setTabCaptionAndDescription(tabWindow);
-                    windowManagerImpl.getBreadCrumbs((com.vaadin.ui.ComponentContainer) tabWindow.getComponent()).update();
-                }
+            TabSheet.Tab tabWindow = asTabWindow();
+            if (tabWindow != null) {
+                setTabCaptionAndDescription(tabWindow);
+
+                // todo
+                // windowManagerImpl.getBreadCrumbs((com.vaadin.ui.ComponentContainer) tabWindow.getComponent()).update();
             }
         }
     }
 
+    // todo move to WebTabWindow
     protected void setTabCaptionAndDescription(TabSheet.Tab tabWindow) {
-        String formattedCaption = formatTabCaption(caption, description);
-        String formattedDescription = formatTabDescription(caption, description);
-
-        tabWindow.setCaption(formattedCaption);
-        if (!Objects.equals(formattedCaption, formattedDescription)) {
-            tabWindow.setDescription(formatTabDescription(caption, description));
-        } else {
-            tabWindow.setDescription(null);
-        }
-    }
-
-    protected String formatTabCaption(final String caption, final String description) {
-        Configuration configuration = AppBeans.get(Configuration.NAME);
-        WebConfig webConfig = configuration.getConfig(WebConfig.class);
-        String tabCaption = formatTabDescription(caption, description);
-
-        int maxLength = webConfig.getMainTabCaptionLength();
-        if (tabCaption.length() > maxLength) {
-            return tabCaption.substring(0, maxLength) + "...";
-        } else {
-            return tabCaption;
-        }
-    }
-
-    protected String formatTabDescription(final String caption, final String description) {
-        if (StringUtils.isNotEmpty(description)) {
-            return String.format("%s: %s", caption, description);
-        } else {
-            return caption;
-        }
+        //
     }
 
     @Override

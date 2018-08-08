@@ -95,6 +95,7 @@ import static com.vaadin.server.Sizeable.Unit;
 
 @org.springframework.stereotype.Component(WebWindowManagerImpl.NAME)
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
+@Deprecated
 public class WebWindowManagerImpl extends WindowManagerImpl {
 
     public static final String NAME = "cuba_WebWindowManager";
@@ -278,13 +279,13 @@ public class WebWindowManagerImpl extends WindowManagerImpl {
     }
 
     @Override
-    protected void showWindow(final Window window, final String caption, OpenType type, boolean multipleOpen) {
+    protected void showWindow(Window window, String caption, OpenType type, boolean multipleOpen) {
         showWindow(window, caption, null, type, multipleOpen);
     }
 
     @Override
-    protected void showWindow(final Window window, final String caption, final String description, OpenType type,
-                              final boolean multipleOpen) {
+    protected void showWindow(Window window, String caption, String description, OpenType type,
+                              boolean multipleOpen) {
         OpenType targetOpenType = type.copy();
 
         overrideOpenTypeParams(targetOpenType, window.getDialogOptions());
@@ -449,7 +450,7 @@ public class WebWindowManagerImpl extends WindowManagerImpl {
         }
     }
 
-    protected Component showWindowNewTab(final Window window, final boolean multipleOpen) {
+    protected Component showWindowNewTab(Window window, boolean multipleOpen) {
         WindowBreadCrumbs breadCrumbs = createWindowBreadCrumbs(window);
         breadCrumbs.setWindowNavigateHandler(
                 new WindowBreadCrumbs.WindowNavigateHandler() {
@@ -479,7 +480,7 @@ public class WebWindowManagerImpl extends WindowManagerImpl {
         return layout;
     }
 
-    protected Layout createNewTabLayout(final Window window, final boolean multipleOpen, WindowBreadCrumbs breadCrumbs,
+    protected Layout createNewTabLayout(Window window, boolean multipleOpen, WindowBreadCrumbs breadCrumbs,
                                         Component... additionalComponents) {
         Layout layout = new CssLayout();
         layout.setPrimaryStyleName("c-app-window-wrap");
@@ -587,7 +588,7 @@ public class WebWindowManagerImpl extends WindowManagerImpl {
         }
     }
 
-    protected String formatTabCaption(final String caption, final String description) {
+    protected String formatTabCaption(String caption, String description) {
         String s = formatTabDescription(caption, description);
         int maxLength = webConfig.getMainTabCaptionLength();
         if (s.length() > maxLength) {
@@ -597,7 +598,7 @@ public class WebWindowManagerImpl extends WindowManagerImpl {
         }
     }
 
-    protected String formatTabDescription(final String caption, final String description) {
+    protected String formatTabDescription(String caption, String description) {
         if (!StringUtils.isEmpty(description)) {
             return String.format("%s: %s", caption, description);
         } else {
@@ -605,7 +606,7 @@ public class WebWindowManagerImpl extends WindowManagerImpl {
         }
     }
 
-    protected Component showWindowThisTab(final Window window, final String caption, final String description) {
+    protected Component showWindowThisTab(Window window, String caption, String description) {
         WebAppWorkArea workArea = getConfiguredWorkArea(createWorkAreaContext(window));
 
         Layout layout;
@@ -825,7 +826,8 @@ public class WebWindowManagerImpl extends WindowManagerImpl {
 
     protected WindowBreadCrumbs createWindowBreadCrumbs(Window window) {
         WebAppWorkArea appWorkArea = getConfiguredWorkArea(createWorkAreaContext(window));
-        WindowBreadCrumbs windowBreadCrumbs = new WindowBreadCrumbs(appWorkArea);
+        WindowBreadCrumbs windowBreadCrumbs = new WindowBreadCrumbs(appWorkArea.getMode());
+        windowBreadCrumbs.afterPropertiesSet();
 
         boolean showBreadCrumbs = webConfig.getShowBreadCrumbs() || Mode.SINGLE == appWorkArea.getMode();
         windowBreadCrumbs.setVisible(showBreadCrumbs);
@@ -861,17 +863,6 @@ public class WebWindowManagerImpl extends WindowManagerImpl {
         closeWindow(window, openInfo);
         windowOpenMode.remove(window);
         removeFromWindowMap(openInfo.getWindow());
-    }
-
-    /**
-     * Check modifications and close all screens in all main windows.
-     *
-     * todo rework with OperationResult
-     *
-     * @param runIfOk a closure to run after all screens are closed
-     */
-    public void checkModificationsAndCloseAll(Runnable runIfOk) {
-        checkModificationsAndCloseAll(runIfOk, null);
     }
 
     /**

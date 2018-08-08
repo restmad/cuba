@@ -31,21 +31,23 @@ public class UnknownOperationResult implements OperationResult {
     }
 
     @Override
-    public void then(Runnable runnable) {
+    public OperationResult then(Runnable runnable) {
         if (status == Status.SUCCESS) {
             runnable.run();
         } else {
             thenListeners.add(runnable);
         }
+        return this;
     }
 
     @Override
-    public void otherwise(Runnable runnable) {
+    public OperationResult otherwise(Runnable runnable) {
         if (status == Status.FAIL) {
             runnable.run();
         } else {
             thenListeners.add(runnable);
         }
+        return this;
     }
 
     public void fail() {

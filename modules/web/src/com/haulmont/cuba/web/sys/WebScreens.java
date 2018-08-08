@@ -40,6 +40,7 @@ import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.gui.sys.ScreenDependencyInjector;
 import com.haulmont.cuba.gui.sys.ScreenViewsLoader;
+import com.haulmont.cuba.gui.util.OperationResult;
 import com.haulmont.cuba.gui.xml.layout.ComponentLoader;
 import com.haulmont.cuba.gui.xml.layout.ComponentsFactory;
 import com.haulmont.cuba.gui.xml.layout.LayoutLoader;
@@ -542,24 +543,34 @@ public class WebScreens implements Screens, WindowManager {
     /**
      * Check modifications and close all screens in all main windows.
      *
-     * todo rework with OperationResult
-     *
      * @param runIfOk a closure to run after all screens are closed
      */
+    @Deprecated
     public void checkModificationsAndCloseAll(Runnable runIfOk) {
-        checkModificationsAndCloseAll(runIfOk, null);
+        checkModificationsAndCloseAll()
+                .then(runIfOk);
     }
 
     /**
      * Check modifications and close all screens in all main windows.
      *
-     * todo rework with OperationResult
-     *
      * @param runIfOk     a closure to run after all screens are closed
      * @param runIfCancel a closure to run if there were modifications and a user canceled the operation
      */
-    public void checkModificationsAndCloseAll(Runnable runIfOk, @Nullable Runnable runIfCancel) {
-        throw new UnsupportedOperationException();
+    @Deprecated
+    public void checkModificationsAndCloseAll(Runnable runIfOk, Runnable runIfCancel) {
+        checkModificationsAndCloseAll()
+                .then(runIfOk)
+                .otherwise(runIfCancel);
+    }
+
+    /**
+     * todo
+     *
+     * @return
+     */
+    public OperationResult checkModificationsAndCloseAll() {
+        throw new UnsupportedOperationException("TODO");
     }
 
     public void closeAllTabbedWindows() {
@@ -574,14 +585,14 @@ public class WebScreens implements Screens, WindowManager {
      * Close all screens in all main windows (browser tabs).
      */
     public void closeAllWindows() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(); // todo
     }
 
     /**
      * Close all screens in the main window (browser tab) this WindowManagerImpl belongs to.
      */
     public void closeAll() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException(); // todo
     }
 
     protected <T extends Screen> T createController(WindowInfo windowInfo, Window window,
@@ -930,7 +941,10 @@ public class WebScreens implements Screens, WindowManager {
 
     protected WindowBreadCrumbs createWindowBreadCrumbs(@SuppressWarnings("unused") Screen screen) {
         WebAppWorkArea appWorkArea = getConfiguredWorkArea();
-        WindowBreadCrumbs windowBreadCrumbs = new WindowBreadCrumbs(appWorkArea);
+
+        WindowBreadCrumbs windowBreadCrumbs = new WindowBreadCrumbs(appWorkArea.getMode());
+        windowBreadCrumbs.setBeanLocator(beanLocator);
+        windowBreadCrumbs.afterPropertiesSet();
 
         boolean showBreadCrumbs = webConfig.getShowBreadCrumbs() || appWorkArea.getMode() == Mode.SINGLE;
         windowBreadCrumbs.setVisible(showBreadCrumbs);
@@ -1157,9 +1171,13 @@ public class WebScreens implements Screens, WindowManager {
             @Override
             public void run() {
                 Window currentWindow = breadCrumbs.getCurrentWindow();
+                if (!currentWindow.isCloseable()) {
+                    return;
+                }
 
-                if (currentWindow != null && window != currentWindow) {
+                if (window != currentWindow) {
                     if (!isCloseWithCloseButtonPrevented(currentWindow)) {
+                        // todo call controller instead
                         currentWindow.closeAndRun(CLOSE_ACTION_ID, this);
                     }
                 }
@@ -1216,6 +1234,10 @@ public class WebScreens implements Screens, WindowManager {
     }
 
     protected boolean canWindowBeClosed(Window window) {
+        if (!window.isCloseable()) {
+            return false;
+        }
+
         if (webConfig.getDefaultScreenCanBeClosed()) {
             return true;
         }
@@ -1311,8 +1333,10 @@ public class WebScreens implements Screens, WindowManager {
         public void handleAction(com.vaadin.event.Action action, Object sender, Object target) {
             if (initialized) {
                 if (saveSettingsAction == action) {
+                    // todo call controller here
                     window.saveSettings();
                 } else if (restoreToDefaultsAction == action) {
+                    // todo call controller here
                     window.deleteSettings();
                 } else if (analyzeAction == action) {
                     LayoutAnalyzer analyzer = new LayoutAnalyzer();

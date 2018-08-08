@@ -17,7 +17,9 @@
 
 package com.haulmont.cuba.gui;
 
+import com.haulmont.cuba.gui.components.Action;
 import com.haulmont.cuba.gui.components.ContentMode;
+import com.haulmont.cuba.gui.components.SizeUnit;
 
 /**
  * JavaDoc
@@ -26,24 +28,65 @@ public interface Dialogs {
 
     String NAME = "cuba_Dialogs";
 
+    OptionDialog createOptionDialog();
+
+    MessageDialog createMessageDialog();
+
+    ExceptionDialog createExceptionDialog();
+
     interface OptionDialog {
-        // todo
+        OptionDialog setCaption(String caption);
+        String getCaption();
 
-        void setMessageType(MessageType messageType);
-        MessageType getMessageType();
+        OptionDialog setMessage(String message);
+        String getMessage();
 
-        void setContentMode(ContentMode contentMode);
+        OptionDialog setType(MessageType messageType);
+        MessageType getType();
+
+        OptionDialog setContentMode(ContentMode contentMode);
         ContentMode getContentMode();
+
+        OptionDialog setActions(Action... actions);
+        Action[] getActions();
+
+        OptionDialog setWidth(String width);
+        float getWidth();
+        SizeUnit getWidthSizeUnit();
+
+        OptionDialog setHeight(String height);
+        float getHeight();
+        SizeUnit getHeightSizeUnit();
+
+        void show();
     }
 
     interface MessageDialog {
-        // todo
+        MessageDialog setCaption(String caption);
+        String getCaption();
 
-        void setMessageType(MessageType messageType);
-        MessageType getMessageType();
+        MessageDialog setMessage(String message);
+        String getMessage();
 
-        void setContentMode(ContentMode contentMode);
+        MessageDialog setType(MessageType messageType);
+        MessageType getType();
+
+        MessageDialog setContentMode(ContentMode contentMode);
         ContentMode getContentMode();
+
+        MessageDialog setWidth(String width);
+        float getWidth();
+        SizeUnit getWidthSizeUnit();
+
+        MessageDialog setHeight(String height);
+        float getHeight();
+        SizeUnit getHeightSizeUnit();
+
+        void show();
+    }
+
+    interface ExceptionDialog {
+
     }
 
     enum MessageType {

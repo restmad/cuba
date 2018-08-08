@@ -14,34 +14,32 @@
  * limitations under the License.
  */
 
-package com.haulmont.cuba.gui.util;
+package com.haulmont.cuba.gui.screen;
 
-public final class SuccessOperationResult implements OperationResult {
+import java.util.EventObject;
 
-    public static final OperationResult INSTANCE = new SuccessOperationResult();
+/**
+ * JavaDoc
+ */
+public class AfterCloseEvent extends EventObject {
 
-    private SuccessOperationResult() {
+    protected final CloseAction closeAction;
+
+    public AfterCloseEvent(Screen source, CloseAction closeAction) {
+        super(source);
+        this.closeAction = closeAction;
     }
 
     @Override
-    public Status getStatus() {
-        return Status.SUCCESS;
+    public Screen getSource() {
+        return (Screen) super.getSource();
     }
 
-    @Override
-    public OperationResult then(Runnable runnable) {
-        runnable.run();
-        return this;
+    public Screen getScreen() {
+        return (Screen) super.getSource();
     }
 
-    @Override
-    public OperationResult otherwise(Runnable runnable) {
-        // do nothing
-        return this;
-    }
-
-    @Override
-    public String toString() {
-        return "{OPERATION SUCCESSFUL}";
+    public CloseAction getCloseAction() {
+        return closeAction;
     }
 }

@@ -20,9 +20,16 @@ package com.haulmont.cuba.gui.screen;
 public class StandardCloseAction implements CloseAction {
 
     private final String actionId;
+    private final boolean checkForUnsavedChanges;
 
     public StandardCloseAction(String actionId) {
         this.actionId = actionId;
+        this.checkForUnsavedChanges = true;
+    }
+
+    public StandardCloseAction(String actionId, boolean checkForUnsavedChanges) {
+        this.actionId = actionId;
+        this.checkForUnsavedChanges = checkForUnsavedChanges;
     }
 
     public String getActionId() {
@@ -34,5 +41,10 @@ public class StandardCloseAction implements CloseAction {
         return "CloseAction{" +
                 "actionId='" + actionId + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean isCheckForUnsavedChanges() {
+        return checkForUnsavedChanges;
     }
 }

@@ -158,6 +158,8 @@ public class AddAction extends BaseAction implements Action.HasOpenType, Action.
         this.target = target;
         this.handler = handler;
         this.openType = openType;
+
+        Messages messages = AppBeans.get(Messages.NAME);
         this.caption = messages.getMainMessage("actions.Add");
 
         this.icon = AppBeans.get(Icons.class).get(CubaIcon.ADD_ACTION);

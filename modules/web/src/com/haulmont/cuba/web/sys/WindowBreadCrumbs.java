@@ -16,17 +16,20 @@
  */
 package com.haulmont.cuba.web.sys;
 
-import com.haulmont.cuba.core.global.AppBeans;
+import com.haulmont.cuba.core.global.BeanLocator;
 import com.haulmont.cuba.core.global.Configuration;
-import com.haulmont.cuba.gui.ComponentsHelper;
 import com.haulmont.cuba.gui.components.Window;
-import com.haulmont.cuba.gui.components.mainwindow.AppWorkArea;
+import com.haulmont.cuba.gui.components.mainwindow.AppWorkArea.Mode;
+import com.haulmont.cuba.gui.icons.CubaIcon;
+import com.haulmont.cuba.gui.icons.Icons;
 import com.haulmont.cuba.gui.sys.TestIdManager;
 import com.haulmont.cuba.web.AppUI;
 import com.haulmont.cuba.web.WebConfig;
 import com.haulmont.cuba.web.gui.WebWindow;
 import com.haulmont.cuba.web.gui.icons.IconResolver;
 import com.haulmont.cuba.web.widgets.CubaButton;
+import com.vaadin.server.Resource;
+import com.vaadin.shared.MouseEventDetails;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CssLayout;
@@ -42,15 +45,12 @@ public class WindowBreadCrumbs extends CssLayout {
     protected static final String BREADCRUMBS_VISIBLE_WRAP_STYLE = "c-breadcrumbs-visible";
     protected static final String C_HEADLINE_CONTAINER = "c-headline-container";
 
+    protected BeanLocator beanLocator;
+
     protected boolean visibleExplicitly = true;
     protected Label label;
 
-    @FunctionalInterface
-    public interface WindowNavigateHandler {
-        void windowNavigate(WindowBreadCrumbs breadCrumbs, Window window);
-    }
-
-    protected boolean tabbedMode;
+    protected Mode workAreaMode;
 
     protected Deque<Window> windows = new ArrayDeque<>(2);
 
@@ -62,47 +62,35 @@ public class WindowBreadCrumbs extends CssLayout {
 
     protected WindowNavigateHandler windowNavigateHandler = null;
 
-    public WindowBreadCrumbs(AppWorkArea workArea) {
+    public WindowBreadCrumbs(Mode workAreaMode) {
+        this.workAreaMode = workAreaMode;
+    }
+
+    public void setBeanLocator(BeanLocator beanLocator) {
+        this.beanLocator = beanLocator;
+    }
+
+    public void afterPropertiesSet() {
         setWidth(100, Unit.PERCENTAGE);
         setHeightUndefined();
         setPrimaryStyleName(C_HEADLINE_CONTAINER);
 
-        tabbedMode = workArea.getMode() == AppWorkArea.Mode.TABBED;
-
-        if (tabbedMode) {
+        if (workAreaMode == Mode.TABBED) {
             super.setVisible(false);
         }
-
-        addAttachListener(event ->
-                adjustParentStyles()
-        );
 
         logoLayout = createLogoLayout();
 
         linksLayout = createLinksLayout();
         linksLayout.setSizeUndefined();
 
-        if (!tabbedMode) {
-            closeBtn = new CubaButton("", event -> {
-                Window window = getCurrentWindow();
-                if (!isCloseWithCloseButtonPrevented(window)) {
-                    window.close(Window.CLOSE_ACTION_ID);
-                }
-            });
-            closeBtn.setIcon(AppBeans.get(IconResolver.class).getIconResource("icons/close.png"));
+        if (workAreaMode != Mode.TABBED) {
+            CubaButton closeBtn = new CubaButton("");
+            closeBtn.setClickHandler(this::onCloseWindowButtonClick);
+            closeBtn.setIcon(resolveIcon(CubaIcon.CLOSE));
             closeBtn.setStyleName("c-closetab-button");
-        }
 
-        AppUI ui = AppUI.getCurrent();
-        if (ui.isTestMode()) {
-            TestIdManager testIdManager = ui.getTestIdManager();
-            linksLayout.setId(testIdManager.getTestId("breadCrumbs"));
-            linksLayout.setCubaId("breadCrumbs");
-
-            if (closeBtn != null) {
-                closeBtn.setId(testIdManager.getTestId("closeBtn"));
-                closeBtn.setCubaId("closeBtn");
-            }
+            this.closeBtn = closeBtn;
         }
 
         Layout enclosingLayout = createEnclosingLayout();
@@ -111,7 +99,7 @@ public class WindowBreadCrumbs extends CssLayout {
         addComponent(logoLayout);
         addComponent(enclosingLayout);
 
-        boolean controlsVisible = AppBeans.get(Configuration.class)
+        boolean controlsVisible = beanLocator.get(Configuration.class)
                 .getConfig(WebConfig.class)
                 .getShowBreadCrumbs();
 
@@ -120,10 +108,28 @@ public class WindowBreadCrumbs extends CssLayout {
         if (closeBtn != null) {
             addComponent(closeBtn);
         }
+
+        addAttachListener(this::componentAttachedToUI);
+    }
+
+    protected Resource resolveIcon(CubaIcon icon) {
+        String iconName = beanLocator.get(Icons.class).get(icon);
+        return beanLocator.get(IconResolver.class).getIconResource(iconName);
+    }
+
+    protected void onCloseWindowButtonClick(@SuppressWarnings("unused") MouseEventDetails meDetails) {
+        Window window = getCurrentWindow();
+        if (!window.isCloseable()) {
+            return;
+        }
+
+        if (!isCloseWithCloseButtonPrevented(window)) {
+            window.close(Window.CLOSE_ACTION_ID);
+        }
     }
 
     protected boolean isCloseWithCloseButtonPrevented(Window currentWindow) {
-        WebWindow webWindow = (WebWindow) ComponentsHelper.getWindowImplementation(currentWindow);
+        WebWindow webWindow = (WebWindow) currentWindow;
 
         if (webWindow != null) {
             Window.BeforeCloseWithCloseButtonEvent event = new Window.BeforeCloseWithCloseButtonEvent(webWindow);
@@ -163,7 +169,7 @@ public class WindowBreadCrumbs extends CssLayout {
         windows.add(window);
         update();
 
-        if (windows.size() > 1 && tabbedMode) {
+        if (windows.size() > 1 && workAreaMode == Mode.TABBED) {
             super.setVisible(visibleExplicitly);
         }
 
@@ -178,7 +184,7 @@ public class WindowBreadCrumbs extends CssLayout {
             update();
         }
 
-        if (windows.size() <= 1 && tabbedMode) {
+        if (windows.size() <= 1 && workAreaMode == Mode.TABBED) {
             super.setVisible(false);
         }
 
@@ -224,7 +230,8 @@ public class WindowBreadCrumbs extends CssLayout {
         btn2win.clear();
         for (Iterator<Window> it = windows.iterator(); it.hasNext();) {
             Window window = it.next();
-            Button button = new CubaButton(StringUtils.trimToEmpty(window.getCaption()), new BtnClickListener());
+
+            Button button = new CubaButton(StringUtils.trimToEmpty(window.getCaption()), this::navigationButtonClicked);
             button.setSizeUndefined();
             button.setStyleName(ValoTheme.BUTTON_LINK);
             button.setTabIndex(-1);
@@ -259,16 +266,35 @@ public class WindowBreadCrumbs extends CssLayout {
         return label;
     }
 
-    public class BtnClickListener implements Button.ClickListener {
-        @Override
-        public void buttonClick(Button.ClickEvent event) {
-            Window win = btn2win.get(event.getButton());
-            if (win != null)
-                fireListeners(win);
+    protected void componentAttachedToUI(@SuppressWarnings("unused") AttachEvent event) {
+        adjustParentStyles();
+
+        AppUI ui = (AppUI) getUI();
+        if (ui.isTestMode()) {
+            TestIdManager testIdManager = ui.getTestIdManager();
+            linksLayout.setId(testIdManager.getTestId("breadCrumbs"));
+            linksLayout.setCubaId("breadCrumbs");
+
+            if (closeBtn != null) {
+                closeBtn.setId(testIdManager.getTestId("closeBtn"));
+                closeBtn.setCubaId("closeBtn");
+            }
         }
     }
 
     public Deque<Window> getWindows() {
         return windows;
+    }
+
+    protected void navigationButtonClicked(Button.ClickEvent event) {
+        Window win = btn2win.get(event.getButton());
+        if (win != null) {
+            fireListeners(win);
+        }
+    }
+
+    @FunctionalInterface
+    public interface WindowNavigateHandler {
+        void windowNavigate(WindowBreadCrumbs breadCrumbs, Window window);
     }
 }

@@ -282,7 +282,7 @@ public interface Component {
     }
 
     /**
-     * todo
+     * JavaDoc
      */
     interface HasDescription {
         String getDescription();
