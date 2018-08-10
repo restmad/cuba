@@ -67,6 +67,9 @@ public class ScreensHelper {
     @Inject
     protected LayoutLoaderConfig layoutLoaderConfig;
 
+    @Inject
+    protected BeanLocator beanLocator;
+
     protected Map<String, String> captionCache = new ConcurrentHashMap<>();
     protected Map<String, Map<String, Object>> availableScreensCache = new ConcurrentHashMap<>();
     protected Map<String, List<ScreenComponentDescriptor>> screenComponentsCache = new ConcurrentHashMap<>();
@@ -369,7 +372,8 @@ public class ScreensHelper {
         if (StringUtils.isNotEmpty(text)) {
             try {
                 Document document = Dom4j.readDocument(text);
-                XmlInheritanceProcessor processor = new XmlInheritanceProcessor(document, Collections.emptyMap());
+                XmlInheritanceProcessor processor = beanLocator.getPrototype(XmlInheritanceProcessor.NAME,
+                        document, Collections.emptyMap());
                 Element root = processor.getResultRoot();
                 if (root.getName().equals(Window.NAME))
                     return root;

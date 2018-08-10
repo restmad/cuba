@@ -31,7 +31,6 @@ import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.components.actions.*;
 import com.haulmont.cuba.gui.components.mainwindow.AppWorkArea;
 import com.haulmont.cuba.gui.components.sys.ValuePathHelper;
-import com.haulmont.cuba.gui.components.sys.WindowImplementation;
 import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.screen.Screen;
 import org.apache.commons.lang3.ArrayUtils;
@@ -115,7 +114,7 @@ public abstract class ComponentsHelper {
             Component innerComponent = frame.getRegisteredComponent(elements[0]);
             if (innerComponent instanceof FieldGroup) {
                 final List<String> subList = Arrays.asList(elements).subList(1, elements.length);
-                String subPath = ValuePathHelper.format(subList.toArray(new String[subList.size()]));
+                String subPath = ValuePathHelper.format(subList.toArray(new String[0]));
 
                 FieldGroup fieldGroup = (FieldGroup) innerComponent;
                 FieldGroup.FieldConfig field = fieldGroup.getField(subPath);
@@ -123,11 +122,11 @@ public abstract class ComponentsHelper {
                 return field != null ? field.getComponent() : null;
             } else if (innerComponent instanceof ComponentContainer) {
                 final List<String> subList = Arrays.asList(elements).subList(1, elements.length);
-                String subPath = ValuePathHelper.format(subList.toArray(new String[subList.size()]));
+                String subPath = ValuePathHelper.format(subList.toArray(new String[0]));
                 return ((ComponentContainer) innerComponent).getComponent(subPath);
             } else if (innerComponent instanceof HasNamedComponents) {
                 final List<String> subList = Arrays.asList(elements).subList(1, elements.length);
-                String subPath = ValuePathHelper.format(subList.toArray(new String[subList.size()]));
+                String subPath = ValuePathHelper.format(subList.toArray(new String[0]));
                 return ((HasNamedComponents) innerComponent).getComponent(subPath);
             }
 
@@ -358,8 +357,8 @@ public abstract class ComponentsHelper {
 
     // todo support legacy Frame
     public static Screen getUIController(Frame frame) {
-        if (frame instanceof WindowImplementation) {
-            return ((WindowImplementation) frame).getController();
+        if (frame instanceof Window) {
+            return ((Window) frame).getFrameOwner();
         }
         return null;
     }

@@ -17,6 +17,7 @@
 
 package com.haulmont.cuba.gui;
 
+import com.haulmont.cuba.gui.config.WindowInfo;
 import com.haulmont.cuba.gui.screen.FrameOwner;
 import com.haulmont.cuba.gui.screen.Screen;
 import com.haulmont.cuba.gui.screen.ScreenOptions;
@@ -36,6 +37,11 @@ public interface Screens {
      * JavaDoc
      */
     <T extends Screen> T create(Class<T> screenClass, LaunchMode launchMode, ScreenOptions options);
+
+    /**
+     * JavaDoc
+     */
+    <T extends Screen> T create(WindowInfo windowInfo, LaunchMode launchMode, ScreenOptions options);
 
     /**
      * JavaDoc

@@ -64,7 +64,6 @@ import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Element;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -77,6 +76,7 @@ import java.util.*;
 import static com.haulmont.bali.util.Preconditions.checkNotNullArgument;
 import static com.haulmont.cuba.gui.ComponentsHelper.walkComponents;
 import static com.haulmont.cuba.gui.components.Window.CLOSE_ACTION_ID;
+import static com.haulmont.cuba.gui.screen.FrameOwner.NO_OPTIONS;
 
 @Scope(UIScope.NAME)
 @Component(Screens.NAME)
@@ -124,6 +124,19 @@ public class WebScreens implements Screens, WindowManager {
 
         WindowInfo windowInfo = getScreenInfo(requiredScreenClass);
 
+        return createScreen(windowInfo, launchMode, options);
+    }
+
+    @Override
+    public <T extends Screen> T create(WindowInfo windowInfo, LaunchMode launchMode, ScreenOptions options) {
+        checkNotNullArgument(windowInfo);
+        checkNotNullArgument(launchMode);
+        checkNotNullArgument(options);
+
+        return createScreen(windowInfo, launchMode, options);
+    }
+
+    protected <T extends Screen> T createScreen(WindowInfo windowInfo, LaunchMode launchMode, ScreenOptions options) {
         checkPermissions(launchMode, windowInfo);
 
         // todo change launchMode
@@ -145,7 +158,7 @@ public class WebScreens implements Screens, WindowManager {
         ScreenUtils.setScreenOptions(controller, options);
 
         WindowImplementation windowImpl = (WindowImplementation) window;
-        windowImpl.setController(controller);
+        windowImpl.setFrameOwner(controller);
         windowImpl.setLaunchMode(launchMode);
 
         // todo legacy datasource layer
@@ -437,12 +450,12 @@ public class WebScreens implements Screens, WindowManager {
 
     @Override
     public Window openWindow(WindowInfo windowInfo, OpenType openType, Map<String, Object> params) {
-        throw new UnsupportedOperationException();
+        return create(windowInfo, openType.getOpenMode(), new MapScreenOptions(params));
     }
 
     @Override
     public Window openWindow(WindowInfo windowInfo, OpenType openType) {
-        throw new UnsupportedOperationException();
+        return create(windowInfo, openType.getOpenMode(), NO_OPTIONS);
     }
 
     @Override
@@ -662,7 +675,6 @@ public class WebScreens implements Screens, WindowManager {
 
     protected WindowInfo getScreenInfo(Class<? extends Screen> screenClass) {
         UiController uiController = screenClass.getAnnotation(UiController.class);
-        // todo legacy screens
         if (uiController == null) {
             throw new IllegalArgumentException("No @UiController annotation for class " + screenClass);
         }
@@ -1154,7 +1166,7 @@ public class WebScreens implements Screens, WindowManager {
     protected WebAppWorkArea getConfiguredWorkArea() {
         RootWindow topLevelWindow = ui.getTopLevelWindow();
 
-        Screen controller = ((WindowImplementation) topLevelWindow).getController();
+        Screen controller = topLevelWindow.getFrameOwner();
 
         if (controller instanceof HasWorkArea) {
             AppWorkArea workArea = ((HasWorkArea) controller).getWorkArea();

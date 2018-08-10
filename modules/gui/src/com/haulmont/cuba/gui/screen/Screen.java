@@ -256,7 +256,7 @@ public abstract class Screen implements FrameOwner {
      *
      * @return
      */
-    public OperationResult closeIfNotModified() {
+    public OperationResult closeIfNotModified() { // todo rename ?
         return close(WINDOW_CLOSE_ACTION);
     }
 

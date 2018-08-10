@@ -36,7 +36,6 @@ import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.data.DsContext;
 import com.haulmont.cuba.gui.events.sys.UiEventsMulticaster;
 import com.haulmont.cuba.gui.icons.Icons;
-import com.haulmont.cuba.gui.screen.FrameOwner;
 import com.haulmont.cuba.gui.screen.Screen;
 import com.haulmont.cuba.gui.screen.StandardCloseAction;
 import com.haulmont.cuba.gui.settings.Settings;
@@ -76,10 +75,8 @@ public class WebWindow implements Window, Component.Wrapper,
                                   SecuredActionsHolder, Component.HasIcon,
                                   WindowImplementation {
 
-    private static final Logger log = LoggerFactory.getLogger(WebWindow.class);
-
     protected static final String C_WINDOW_LAYOUT = "c-window-layout";
-
+    private static final Logger log = LoggerFactory.getLogger(WebWindow.class);
     protected String id;
     protected String debugId;
 
@@ -95,7 +92,7 @@ public class WebWindow implements Window, Component.Wrapper,
 
     protected com.vaadin.ui.Component component;
 
-    protected Screen controller;
+    protected Screen frameOwner;
 
     protected Element element;
 
@@ -118,14 +115,11 @@ public class WebWindow implements Window, Component.Wrapper,
 
     protected boolean disposed = false;
     protected DialogOptions dialogOptions = new WebDialogOptions();
-
-    // todo remove
-    private EventRouter eventRouter;
-
     protected ContentSwitchMode contentSwitchMode = ContentSwitchMode.DEFAULT;
     protected WindowManager.LaunchMode launchMode;
-
     protected boolean closeable = true;
+    // todo remove
+    private EventRouter eventRouter;
 
     public WebWindow() {
         component = createLayout();
@@ -277,13 +271,6 @@ public class WebWindow implements Window, Component.Wrapper,
     }
 
     @Override
-    public void setSpacing(boolean enabled) {
-        if (getContainer() instanceof Layout.SpacingHandler) {
-            ((Layout.SpacingHandler) getContainer()).setSpacing(true);
-        }
-    }
-
-    @Override
     public boolean getSpacing() {
         if (getContainer() instanceof Layout.SpacingHandler) {
             return ((Layout.SpacingHandler) getContainer()).isSpacing();
@@ -292,11 +279,9 @@ public class WebWindow implements Window, Component.Wrapper,
     }
 
     @Override
-    public void setMargin(com.haulmont.cuba.gui.components.MarginInfo marginInfo) {
-        if (getContainer() instanceof Layout.MarginHandler) {
-            MarginInfo vMargin = new MarginInfo(marginInfo.hasTop(), marginInfo.hasRight(), marginInfo.hasBottom(),
-                    marginInfo.hasLeft());
-            ((Layout.MarginHandler) getContainer()).setMargin(vMargin);
+    public void setSpacing(boolean enabled) {
+        if (getContainer() instanceof Layout.SpacingHandler) {
+            ((Layout.SpacingHandler) getContainer()).setSpacing(true);
         }
     }
 
@@ -307,6 +292,15 @@ public class WebWindow implements Window, Component.Wrapper,
             return new com.haulmont.cuba.gui.components.MarginInfo(vMargin.hasTop(), vMargin.hasRight(), vMargin.hasBottom(), vMargin.hasLeft());
         }
         return new com.haulmont.cuba.gui.components.MarginInfo(false);
+    }
+
+    @Override
+    public void setMargin(com.haulmont.cuba.gui.components.MarginInfo marginInfo) {
+        if (getContainer() instanceof Layout.MarginHandler) {
+            MarginInfo vMargin = new MarginInfo(marginInfo.hasTop(), marginInfo.hasRight(), marginInfo.hasBottom(),
+                    marginInfo.hasLeft());
+            ((Layout.MarginHandler) getContainer()).setMargin(vMargin);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -421,13 +415,13 @@ public class WebWindow implements Window, Component.Wrapper,
         return handleValidationErrors(errors);
     }
 
-    public void setUiServices(UiServices uiServices) {
-        this.uiServices = uiServices;
-    }
-
     @Override
     public UiServices getUiServices() {
         return uiServices;
+    }
+
+    public void setUiServices(UiServices uiServices) {
+        this.uiServices = uiServices;
     }
 
     protected void validateAdditionalRules(ValidationErrors errors) {
@@ -452,18 +446,23 @@ public class WebWindow implements Window, Component.Wrapper,
     }
 
     @Override
-    public void setCloseable(boolean closeable) {
-        this.closeable = closeable;
-    }
-
-    @Override
     public boolean isCloseable() {
         return closeable;
     }
 
     @Override
-    public FrameOwner getFrameOwner() {
-        return getController();
+    public void setCloseable(boolean closeable) {
+        this.closeable = closeable;
+    }
+
+    @Override
+    public Screen getFrameOwner() {
+        return frameOwner;
+    }
+
+    @Override
+    public void setFrameOwner(Screen controller) {
+        this.frameOwner = controller;
     }
 
     @Override
@@ -474,21 +473,6 @@ public class WebWindow implements Window, Component.Wrapper,
     @Override
     public void setContext(FrameContext ctx) {
         this.context = (WindowContext) ctx;
-    }
-
-    @Override
-    public void setFocusComponent(String componentId) {
-        this.focusComponentId = componentId;
-        if (componentId != null) {
-            Component focusComponent = getComponent(componentId);
-            if (focusComponent instanceof Focusable) {
-                ((Focusable) focusComponent).focus();
-            } else {
-                log.error("Can't find focus component: {}", componentId);
-            }
-        } else {
-            findAndFocusChildComponent();
-        }
     }
 
     protected com.vaadin.ui.Component.Focusable getComponentToFocus(com.vaadin.ui.ComponentContainer container) {
@@ -526,6 +510,21 @@ public class WebWindow implements Window, Component.Wrapper,
     @Override
     public String getFocusComponent() {
         return focusComponentId;
+    }
+
+    @Override
+    public void setFocusComponent(String componentId) {
+        this.focusComponentId = componentId;
+        if (componentId != null) {
+            Component focusComponent = getComponent(componentId);
+            if (focusComponent instanceof Focusable) {
+                ((Focusable) focusComponent).focus();
+            } else {
+                log.error("Can't find focus component: {}", componentId);
+            }
+        } else {
+            findAndFocusChildComponent();
+        }
     }
 
     @Override
@@ -693,12 +692,12 @@ public class WebWindow implements Window, Component.Wrapper,
         this.element = element;
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     @Override
     public WindowManager getWindowManager() {
         return (WindowManager) getUiServices().getScreens();
     }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public void add(Component childComponent) {
@@ -864,6 +863,11 @@ public class WebWindow implements Window, Component.Wrapper,
     }
 
     @Override
+    public void setVisible(boolean visible) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean isVisibleRecursive() {
         return isVisible(); // vaadin8 is this correct?
     }
@@ -874,13 +878,13 @@ public class WebWindow implements Window, Component.Wrapper,
     }
 
     @Override
-    public void setVisible(boolean visible) {
-        throw new UnsupportedOperationException();
+    public float getHeight() {
+        return component.getHeight();
     }
 
     @Override
-    public float getHeight() {
-        return component.getHeight();
+    public void setHeight(String height) {
+        component.setHeight(height);
     }
 
     @Override
@@ -894,13 +898,13 @@ public class WebWindow implements Window, Component.Wrapper,
     }
 
     @Override
-    public void setHeight(String height) {
-        component.setHeight(height);
+    public float getWidth() {
+        return component.getWidth();
     }
 
     @Override
-    public float getWidth() {
-        return component.getWidth();
+    public void setWidth(String width) {
+        component.setWidth(width);
     }
 
     @Override
@@ -911,11 +915,6 @@ public class WebWindow implements Window, Component.Wrapper,
     @Override
     public SizeUnit getWidthSizeUnit() {
         return WebWrapperUtils.toSizeUnit(component.getWidthUnits());
-    }
-
-    @Override
-    public void setWidth(String width) {
-        component.setWidth(width);
     }
 
     @Override
@@ -993,19 +992,19 @@ public class WebWindow implements Window, Component.Wrapper,
 
     @Override
     public void closeAndRun(String actionId, Runnable runnable) {
-        getController().close(new StandardCloseAction(actionId))
+        getFrameOwner().close(new StandardCloseAction(actionId))
             .then(runnable);
     }
 
     @Override
     public boolean close(String actionId, boolean force) {
-        OperationResult result = getController().close(new StandardCloseAction(actionId, force));
+        OperationResult result = getFrameOwner().close(new StandardCloseAction(actionId, force));
         return result.getStatus() == OperationResult.Status.SUCCESS;
     }
 
     @Override
     public boolean close(String actionId) {
-        OperationResult result = getController().close(new StandardCloseAction(actionId));
+        OperationResult result = getFrameOwner().close(new StandardCloseAction(actionId));
         return result.getStatus() == OperationResult.Status.SUCCESS;
     }
 
@@ -1016,10 +1015,6 @@ public class WebWindow implements Window, Component.Wrapper,
             return true;
         }
         return false;
-    }
-
-    public boolean isModified() {
-        return delegate.isModified();
     }
 
     @Override
@@ -1035,6 +1030,26 @@ public class WebWindow implements Window, Component.Wrapper,
     @Override
     public String getCaption() {
         return caption;
+    }
+
+    @Override
+    public void setCaption(String caption) {
+        this.caption = caption;
+
+        if (component.isAttached()) {
+            TabSheet.Tab tabWindow = asTabWindow();
+            if (tabWindow != null) {
+                setTabCaptionAndDescription(tabWindow);
+                // todo
+                // windowManagerImpl.getBreadCrumbs((com.vaadin.ui.ComponentContainer) tabWindow.getComponent()).update();
+            } else {
+                Layout singleModeWindow = asSingleWindow();
+                if (singleModeWindow != null) {
+                    // todo
+                    // windowManagerImpl.getBreadCrumbs(singleModeWindow).update();
+                }
+            }
+        }
     }
 
     @Nullable
@@ -1065,26 +1080,6 @@ public class WebWindow implements Window, Component.Wrapper,
             }
         }
         return null;
-    }
-
-    @Override
-    public void setCaption(String caption) {
-        this.caption = caption;
-
-        if (component.isAttached()) {
-            TabSheet.Tab tabWindow = asTabWindow();
-            if (tabWindow != null) {
-                setTabCaptionAndDescription(tabWindow);
-                // todo
-                // windowManagerImpl.getBreadCrumbs((com.vaadin.ui.ComponentContainer) tabWindow.getComponent()).update();
-            } else {
-                Layout singleModeWindow = asSingleWindow();
-                if (singleModeWindow != null) {
-                    // todo
-                    // windowManagerImpl.getBreadCrumbs(singleModeWindow).update();
-                }
-            }
-        }
     }
 
     @Override
@@ -1185,13 +1180,8 @@ public class WebWindow implements Window, Component.Wrapper,
     }
 
     @Override
-    public void setController(Screen controller) {
-        this.controller = controller;
-    }
-
-    @Override
-    public Screen getController() {
-        return controller;
+    public LaunchMode getLaunchMode() {
+        return launchMode;
     }
 
     @Override
@@ -1199,9 +1189,326 @@ public class WebWindow implements Window, Component.Wrapper,
         this.launchMode = launchMode;
     }
 
-    @Override
-    public LaunchMode getLaunchMode() {
-        return launchMode;
+    // todo remove
+    public static class Editor extends WebWindow implements Window.Editor {
+
+        @Override
+        protected WindowDelegate createDelegate() {
+            return new EditorWindowDelegate(this);
+        }
+
+        @Override
+        public Entity getItem() {
+            return ((EditorWindowDelegate) delegate).getItem();
+        }
+
+        @Override
+        public void setItem(Entity item) {
+            ((EditorWindowDelegate) delegate).setItem(item);
+        }
+
+        @Override
+        protected boolean onClose(String actionId) {
+            releaseLock();
+            return super.onClose(actionId);
+        }
+
+        public void releaseLock() {
+            ((EditorWindowDelegate) delegate).releaseLock();
+        }
+
+        @Nullable
+        @Override
+        public Datasource getParentDs() {
+            return ((EditorWindowDelegate) delegate).getParentDs();
+        }
+
+        @Override
+        public void setParentDs(Datasource parentDs) {
+            ((EditorWindowDelegate) delegate).setParentDs(parentDs);
+        }
+
+        protected MetaClass getMetaClass() {
+            return getDatasource().getMetaClass();
+        }
+
+        protected Datasource getDatasource() {
+            return delegate.getDatasource();
+        }
+
+        protected MetaClass getMetaClass(Object item) {
+            final MetaClass metaClass;
+            if (item instanceof Datasource) {
+                metaClass = ((Datasource) item).getMetaClass();
+            } else {
+                metaClass = ((Instance) item).getMetaClass();
+            }
+            return metaClass;
+        }
+
+        protected Instance getInstance(Object item) {
+            if (item instanceof Datasource) {
+                return ((Datasource) item).getItem();
+            } else {
+                return (Instance) item;
+            }
+        }
+
+        @Override
+        public boolean commit() {
+            return commit(true);
+        }
+
+        @Override
+        public boolean commit(boolean validate) {
+            if (validate && !getWrapper().validateAll())
+                return false;
+
+            return ((EditorWindowDelegate) delegate).commit(false);
+        }
+
+        @Override
+        public boolean isModified() {
+            return false;
+        }
+
+        @Override
+        public void commitAndClose() {
+            if (!getWrapper().validateAll())
+                return;
+
+            if (((EditorWindowDelegate) delegate).commit(true))
+                close(COMMIT_ACTION_ID);
+        }
+
+        @Override
+        public boolean isLocked() {
+            return ((EditorWindowDelegate) delegate).isLocked();
+        }
+
+        @Override
+        public boolean isCrossFieldValidate() {
+            return ((EditorWindowDelegate) delegate).isCrossFieldValidate();
+        }
+
+        @Override
+        public void setCrossFieldValidate(boolean crossFieldValidate) {
+            ((EditorWindowDelegate) delegate).setCrossFieldValidate(crossFieldValidate);
+        }
+
+        @Override
+        protected void validateAdditionalRules(ValidationErrors errors) {
+            ((EditorWindowDelegate) delegate).validateAdditionalRules(errors);
+        }
+    }
+
+    // todo remove
+    public static class Lookup extends WebWindow implements Window.Lookup, LookupComponent.LookupSelectionChangeListener {
+
+        protected Handler handler;
+
+        protected Validator validator;
+
+        protected Component lookupComponent;
+        protected VerticalLayout container;
+        protected CubaVerticalActionsLayout rootLayout;
+
+        public Lookup() {
+            addAction(new SelectAction((AbstractLookup) this.getFrameOwner())); // todo
+
+            // todo use BaseAction instead
+            addAction(new AbstractAction(WindowDelegate.LOOKUP_CANCEL_ACTION_ID) {
+                @Override
+                public void actionPerform(Component component) {
+                    close("cancel");
+                }
+            });
+        }
+
+        @Nullable
+        protected Action getSelectAction() {
+            return getAction(WindowDelegate.LOOKUP_SELECT_ACTION_ID);
+        }
+
+        @Nullable
+        protected Action getCancelAction() {
+            return getAction(WindowDelegate.LOOKUP_CANCEL_ACTION_ID);
+        }
+
+        @Override
+        public com.haulmont.cuba.gui.components.Component getLookupComponent() {
+            return lookupComponent;
+        }
+
+        @Override
+        public void setLookupComponent(Component lookupComponent) {
+            Action selectAction = getSelectAction();
+            if (this.lookupComponent instanceof LookupSelectionChangeNotifier) {
+                LookupSelectionChangeNotifier lvChangeNotifier = (LookupSelectionChangeNotifier) this.lookupComponent;
+                lvChangeNotifier.removeLookupValueChangeListener(this);
+
+                if (selectAction != null)
+                    selectAction.setEnabled(true);
+            }
+
+            this.lookupComponent = lookupComponent;
+
+            if (lookupComponent instanceof LookupComponent) {
+                ((LookupComponent) lookupComponent).setLookupSelectHandler(() -> {
+                    if (selectAction != null)
+                        selectAction.actionPerform(null);
+                });
+
+                if (lookupComponent instanceof LookupSelectionChangeNotifier) {
+                    LookupSelectionChangeNotifier lvChangeNotifier =
+                            (LookupSelectionChangeNotifier) lookupComponent;
+                    lvChangeNotifier.addLookupValueChangeListener(this);
+
+                    if (selectAction != null)
+                        selectAction.setEnabled(!lvChangeNotifier.getLookupSelectedItems().isEmpty());
+                }
+            }
+        }
+
+        @Override
+        public void lookupValueChanged(LookupComponent.LookupSelectionChangeEvent event) {
+            Action selectAction = getSelectAction();
+            if (selectAction != null)
+                selectAction.setEnabled(!event.getSource().getLookupSelectedItems().isEmpty());
+        }
+
+        @Override
+        public Handler getLookupHandler() {
+            return handler;
+        }
+
+        @Override
+        public void setLookupHandler(Handler handler) {
+            this.handler = handler;
+        }
+
+        @Override
+        protected com.vaadin.ui.ComponentContainer getContainer() {
+            return container;
+        }
+
+        @Override
+        public void initLookupLayout() {
+            // todo reimplement
+            /*Action selectAction = getAction(WindowDelegate.LOOKUP_SELECT_ACTION_ID);
+            if (selectAction == null || selectAction.getOwner() == null) {
+                Frame frame = openFrame(null, "lookupWindowActions");
+                com.vaadin.ui.Component vFrame = frame.unwrapComposition(com.vaadin.ui.Component.class);
+                rootLayout.addComponent(vFrame);
+
+                if (AppUI.getCurrent().isTestMode()) {
+                    Component selectButton = frame.getComponent("selectButton");
+                    if (selectButton instanceof com.haulmont.cuba.gui.components.Button) {
+                        selectButton.unwrap(Button.class).setCubaId("selectButton");
+                    }
+                    Component cancelButton = frame.getComponent("cancelButton");
+                    if (cancelButton instanceof com.haulmont.cuba.gui.components.Button) {
+                        cancelButton.unwrap(Button.class).setCubaId("cancelButton");
+                    }
+                }
+            }*/
+        }
+
+        @Override
+        public Validator getLookupValidator() {
+            return validator;
+        }
+
+        @Override
+        public void setLookupValidator(Validator validator) {
+            this.validator = validator;
+        }
+
+        @Override
+        public String getStyleName() {
+            return StringUtils.normalizeSpace(container.getStyleName().replace(C_WINDOW_LAYOUT, ""));
+        }
+
+        @Override
+        protected com.vaadin.ui.ComponentContainer createLayout() {
+            rootLayout = new CubaVerticalActionsLayout();
+            rootLayout.setStyleName("c-lookup-window-wrapper");
+            rootLayout.setSizeFull();
+            rootLayout.setSpacing(true);
+
+            container = new VerticalLayout();
+            container.setMargin(false);
+            container.setSpacing(false);
+            container.setStyleName(C_WINDOW_LAYOUT);
+            container.setSizeFull();
+
+            rootLayout.addComponent(container);
+            rootLayout.setExpandRatio(container, 1);
+
+            return rootLayout;
+        }
+
+        @Override
+        public void setId(String id) {
+            super.setId(id);
+
+            if (debugId != null) {
+                AppUI ui = AppUI.getCurrent();
+                if (ui.isTestMode()) {
+                    TestIdManager testIdManager = ui.getTestIdManager();
+                    Action selectAction = getSelectAction();
+                    if (selectAction != null) {
+                        ActionOwner selectActionOwner = selectAction.getOwner();
+                        if (selectActionOwner instanceof com.haulmont.cuba.gui.components.Button) {
+                            ((com.haulmont.cuba.gui.components.Button) selectActionOwner).setId(testIdManager.getTestId(debugId + "_selectButton"));
+                        }
+                    }
+                    Action cancelAction = getCancelAction();
+                    if (cancelAction != null) {
+                        ActionOwner cancelActionOwner = cancelAction.getOwner();
+                        if (cancelActionOwner instanceof com.haulmont.cuba.gui.components.Button) {
+                            ((com.haulmont.cuba.gui.components.Button) cancelActionOwner).setId(testIdManager.getTestId(debugId + "_cancelButton"));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    protected static class CloseListenerAdapter implements CloseListener {
+
+        protected CloseWithCommitListener closeWithCommitListener;
+
+        public CloseListenerAdapter(CloseWithCommitListener closeWithCommitListener) {
+            this.closeWithCommitListener = closeWithCommitListener;
+        }
+
+        @Override
+        public int hashCode() {
+            return closeWithCommitListener.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) {
+                return true;
+            }
+
+            if (obj == null || getClass() != obj.getClass()) {
+                return false;
+            }
+
+            CloseListenerAdapter wrapper = (CloseListenerAdapter) obj;
+
+            return this.closeWithCommitListener.equals(wrapper.closeWithCommitListener);
+        }
+
+        @Override
+        public void windowClosed(String actionId) {
+            if (COMMIT_ACTION_ID.equals(actionId)) {
+                closeWithCommitListener.windowClosedWithCommitAction();
+            }
+        }
     }
 
     protected class WebDialogOptions extends DialogOptions {
@@ -1437,321 +1744,6 @@ public class WebWindow implements Window, Component.Wrapper,
             }
 
             return super.getMaximized();
-        }
-    }
-
-    public static class Editor extends WebWindow implements Window.Editor {
-
-        @Override
-        protected WindowDelegate createDelegate() {
-            return new EditorWindowDelegate(this);
-        }
-
-        @Override
-        public Entity getItem() {
-            return ((EditorWindowDelegate) delegate).getItem();
-        }
-
-        @Override
-        public void setItem(Entity item) {
-            ((EditorWindowDelegate) delegate).setItem(item);
-        }
-
-        @Override
-        protected boolean onClose(String actionId) {
-            releaseLock();
-            return super.onClose(actionId);
-        }
-
-        public void releaseLock() {
-            ((EditorWindowDelegate) delegate).releaseLock();
-        }
-
-        @Nullable
-        @Override
-        public Datasource getParentDs() {
-            return ((EditorWindowDelegate) delegate).getParentDs();
-        }
-
-        @Override
-        public void setParentDs(Datasource parentDs) {
-            ((EditorWindowDelegate) delegate).setParentDs(parentDs);
-        }
-
-        protected MetaClass getMetaClass() {
-            return getDatasource().getMetaClass();
-        }
-
-        protected Datasource getDatasource() {
-            return delegate.getDatasource();
-        }
-
-        protected MetaClass getMetaClass(Object item) {
-            final MetaClass metaClass;
-            if (item instanceof Datasource) {
-                metaClass = ((Datasource) item).getMetaClass();
-            } else {
-                metaClass = ((Instance) item).getMetaClass();
-            }
-            return metaClass;
-        }
-
-        protected Instance getInstance(Object item) {
-            if (item instanceof Datasource) {
-                return ((Datasource) item).getItem();
-            } else {
-                return (Instance) item;
-            }
-        }
-
-        @Override
-        public boolean commit() {
-            return commit(true);
-        }
-
-        @Override
-        public boolean commit(boolean validate) {
-            if (validate && !getWrapper().validateAll())
-                return false;
-
-            return ((EditorWindowDelegate) delegate).commit(false);
-        }
-
-        @Override
-        public void commitAndClose() {
-            if (!getWrapper().validateAll())
-                return;
-
-            if (((EditorWindowDelegate) delegate).commit(true))
-                close(COMMIT_ACTION_ID);
-        }
-
-        @Override
-        public boolean isLocked() {
-            return ((EditorWindowDelegate) delegate).isLocked();
-        }
-
-        @Override
-        public boolean isCrossFieldValidate() {
-            return ((EditorWindowDelegate) delegate).isCrossFieldValidate();
-        }
-
-        @Override
-        public void setCrossFieldValidate(boolean crossFieldValidate) {
-            ((EditorWindowDelegate) delegate).setCrossFieldValidate(crossFieldValidate);
-        }
-
-        @Override
-        protected void validateAdditionalRules(ValidationErrors errors) {
-            ((EditorWindowDelegate) delegate).validateAdditionalRules(errors);
-        }
-    }
-
-    public static class Lookup extends WebWindow implements Window.Lookup, LookupComponent.LookupSelectionChangeListener {
-
-        protected Handler handler;
-
-        protected Validator validator;
-
-        protected Component lookupComponent;
-        protected VerticalLayout container;
-        protected CubaVerticalActionsLayout rootLayout;
-
-        public Lookup() {
-            addAction(new SelectAction((AbstractLookup) this.getController())); // todo
-
-            // todo use BaseAction instead
-            addAction(new AbstractAction(WindowDelegate.LOOKUP_CANCEL_ACTION_ID) {
-                @Override
-                public void actionPerform(Component component) {
-                    close("cancel");
-                }
-            });
-        }
-
-        @Nullable
-        protected Action getSelectAction() {
-            return getAction(WindowDelegate.LOOKUP_SELECT_ACTION_ID);
-        }
-
-        @Nullable
-        protected Action getCancelAction() {
-            return getAction(WindowDelegate.LOOKUP_CANCEL_ACTION_ID);
-        }
-
-        @Override
-        public com.haulmont.cuba.gui.components.Component getLookupComponent() {
-            return lookupComponent;
-        }
-
-        @Override
-        public void setLookupComponent(Component lookupComponent) {
-            Action selectAction = getSelectAction();
-            if (this.lookupComponent instanceof LookupSelectionChangeNotifier) {
-                LookupSelectionChangeNotifier lvChangeNotifier = (LookupSelectionChangeNotifier) this.lookupComponent;
-                lvChangeNotifier.removeLookupValueChangeListener(this);
-
-                if (selectAction != null)
-                    selectAction.setEnabled(true);
-            }
-
-            this.lookupComponent = lookupComponent;
-
-            if (lookupComponent instanceof LookupComponent) {
-                ((LookupComponent) lookupComponent).setLookupSelectHandler(() -> {
-                    if (selectAction != null)
-                        selectAction.actionPerform(null);
-                });
-
-                if (lookupComponent instanceof LookupSelectionChangeNotifier) {
-                    LookupSelectionChangeNotifier lvChangeNotifier =
-                            (LookupSelectionChangeNotifier) lookupComponent;
-                    lvChangeNotifier.addLookupValueChangeListener(this);
-
-                    if (selectAction != null)
-                        selectAction.setEnabled(!lvChangeNotifier.getLookupSelectedItems().isEmpty());
-                }
-            }
-        }
-
-        @Override
-        public void lookupValueChanged(LookupComponent.LookupSelectionChangeEvent event) {
-            Action selectAction = getSelectAction();
-            if (selectAction != null)
-                selectAction.setEnabled(!event.getSource().getLookupSelectedItems().isEmpty());
-        }
-
-        @Override
-        public Handler getLookupHandler() {
-            return handler;
-        }
-
-        @Override
-        public void setLookupHandler(Handler handler) {
-            this.handler = handler;
-        }
-
-        @Override
-        protected com.vaadin.ui.ComponentContainer getContainer() {
-            return container;
-        }
-
-        @Override
-        public void setLookupValidator(Validator validator) {
-            this.validator = validator;
-        }
-
-        @Override
-        public void initLookupLayout() {
-            // todo reimplement
-            /*Action selectAction = getAction(WindowDelegate.LOOKUP_SELECT_ACTION_ID);
-            if (selectAction == null || selectAction.getOwner() == null) {
-                Frame frame = openFrame(null, "lookupWindowActions");
-                com.vaadin.ui.Component vFrame = frame.unwrapComposition(com.vaadin.ui.Component.class);
-                rootLayout.addComponent(vFrame);
-
-                if (AppUI.getCurrent().isTestMode()) {
-                    Component selectButton = frame.getComponent("selectButton");
-                    if (selectButton instanceof com.haulmont.cuba.gui.components.Button) {
-                        selectButton.unwrap(Button.class).setCubaId("selectButton");
-                    }
-                    Component cancelButton = frame.getComponent("cancelButton");
-                    if (cancelButton instanceof com.haulmont.cuba.gui.components.Button) {
-                        cancelButton.unwrap(Button.class).setCubaId("cancelButton");
-                    }
-                }
-            }*/
-        }
-
-        @Override
-        public Validator getLookupValidator() {
-            return validator;
-        }
-
-        @Override
-        public String getStyleName() {
-            return StringUtils.normalizeSpace(container.getStyleName().replace(C_WINDOW_LAYOUT, ""));
-        }
-
-        @Override
-        protected com.vaadin.ui.ComponentContainer createLayout() {
-            rootLayout = new CubaVerticalActionsLayout();
-            rootLayout.setStyleName("c-lookup-window-wrapper");
-            rootLayout.setSizeFull();
-            rootLayout.setSpacing(true);
-
-            container = new VerticalLayout();
-            container.setMargin(false);
-            container.setSpacing(false);
-            container.setStyleName(C_WINDOW_LAYOUT);
-            container.setSizeFull();
-
-            rootLayout.addComponent(container);
-            rootLayout.setExpandRatio(container, 1);
-
-            return rootLayout;
-        }
-
-        @Override
-        public void setId(String id) {
-            super.setId(id);
-
-            if (debugId != null) {
-                AppUI ui = AppUI.getCurrent();
-                if (ui.isTestMode()) {
-                    TestIdManager testIdManager = ui.getTestIdManager();
-                    Action selectAction = getSelectAction();
-                    if (selectAction != null) {
-                        ActionOwner selectActionOwner = selectAction.getOwner();
-                        if (selectActionOwner instanceof com.haulmont.cuba.gui.components.Button) {
-                            ((com.haulmont.cuba.gui.components.Button) selectActionOwner).setId(testIdManager.getTestId(debugId + "_selectButton"));
-                        }
-                    }
-                    Action cancelAction = getCancelAction();
-                    if (cancelAction != null) {
-                        ActionOwner cancelActionOwner = cancelAction.getOwner();
-                        if (cancelActionOwner instanceof com.haulmont.cuba.gui.components.Button) {
-                            ((com.haulmont.cuba.gui.components.Button) cancelActionOwner).setId(testIdManager.getTestId(debugId + "_cancelButton"));
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    protected static class CloseListenerAdapter implements CloseListener {
-
-        protected CloseWithCommitListener closeWithCommitListener;
-
-        public CloseListenerAdapter(CloseWithCommitListener closeWithCommitListener) {
-            this.closeWithCommitListener = closeWithCommitListener;
-        }
-
-        @Override
-        public int hashCode() {
-            return closeWithCommitListener.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-
-            if (obj == null || getClass() != obj.getClass()) {
-                return false;
-            }
-
-            CloseListenerAdapter wrapper = (CloseListenerAdapter) obj;
-
-            return this.closeWithCommitListener.equals(wrapper.closeWithCommitListener);
-        }
-
-        @Override
-        public void windowClosed(String actionId) {
-            if (COMMIT_ACTION_ID.equals(actionId)) {
-                closeWithCommitListener.windowClosedWithCommitAction();
-            }
         }
     }
 }

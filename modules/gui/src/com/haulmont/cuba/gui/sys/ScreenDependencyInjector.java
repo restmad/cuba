@@ -49,6 +49,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.event.EventListener;
+import org.springframework.util.ReflectionUtils;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
@@ -112,7 +113,7 @@ public class ScreenDependencyInjector {
                 toInject.put(field, aClass);
             }
         }
-        for (Method method : screen.getClass().getMethods()) {
+        for (Method method : ReflectionUtils.getUniqueDeclaredMethods(screen.getClass())) { // todo cache
             Class aClass = injectionAnnotation(method);
             if (aClass != null) {
                 if (toInject.isEmpty()) {
@@ -298,15 +299,15 @@ public class ScreenDependencyInjector {
 
         } else if (Datasource.class.isAssignableFrom(type)) {
             // Injecting a datasource
-            return ((LegacyFrame) window).getDsContext().get(name);
+            return ((LegacyFrame) window.getFrameOwner()).getDsContext().get(name);
 
         } else if (DsContext.class.isAssignableFrom(type)) {
             // Injecting the DsContext
-            return ((LegacyFrame) window).getDsContext();
+            return ((LegacyFrame) window.getFrameOwner()).getDsContext();
 
         } else if (DataSupplier.class.isAssignableFrom(type)) {
             // Injecting the DataSupplier
-            return ((LegacyFrame) window).getDsContext().getDataSupplier();
+            return ((LegacyFrame) window.getFrameOwner()).getDsContext().getDataSupplier();
 
         } else if (FrameContext.class.isAssignableFrom(type)) {
             // Injecting the FrameContext

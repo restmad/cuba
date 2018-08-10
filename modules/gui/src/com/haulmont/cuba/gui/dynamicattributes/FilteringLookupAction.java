@@ -29,10 +29,8 @@ import com.haulmont.cuba.gui.components.filter.FilterParser;
 import com.haulmont.cuba.gui.components.filter.Param;
 import com.haulmont.cuba.gui.components.filter.condition.CustomCondition;
 import com.haulmont.cuba.gui.components.sys.ValuePathHelper;
-import com.haulmont.cuba.gui.components.sys.WindowImplementation;
 import com.haulmont.cuba.gui.data.impl.DsContextImplementation;
 import com.haulmont.cuba.gui.screen.LegacyFrame;
-import com.haulmont.cuba.gui.screen.ScreenUtils;
 import com.haulmont.cuba.security.entity.FilterEntity;
 import com.haulmont.cuba.security.global.UserSession;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -82,7 +80,7 @@ public class FilteringLookupAction extends PickerField.LookupAction {
         if (!found) {
             LegacyFrame.of(target.getFrame()).showNotification(messages.getMainMessage("dynamicAttributes.entity.filter.filterNotFound"), Frame.NotificationType.WARNING);
         }
-        AbstractWindow controller = (AbstractWindow) ((WindowImplementation) lookupWindow).getController();
+        AbstractWindow controller = (AbstractWindow) (lookupWindow).getFrameOwner();
         ((DsContextImplementation) controller.getDsContext()).resumeSuspended();
     }
 

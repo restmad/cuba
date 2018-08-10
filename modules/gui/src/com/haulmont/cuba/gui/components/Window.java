@@ -26,8 +26,10 @@ import com.haulmont.cuba.gui.components.mainwindow.AppWorkArea;
 import com.haulmont.cuba.gui.components.mainwindow.FoldersPane;
 import com.haulmont.cuba.gui.components.mainwindow.UserIndicator;
 import com.haulmont.cuba.gui.data.Datasource;
+import com.haulmont.cuba.gui.screen.FrameOwner;
 import com.haulmont.cuba.gui.screen.MainScreen;
 import com.haulmont.cuba.gui.screen.OpenMode;
+import com.haulmont.cuba.gui.screen.Screen;
 import com.haulmont.cuba.gui.settings.Settings;
 import com.haulmont.cuba.gui.sys.UiServices;
 
@@ -68,6 +70,9 @@ public interface Window extends Frame, Component.HasCaption, Component.HasIcon {
 
     void setCloseable(boolean closeable);
     boolean isCloseable();
+
+    @Override
+    Screen getFrameOwner();
 
     /**
      * @return current window context

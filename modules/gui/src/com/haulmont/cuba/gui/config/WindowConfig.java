@@ -24,14 +24,15 @@ import com.haulmont.cuba.core.global.Metadata;
 import com.haulmont.cuba.core.global.Resources;
 import com.haulmont.cuba.core.global.Scripting;
 import com.haulmont.cuba.core.sys.AppContext;
+import com.haulmont.cuba.gui.NoSuchScreenException;
+import com.haulmont.cuba.gui.components.Window;
+import com.haulmont.cuba.gui.screen.Screen;
 import com.haulmont.cuba.gui.screen.UiController;
 import com.haulmont.cuba.gui.screen.UiDescriptor;
-import com.haulmont.cuba.gui.NoSuchScreenException;
-import com.haulmont.cuba.gui.screen.Screen;
-import com.haulmont.cuba.gui.components.Window;
 import com.haulmont.cuba.gui.sys.ScreenUtils;
 import com.haulmont.cuba.gui.sys.ScreensConfiguration;
 import com.haulmont.cuba.gui.sys.ScreensConfiguration.UIControllerDefinition;
+import com.haulmont.cuba.gui.xml.layout.ScreenXmlLoader;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringTokenizer;
@@ -46,10 +47,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
@@ -60,6 +58,8 @@ import java.util.regex.Pattern;
  */
 @Component(WindowConfig.NAME)
 public class WindowConfig {
+
+    // todo Support FrameOwner here instead of Screen
 
     public static final String NAME = "cuba_WindowConfig";
 
@@ -79,6 +79,8 @@ public class WindowConfig {
     protected Metadata metadata;
     @Inject
     protected List<ScreensConfiguration> screensConfigurations;
+    @Inject
+    protected ScreenXmlLoader screenXmlLoader;
 
     protected volatile boolean initialized;
 
@@ -108,6 +110,12 @@ public class WindowConfig {
     protected Class<? extends Screen> extractScreenClass(WindowInfo windowInfo) {
         if (windowInfo.getDescriptor() != null) {
             String className = windowInfo.getDescriptor().attributeValue("class");
+
+            if (Strings.isNullOrEmpty(className)) {
+                Element screenXml = screenXmlLoader.load(windowInfo.getTemplate(),
+                        windowInfo.getId(), Collections.emptyMap());
+                className = screenXml.attributeValue("class");
+            }
 
             if (Strings.isNullOrEmpty(className)) {
                 throw new IllegalStateException("Window descriptor does not declare class attribute");

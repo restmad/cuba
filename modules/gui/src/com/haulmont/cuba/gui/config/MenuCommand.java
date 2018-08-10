@@ -21,10 +21,11 @@ import com.haulmont.cuba.core.app.DataService;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.core.sys.AppContext;
-import com.haulmont.cuba.gui.WindowManager;
+import com.haulmont.cuba.gui.Screens;
 import com.haulmont.cuba.gui.WindowManager.OpenType;
-import com.haulmont.cuba.gui.WindowManagerProvider;
 import com.haulmont.cuba.gui.WindowParams;
+import com.haulmont.cuba.gui.components.Window;
+import com.haulmont.cuba.gui.screen.MapScreenOptions;
 import com.haulmont.cuba.gui.screen.OpenMode;
 import com.haulmont.cuba.gui.screen.Screen;
 import org.apache.commons.lang3.StringUtils;
@@ -157,15 +158,8 @@ public class MenuCommand {
 
             String id = windowInfo.getId();
 
-            // todo demo
-            WindowManager wm = AppBeans.get(WindowManagerProvider.class).get();
+            Screens screens = AppBeans.get(Screens.NAME);
 
-            Screen screen = wm.create(windowInfo.getScreenClass(), OpenMode.NEW_TAB);
-            wm.show(screen);
-
-            // todo implement
-            /*
-            WindowManager wm = AppBeans.get(WindowManagerProvider.class).get();
             if (id.endsWith(Window.CREATE_WINDOW_SUFFIX)
                     || id.endsWith(Window.EDITOR_WINDOW_SUFFIX)) {
                 Entity entityItem;
@@ -184,11 +178,12 @@ public class MenuCommand {
 
                     entityItem = AppBeans.get(Metadata.class).create(metaClassName);
                 }
-                wm.openEditor(windowInfo, entityItem, openType, params);
+//                todo
+//                wm.openEditor(windowInfo, entityItem, openType, params);
             } else {
-                wm.openWindow(windowInfo, openType, params);
+                Screen screen = screens.create(windowInfo, openType.getOpenMode(), new MapScreenOptions(params));
+                screens.show(screen);
             }
-            */
         }
 
         @Override

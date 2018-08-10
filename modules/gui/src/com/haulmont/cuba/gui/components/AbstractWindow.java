@@ -565,7 +565,7 @@ public class AbstractWindow extends Screen implements Window, LegacyFrame, Compo
     }
 
     @Override
-    public FrameOwner getFrameOwner() {
+    public Screen getFrameOwner() {
         return this;
     }
 
