@@ -17,7 +17,7 @@
 
 package com.haulmont.cuba.gui;
 
-import static com.haulmont.cuba.gui.WindowManager.OpenType;
+import com.haulmont.cuba.gui.Screens.LaunchMode;
 
 /**
  * Provides access to window parameters and component values.
@@ -28,5 +28,5 @@ public interface WindowContext extends FrameContext {
     /**
      * How the window is opened.
      */
-    OpenType getOpenType();
+    LaunchMode getLaunchMode();
 }

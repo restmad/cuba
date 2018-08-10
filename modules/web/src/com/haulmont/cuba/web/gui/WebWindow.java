@@ -68,7 +68,6 @@ import javax.inject.Inject;
 import java.util.*;
 
 import static com.haulmont.bali.util.Preconditions.checkNotNullArgument;
-import static com.haulmont.cuba.gui.Screens.LaunchMode;
 
 public class WebWindow implements Window, Component.Wrapper,
                                   Component.HasXmlDescriptor, WrappedWindow, Component.Disposable,
@@ -76,7 +75,9 @@ public class WebWindow implements Window, Component.Wrapper,
                                   WindowImplementation {
 
     protected static final String C_WINDOW_LAYOUT = "c-window-layout";
+
     private static final Logger log = LoggerFactory.getLogger(WebWindow.class);
+
     protected String id;
     protected String debugId;
 
@@ -105,7 +106,7 @@ public class WebWindow implements Window, Component.Wrapper,
 
     protected UiServices uiServices;
 
-    protected WindowDelegate delegate;
+    protected WindowDelegate delegate; // todo get rid of delegate
 
     protected WebFrameActionsHolder actionsHolder = new WebFrameActionsHolder(this);
     protected ActionsPermissions actionsPermissions = new ActionsPermissions(this);
@@ -116,7 +117,6 @@ public class WebWindow implements Window, Component.Wrapper,
     protected boolean disposed = false;
     protected DialogOptions dialogOptions = new WebDialogOptions();
     protected ContentSwitchMode contentSwitchMode = ContentSwitchMode.DEFAULT;
-    protected WindowManager.LaunchMode launchMode;
     protected boolean closeable = true;
     // todo remove
     private EventRouter eventRouter;
@@ -420,6 +420,7 @@ public class WebWindow implements Window, Component.Wrapper,
         return uiServices;
     }
 
+    @Override
     public void setUiServices(UiServices uiServices) {
         this.uiServices = uiServices;
     }
@@ -1019,12 +1020,12 @@ public class WebWindow implements Window, Component.Wrapper,
 
     @Override
     public void saveSettings() {
-        delegate.saveSettings();
+        delegate.saveSettings(); // todo rework
     }
 
     @Override
     public void deleteSettings() {
-        delegate.deleteSettings();
+        delegate.deleteSettings(); // todo rework
     }
 
     @Override
@@ -1124,7 +1125,7 @@ public class WebWindow implements Window, Component.Wrapper,
 
     @Override
     public Window getWrapper() {
-        return delegate.getWrapper();
+        return ((Window) frameOwner);
     }
 
     @Override
@@ -1177,16 +1178,6 @@ public class WebWindow implements Window, Component.Wrapper,
         }
 
         this.contentSwitchMode = mode;
-    }
-
-    @Override
-    public LaunchMode getLaunchMode() {
-        return launchMode;
-    }
-
-    @Override
-    public void setLaunchMode(LaunchMode launchMode) {
-        this.launchMode = launchMode;
     }
 
     // todo remove

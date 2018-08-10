@@ -220,13 +220,6 @@ public interface Window extends Frame, Component.HasCaption, Component.HasIcon {
     boolean validateAll();
 
     /**
-     * JavaDoc
-     *
-     * @return todo
-     */
-    UiServices getUiServices();
-
-    /**
      * @return window manager instance
      */
     WindowManager getWindowManager();

@@ -17,24 +17,23 @@
 
 package com.haulmont.cuba.gui.sys;
 
+import com.haulmont.cuba.gui.Screens.LaunchMode;
 import com.haulmont.cuba.gui.WindowContext;
 import com.haulmont.cuba.gui.components.Frame;
 
 import java.util.Map;
 
-import static com.haulmont.cuba.gui.WindowManager.OpenType;
-
 public class WindowContextImpl extends FrameContextImpl implements WindowContext {
 
-    private OpenType openType;
+    private LaunchMode launchMode;
 
-    public WindowContextImpl(Frame window, OpenType openType, Map<String, Object> params) {
+    public WindowContextImpl(Frame window, LaunchMode launchMode, Map<String, Object> params) {
         super(window, params);
-        this.openType = openType;
+        this.launchMode = launchMode;
     }
 
     @Override
-    public OpenType getOpenType() {
-        return openType;
+    public LaunchMode getLaunchMode() {
+        return launchMode;
     }
 }

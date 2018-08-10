@@ -30,6 +30,7 @@ import com.haulmont.cuba.gui.components.Action;
 import com.haulmont.cuba.gui.components.Component;
 import com.haulmont.cuba.gui.components.Window;
 import com.haulmont.cuba.gui.components.sys.EventHubOwner;
+import com.haulmont.cuba.gui.components.sys.WindowImplementation;
 import com.haulmont.cuba.gui.data.DataSupplier;
 import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.data.DsContext;
@@ -332,17 +333,17 @@ public class ScreenDependencyInjector {
 
         } else if (Screens.class == type) {
             // injecting screens
-            UiServices uiServices = screen.getWindow().getUiServices();
+            UiServices uiServices = getUiServices(screen);
             return uiServices.getScreens();
 
         } else if (Dialogs.class == type) {
             // injecting screens
-            UiServices uiServices = screen.getWindow().getUiServices();
+            UiServices uiServices = getUiServices(screen);
             return uiServices.getDialogs();
 
         } else if (Notifications.class == type) {
             // injecting screens
-            UiServices uiServices = screen.getWindow().getUiServices();
+            UiServices uiServices = getUiServices(screen);
             return uiServices.getNotifications();
 
         } else if (ThemeConstants.class.isAssignableFrom(type)) {
@@ -374,6 +375,10 @@ public class ScreenDependencyInjector {
             }*/
         }
         return null;
+    }
+
+    protected UiServices getUiServices(Screen screen) {
+        return ((WindowImplementation) screen.getWindow()).getUiServices();
     }
 
     protected void assignValue(AnnotatedElement element, Object value) {

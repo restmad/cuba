@@ -120,8 +120,7 @@ public abstract class WindowManagerImpl {
             checkPermission(windowInfo);
         }
 
-        StopWatch loadDescriptorWatch = new Slf4JStopWatch(windowInfo.getId() + "#" +
-                LifeCycle.LOAD,
+        StopWatch loadDescriptorWatch = new Slf4JStopWatch(windowInfo.getId() + LifeCycle.LOAD.getSuffix(),
                 LoggerFactory.getLogger(UIPerformanceLogger.class));
 
         Element element = screenXmlLoader.load(windowInfo.getTemplate(), windowInfo.getId(), params);
@@ -136,14 +135,14 @@ public abstract class WindowManagerImpl {
         Window clientSpecificWindow = (Window) windowLoader.getResultComponent();
         Window windowWrapper = wrapByCustomClass(clientSpecificWindow, element);
 
-        screenViewsLoader.deployViews(element); // todo will be removed from new screens
+        screenViewsLoader.deployViews(element);
 
         DsContext dsContext = loadDsContext(element);
         initDatasources(clientSpecificWindow, dsContext, params);
 
         componentLoaderContext.setDsContext(dsContext);
 
-        WindowContext windowContext = new WindowContextImpl(clientSpecificWindow, openType, params);
+        WindowContext windowContext = new WindowContextImpl(clientSpecificWindow, OpenMode.NEW_TAB, params);
         clientSpecificWindow.setContext(windowContext);
         dsContext.setFrameContext(windowContext);
 

@@ -30,7 +30,6 @@ import com.haulmont.cuba.gui.data.DsContext;
 import com.haulmont.cuba.gui.icons.Icons;
 import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.gui.settings.Settings;
-import com.haulmont.cuba.gui.sys.UiServices;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Element;
 import org.springframework.context.ApplicationListener;
@@ -42,7 +41,8 @@ import java.util.*;
 /**
  * Base class for simple screen controllers.
  */
-public class AbstractWindow extends Screen implements Window, LegacyFrame, Component.HasXmlDescriptor, Window.Wrapper, SecuredActionsHolder {
+public class AbstractWindow extends Screen implements Window, LegacyFrame, Component.HasXmlDescriptor, Window.Wrapper,
+        SecuredActionsHolder {
 
     protected Frame frame;
     private Object _companion;
@@ -58,13 +58,11 @@ public class AbstractWindow extends Screen implements Window, LegacyFrame, Compo
     public AbstractWindow() {
     }
 
-    public UiServices getUiServices() {
-        throw new UnsupportedOperationException("TODO"); // todo
-    }
+    @Override
+    protected void setWindow(Window window) {
+        super.setWindow(window);
 
-    /** INTERNAL. Don't call from application code. */
-    public void setWrappedFrame(Frame frame) {
-        this.frame = frame;
+        this.frame = window;
     }
 
     @Override
@@ -79,7 +77,18 @@ public class AbstractWindow extends Screen implements Window, LegacyFrame, Compo
 
     @Subscribe
     protected void init(InitEvent initEvent) {
-        init(Collections.emptyMap()); // todo
+        Map<String, Object> params = Collections.emptyMap();
+        ScreenOptions options = initEvent.getOptions();
+        if (options instanceof MapScreenOptions) {
+            params = ((MapScreenOptions) options).getParams();
+        }
+
+        init(params);
+    }
+
+    @Subscribe
+    protected void afterShow(AfterShowEvent event) {
+        ready();
     }
 
     /**

@@ -128,7 +128,7 @@ public class WindowConfig {
             return loadDefinedScreenClass(windowInfo.getScreenClassName());
         }
 
-        throw new IllegalStateException("Neither screen class not descriptor is set for WindowInfo");
+        throw new IllegalStateException("Neither screen class nor descriptor is set for WindowInfo");
     }
 
     protected boolean extractMultiOpen(WindowInfo windowInfo) {

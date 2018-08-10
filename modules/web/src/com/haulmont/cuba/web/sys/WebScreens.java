@@ -17,15 +17,18 @@
 package com.haulmont.cuba.web.sys;
 
 import com.haulmont.bali.events.EventHub;
+import com.haulmont.bali.util.ReflectionHelper;
 import com.haulmont.cuba.client.ClientConfig;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.Screens;
+import com.haulmont.cuba.gui.WindowContext;
 import com.haulmont.cuba.gui.WindowManager;
+import com.haulmont.cuba.gui.WindowParams;
 import com.haulmont.cuba.gui.app.core.dev.LayoutAnalyzer;
 import com.haulmont.cuba.gui.app.core.dev.LayoutTip;
-import com.haulmont.cuba.gui.components.Component.Disposable;
 import com.haulmont.cuba.gui.components.*;
+import com.haulmont.cuba.gui.components.Component.Disposable;
 import com.haulmont.cuba.gui.components.Window.BeforeCloseWithCloseButtonEvent;
 import com.haulmont.cuba.gui.components.Window.BeforeCloseWithShortcutEvent;
 import com.haulmont.cuba.gui.components.Window.HasWorkArea;
@@ -36,11 +39,21 @@ import com.haulmont.cuba.gui.components.mainwindow.UserIndicator;
 import com.haulmont.cuba.gui.components.sys.WindowImplementation;
 import com.haulmont.cuba.gui.config.WindowConfig;
 import com.haulmont.cuba.gui.config.WindowInfo;
+import com.haulmont.cuba.gui.data.DataSupplier;
 import com.haulmont.cuba.gui.data.Datasource;
+import com.haulmont.cuba.gui.data.DsContext;
+import com.haulmont.cuba.gui.data.impl.DatasourceImplementation;
+import com.haulmont.cuba.gui.data.impl.DsContextImplementation;
+import com.haulmont.cuba.gui.data.impl.GenericDataSupplier;
 import com.haulmont.cuba.gui.screen.*;
+import com.haulmont.cuba.gui.settings.Settings;
+import com.haulmont.cuba.gui.settings.SettingsImpl;
+import com.haulmont.cuba.gui.sys.AttributeAccessSupport;
 import com.haulmont.cuba.gui.sys.ScreenDependencyInjector;
 import com.haulmont.cuba.gui.sys.ScreenViewsLoader;
+import com.haulmont.cuba.gui.sys.WindowContextImpl;
 import com.haulmont.cuba.gui.util.OperationResult;
+import com.haulmont.cuba.gui.xml.data.DsContextLoader;
 import com.haulmont.cuba.gui.xml.layout.ComponentLoader;
 import com.haulmont.cuba.gui.xml.layout.ComponentsFactory;
 import com.haulmont.cuba.gui.xml.layout.LayoutLoader;
@@ -112,6 +125,8 @@ public class WebScreens implements Screens, WindowManager {
 
     protected AppUI ui;
 
+    protected DataSupplier defaultDataSupplier = new GenericDataSupplier();
+
     public WebScreens(AppUI ui) {
         this.ui = ui;
     }
@@ -151,15 +166,19 @@ public class WebScreens implements Screens, WindowManager {
 
         T controller = createController(windowInfo, window, resolvedScreenClass, launchMode);
 
-        loadScreenXml(windowInfo, window, controller, options);
-
         ScreenUtils.setWindow(controller, window);
         ScreenUtils.setWindowInfo(controller, windowInfo);
         ScreenUtils.setScreenOptions(controller, options);
+        ScreenUtils.setWindowId(controller, windowInfo.getId());
 
         WindowImplementation windowImpl = (WindowImplementation) window;
         windowImpl.setFrameOwner(controller);
-        windowImpl.setLaunchMode(launchMode);
+        windowImpl.setId(controller.getId());
+
+        WindowContext windowContext = new WindowContextImpl(window, launchMode, Collections.emptyMap()); // todo options
+        window.setContext(windowContext);
+
+        loadScreenXml(windowInfo, window, controller, options);
 
         // todo legacy datasource layer
 
@@ -190,8 +209,6 @@ public class WebScreens implements Screens, WindowManager {
 
             Element element = screenXmlLoader.load(templatePath, windowInfo.getId(), params);
 
-            // todo load XML markup if annotation present, or screen is legacy screen
-
             ComponentLoaderContext componentLoaderContext = new ComponentLoaderContext(params);
             componentLoaderContext.setFullFrameId(windowInfo.getId());
             componentLoaderContext.setCurrentFrameId(windowInfo.getId());
@@ -202,9 +219,16 @@ public class WebScreens implements Screens, WindowManager {
             // deploy views only if screen is legacy
             if (controller instanceof LegacyFrame) {
                 screenViewsLoader.deployViews(element);
+
+                initDsContext(window, element, componentLoaderContext);
             }
 
-            // todo load datasources here
+            if (controller instanceof LegacyFrame) {
+                DsContext dsContext = ((LegacyFrame) controller).getDsContext();
+                if (dsContext != null) {
+                    dsContext.setFrameContext(window.getContext());
+                }
+            }
 
             windowLoader.loadComponent();
 
@@ -212,6 +236,44 @@ public class WebScreens implements Screens, WindowManager {
             eventHub.subscribe(AfterInitEvent.class, event ->
                     componentLoaderContext.executePostInitTasks()
             );
+        }
+    }
+
+    protected  <T extends Screen> void initDsContext(Window window, Element element,
+                                                     ComponentLoaderContext componentLoaderContext) {
+        DsContext dsContext = loadDsContext(element);
+        initDatasources(window, dsContext, componentLoaderContext.getParams());
+
+        componentLoaderContext.setDsContext(dsContext);
+    }
+
+    protected DsContext loadDsContext(Element element) {
+        DataSupplier dataSupplier;
+
+        String dataSupplierClass = element.attributeValue("dataSupplier");
+        if (StringUtils.isEmpty(dataSupplierClass)) {
+            dataSupplier = defaultDataSupplier;
+        } else {
+            Class<Object> aClass = ReflectionHelper.getClass(dataSupplierClass);
+            try {
+                dataSupplier = (DataSupplier) aClass.newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                throw new RuntimeException("Unable to create data supplier for screen", e);
+            }
+        }
+
+        //noinspection UnnecessaryLocalVariable
+        DsContext dsContext = new DsContextLoader(dataSupplier).loadDatasources(element.element("dsContext"), null, null);
+        return dsContext;
+    }
+
+    protected void initDatasources(Window window, DsContext dsContext, Map<String, Object> params) {
+        ((LegacyFrame) window.getFrameOwner()).setDsContext(dsContext);
+
+        for (Datasource ds : dsContext.getAll()) {
+            if (Datasource.State.NOT_INITIALIZED.equals(ds.getState()) && ds instanceof DatasourceImplementation) {
+                ((DatasourceImplementation) ds).initialized();
+            }
         }
     }
 
@@ -249,17 +311,15 @@ public class WebScreens implements Screens, WindowManager {
 
         checkMultiOpen(screen);
 
-        // todo load and apply settings
-
         // todo UI security
 
         BeforeShowEvent beforeShowEvent = new BeforeShowEvent(screen);
         ScreenUtils.fireEvent(screen, BeforeShowEvent.class, beforeShowEvent);
 
-        WindowImplementation windowImpl = (WindowImplementation) screen.getWindow();
+        LaunchMode launchMode = screen.getWindow().getContext().getLaunchMode();
 
-        if (windowImpl.getLaunchMode() instanceof OpenMode) {
-            OpenMode openMode = (OpenMode) windowImpl.getLaunchMode();
+        if (launchMode instanceof OpenMode) {
+            OpenMode openMode = (OpenMode) launchMode;
 
             switch (openMode) {
                 case ROOT:
@@ -284,8 +344,40 @@ public class WebScreens implements Screens, WindowManager {
             }
         }
 
+        afterShowWindow(screen);
+
         AfterShowEvent afterShowEvent = new AfterShowEvent(screen);
         ScreenUtils.fireEvent(screen, AfterShowEvent.class, afterShowEvent);
+    }
+
+    protected void afterShowWindow(Screen screen) {
+        WindowContext windowContext = screen.getWindow().getContext();
+
+        if (!WindowParams.DISABLE_APPLY_SETTINGS.getBool(windowContext)) {
+            screen.getWindow().applySettings(getSettingsImpl(screen.getId()));
+        }
+
+        if (screen instanceof LegacyFrame) {
+            if (!WindowParams.DISABLE_RESUME_SUSPENDED.getBool(windowContext)) {
+                DsContext dsContext = ((LegacyFrame) screen).getDsContext();
+                if (dsContext != null) {
+                    ((DsContextImplementation) dsContext).resumeSuspended();
+                }
+            }
+        }
+
+        if (screen instanceof AbstractWindow) {
+            AbstractWindow abstractWindow = (AbstractWindow) screen;
+
+            if (abstractWindow.isAttributeAccessControlEnabled()) {
+                AttributeAccessSupport attributeAccessSupport = AppBeans.get(AttributeAccessSupport.NAME);
+                attributeAccessSupport.applyAttributeAccess(abstractWindow, false);
+            }
+        }
+    }
+
+    protected Settings getSettingsImpl(String id) {
+        return new SettingsImpl(id);
     }
 
     @Override
@@ -297,7 +389,7 @@ public class WebScreens implements Screens, WindowManager {
             ((Disposable) windowImpl).dispose();
         }
 
-        LaunchMode launchMode = windowImpl.getLaunchMode();
+        LaunchMode launchMode = windowImpl.getContext().getLaunchMode();
         if (launchMode instanceof OpenMode) {
             OpenMode openMode = (OpenMode) launchMode;
 
@@ -440,7 +532,7 @@ public class WebScreens implements Screens, WindowManager {
 
     @Override
     public void setWindowCaption(Window window, String caption, String description) {
-        throw new UnsupportedOperationException();
+        // todo
     }
 
     @Override
@@ -474,12 +566,15 @@ public class WebScreens implements Screens, WindowManager {
     }
 
     @Override
-    public Window.Editor openEditor(WindowInfo windowInfo, Entity item, OpenType openType, Map<String, Object> params, Datasource parentDs) {
-        throw new UnsupportedOperationException();
+    public Window.Editor openEditor(WindowInfo windowInfo, Entity item, OpenType openType, Map<String, Object> params,
+                                    Datasource parentDs) {
+         // todo
+        return null;
     }
 
     @Override
-    public Window.Lookup openLookup(WindowInfo windowInfo, Window.Lookup.Handler handler, OpenType openType, Map<String, Object> params) {
+    public Window.Lookup openLookup(WindowInfo windowInfo, Window.Lookup.Handler handler, OpenType openType,
+                                    Map<String, Object> params) {
         throw new UnsupportedOperationException();
     }
 
@@ -494,12 +589,14 @@ public class WebScreens implements Screens, WindowManager {
     }
 
     @Override
-    public Frame openFrame(Frame parentFrame, com.haulmont.cuba.gui.components.Component parent, WindowInfo windowInfo, Map<String, Object> params) {
+    public Frame openFrame(Frame parentFrame, com.haulmont.cuba.gui.components.Component parent, WindowInfo windowInfo,
+                           Map<String, Object> params) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Frame openFrame(Frame parentFrame, com.haulmont.cuba.gui.components.Component parent, @Nullable String id, WindowInfo windowInfo, Map<String, Object> params) {
+    public Frame openFrame(Frame parentFrame, com.haulmont.cuba.gui.components.Component parent, @Nullable String id,
+                           WindowInfo windowInfo, Map<String, Object> params) {
         throw new UnsupportedOperationException();
     }
 
@@ -520,7 +617,7 @@ public class WebScreens implements Screens, WindowManager {
 
     @Override
     public void showNotification(String caption, Frame.NotificationType type) {
-        throw new UnsupportedOperationException();
+        // todo
     }
 
     @Override
@@ -654,7 +751,7 @@ public class WebScreens implements Screens, WindowManager {
             throw new UnsupportedOperationException("Unsupported launch mode");
         }
 
-        ((WebWindow) window).setUiServices(ui);
+        ((WindowImplementation) window).setUiServices(ui);
 
         return window;
     }

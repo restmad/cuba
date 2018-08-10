@@ -499,7 +499,7 @@ public class FilterDelegateImpl implements FilterDelegate {
         try {
             setFilterEntity(defaultFilter);
         } catch (Exception e) {
-            log.error("Exception on loading default filter '" + defaultFilter.getName() + "'", e);
+            log.error("Exception on loading default filter '{}'", defaultFilter.getName(), e);
             windowManager.showNotification(messages.formatMainMessage("filter.errorLoadingDefaultFilter", defaultFilter.getName()), Frame.NotificationType.ERROR);
             defaultFilter = adHocFilter;
             setFilterEntity(adHocFilter);
@@ -1046,15 +1046,19 @@ public class FilterDelegateImpl implements FilterDelegate {
     }
 
     protected FilterEntity getDefaultFilter(List<FilterEntity> filters) {
-        Window window = ComponentsHelper.getWindow(filter);
+        Window window = ComponentsHelper.getWindowImplementation(filter);
+        if (window == null) {
+            throw new IllegalStateException("There is no window set for filter");
+        }
 
         // First check if there is parameter with name equal to this filter component id, containing a filter code to apply
         Map<String, Object> params = filter.getFrame().getContext().getParams();
         String code = (String) params.get(filter.getId());
         if (!StringUtils.isBlank(code)) {
             for (FilterEntity filter : filters) {
-                if (code.equals(filter.getCode()))
+                if (code.equals(filter.getCode())) {
                     return filter;
+                }
             }
         }
 

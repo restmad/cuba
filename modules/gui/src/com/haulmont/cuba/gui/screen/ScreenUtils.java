@@ -25,6 +25,10 @@ import com.haulmont.cuba.gui.config.WindowInfo;
  */
 public final class ScreenUtils {
 
+    public static void setWindowId(Screen screen, String id) {
+        screen.setId(id);
+    }
+
     public static void setWindow(Screen screen, Window window) {
         screen.setWindow(window);
     }

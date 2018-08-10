@@ -29,6 +29,7 @@ import com.haulmont.cuba.gui.components.Action;
 import com.haulmont.cuba.gui.components.DialogAction;
 import com.haulmont.cuba.gui.components.Window;
 import com.haulmont.cuba.gui.components.actions.BaseAction;
+import com.haulmont.cuba.gui.components.sys.WindowImplementation;
 import com.haulmont.cuba.gui.config.WindowInfo;
 import com.haulmont.cuba.gui.icons.CubaIcon;
 import com.haulmont.cuba.gui.icons.Icons;
@@ -134,11 +135,11 @@ public abstract class Screen implements FrameOwner {
     }
 
     private Screens getScreens() {
-        return getWindow().getUiServices().getScreens();
+        return ((WindowImplementation) getWindow()).getUiServices().getScreens();
     }
 
     private Dialogs getDialogs() {
-        return getWindow().getUiServices().getDialogs();
+        return ((WindowImplementation) getWindow()).getUiServices().getDialogs();
     }
 
     private Messages getMessages() {

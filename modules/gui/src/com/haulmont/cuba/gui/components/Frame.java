@@ -20,7 +20,6 @@ import com.haulmont.bali.util.Preconditions;
 import com.haulmont.cuba.gui.FrameContext;
 import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.screen.FrameOwner;
-import com.haulmont.cuba.gui.sys.UiServices;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -100,19 +99,7 @@ public interface Frame
      */
     boolean validateAll();
 
-    /**
-     * JavaDoc
-     *
-     * @return todo
-     */
-    UiServices getUiServices();
-
-    /**
-     * @return window manager instance
-     */
-    default WindowManager getWindowManager() {
-        return (WindowManager) getUiServices().getScreens();
-    }
+    WindowManager getWindowManager();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
