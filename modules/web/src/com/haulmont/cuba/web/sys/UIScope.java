@@ -24,15 +24,10 @@ import com.haulmont.cuba.web.AppUI;
 import com.vaadin.server.VaadinSession;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.config.Scope;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@Component(UIScope.NAME)
 public class UIScope implements Scope {
 
-    public static final String NAME = "uiScope";
+    public static final String NAME = "ui";
 
     @Override
     public Object get(String name, ObjectFactory<?> objectFactory) {
@@ -45,13 +40,25 @@ public class UIScope implements Scope {
 
         switch (name) {
             case Screens.NAME:
-                return ui.getScreens();
+                Screens screens = ui.getScreens();
+                if (screens == null) {
+                    screens = (Screens) objectFactory.getObject();
+                }
+                return screens;
 
             case Dialogs.NAME:
-                return ui.getDialogs();
+                Dialogs dialogs = ui.getDialogs();
+                if (dialogs == null) {
+                    dialogs = (Dialogs) objectFactory.getObject();
+                }
+                return dialogs;
 
             case Notifications.NAME:
-                return ui.getNotifications();
+                Notifications notifications = ui.getNotifications();
+                if (notifications == null) {
+                    notifications = (Notifications) objectFactory.getObject();
+                }
+                return notifications;
 
             default:
                 throw new UnsupportedOperationException("Unknown UI scoped bean " + name);

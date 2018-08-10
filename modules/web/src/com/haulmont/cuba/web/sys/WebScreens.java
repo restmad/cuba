@@ -78,7 +78,7 @@ import static com.haulmont.bali.util.Preconditions.checkNotNullArgument;
 import static com.haulmont.cuba.gui.ComponentsHelper.walkComponents;
 import static com.haulmont.cuba.gui.components.Window.CLOSE_ACTION_ID;
 
-@Scope(BeanDefinition.SCOPE_PROTOTYPE)
+@Scope(UIScope.NAME)
 @Component(Screens.NAME)
 public class WebScreens implements Screens, WindowManager {
 
@@ -151,7 +151,7 @@ public class WebScreens implements Screens, WindowManager {
         // todo legacy datasource layer
 
         ScreenDependencyInjector dependencyInjector =
-                beanLocator.getPrototype(ScreenDependencyInjector.NAME, controller, options, this);
+                beanLocator.getPrototype(ScreenDependencyInjector.NAME, controller, options);
         dependencyInjector.inject();
 
         InitEvent initEvent = new InitEvent(controller, options);

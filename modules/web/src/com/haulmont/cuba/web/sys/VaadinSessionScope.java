@@ -21,10 +21,9 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.config.Scope;
 import org.springframework.stereotype.Component;
 
-@Component(VaadinSessionScope.NAME)
 public class VaadinSessionScope implements Scope {
 
-    public static final String NAME = "vaadinSessionScope";
+    public static final String NAME = "vaadin";
 
     @Override
     public Object get(String name, ObjectFactory<?> objectFactory) {

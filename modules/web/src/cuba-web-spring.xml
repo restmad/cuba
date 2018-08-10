@@ -36,6 +36,9 @@
         <context:exclude-filter type="regex" expression="com\.haulmont\.cuba\.restapi\..*"/>
     </context:component-scan>
 
+    <bean id="vaadinSessionScope" class="com.haulmont.cuba.web.sys.VaadinSessionScope"/>
+    <bean id="uiScope" class="com.haulmont.cuba.web.sys.UIScope"/>
+
     <!-- Various beans with non-standard configuration -->
     <bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
         <property name="scopes">
