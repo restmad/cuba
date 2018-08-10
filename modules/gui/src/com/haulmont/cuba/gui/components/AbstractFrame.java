@@ -23,9 +23,10 @@ import com.haulmont.cuba.core.global.DevelopmentException;
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.gui.FrameContext;
 import com.haulmont.cuba.gui.WindowManager;
+import com.haulmont.cuba.gui.components.Frame.NotificationType;
 import com.haulmont.cuba.gui.data.DsContext;
 import com.haulmont.cuba.gui.icons.Icons;
-import com.haulmont.cuba.gui.screen.LegacyScreen;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import com.haulmont.cuba.gui.sys.UiServices;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationListener;
@@ -40,7 +41,7 @@ import java.util.Objects;
 /**
  * Base class for frame controllers.
  */
-public class AbstractFrame implements Frame, Frame.Wrapper, Component.Wrapper, OrderedContainer, LegacyScreen {
+public class AbstractFrame implements Frame.Wrapper, LegacyFrame {
 
     protected Frame frame;
     private Object _companion;
@@ -48,13 +49,14 @@ public class AbstractFrame implements Frame, Frame.Wrapper, Component.Wrapper, O
     private Component parent;
     private List<ApplicationListener> uiEventListeners;
 
+    private DsContext dsContext;
+
     @Inject
     protected Messages messages;
 
     public AbstractFrame() {
     }
 
-    @Override
     public UiServices getUiServices() {
         throw new UnsupportedOperationException("TODO"); // todo
     }
@@ -62,6 +64,11 @@ public class AbstractFrame implements Frame, Frame.Wrapper, Component.Wrapper, O
     /** INTERNAL. Don't call from application code. */
     public void setWrappedFrame(Frame frame) {
         this.frame = frame;
+    }
+
+    @Override
+    public WindowManager getWindowManager() {
+        return frame.getWindowManager();
     }
 
     @Override
@@ -322,12 +329,12 @@ public class AbstractFrame implements Frame, Frame.Wrapper, Component.Wrapper, O
 
     @Override
     public DsContext getDsContext() {
-        return frame.getDsContext();
+        return dsContext;
     }
 
     @Override
     public void setDsContext(DsContext dsContext) {
-        frame.setDsContext(dsContext);
+        this.dsContext = dsContext;
     }
 
     @Override

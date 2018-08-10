@@ -25,6 +25,7 @@ import com.haulmont.cuba.gui.WindowManager.OpenType;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.icons.CubaIcon;
 import com.haulmont.cuba.gui.icons.Icons;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import com.haulmont.cuba.gui.screen.OpenMode;
 import com.haulmont.cuba.gui.theme.ThemeConstants;
 import com.haulmont.cuba.gui.theme.ThemeConstantsManager;
@@ -149,13 +150,13 @@ public class BulkEditAction extends ItemTrackingAction implements Action.HasBefo
         UserSession userSession = AppBeans.get(UserSessionSource.class).getUserSession();
         if (!userSession.isSpecificPermitted(BulkEditor.PERMISSION)) {
             Messages messages = AppBeans.get(Messages.NAME);
-            target.getFrame().showNotification(messages.getMainMessage("accessDenied.message"), Frame.NotificationType.ERROR);
+            LegacyFrame.of(target.getFrame()).showNotification(messages.getMainMessage("accessDenied.message"), Frame.NotificationType.ERROR);
             return;
         }
 
         if (target.getSelected().isEmpty()) {
             Messages messages = AppBeans.get(Messages.NAME);
-            target.getFrame().showNotification(messages.getMainMessage("actions.BulkEdit.emptySelection"),
+            LegacyFrame.of(target.getFrame()).showNotification(messages.getMainMessage("actions.BulkEdit.emptySelection"),
                     Frame.NotificationType.HUMANIZED);
             return;
         }
@@ -183,7 +184,7 @@ public class BulkEditAction extends ItemTrackingAction implements Action.HasBefo
                 .pair("useConfirmDialog", useConfirmDialog)
                 .create();
 
-        Window bulkEditor = target.getFrame().openWindow("bulkEditor", openType, params);
+        Window bulkEditor = LegacyFrame.of(target.getFrame()).openWindow("bulkEditor", openType, params);
         bulkEditor.addCloseListener(actionId -> {
             if (Window.COMMIT_ACTION_ID.equals(actionId)) {
                 target.getDatasource().refresh();

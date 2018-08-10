@@ -31,6 +31,7 @@ import com.haulmont.cuba.gui.components.sys.ValuePathHelper;
 import com.haulmont.cuba.gui.config.WindowConfig;
 import com.haulmont.cuba.gui.config.WindowInfo;
 import com.haulmont.cuba.gui.data.impl.DsContextImplementation;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import com.haulmont.cuba.security.entity.FilterEntity;
 import com.haulmont.cuba.security.entity.SearchFolder;
 import com.haulmont.cuba.web.App;
@@ -114,6 +115,6 @@ public class FoldersBean implements Folders {
             }
         }
 
-        ((DsContextImplementation) window.getDsContext()).resumeSuspended();
+        ((DsContextImplementation) LegacyFrame.of(window).getDsContext()).resumeSuspended();
     }
 }

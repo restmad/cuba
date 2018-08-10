@@ -19,8 +19,8 @@ package com.haulmont.cuba.web.gui.components;
 import com.haulmont.cuba.gui.ComponentsHelper;
 import com.haulmont.cuba.gui.FrameContext;
 import com.haulmont.cuba.gui.components.*;
-import com.haulmont.cuba.gui.data.DsContext;
 import com.haulmont.cuba.gui.events.sys.UiEventsMulticaster;
+import com.haulmont.cuba.gui.screen.FrameOwner;
 import com.haulmont.cuba.gui.sys.UiServices;
 import com.haulmont.cuba.web.AppUI;
 import org.slf4j.Logger;
@@ -42,7 +42,6 @@ public class WebFrame extends WebVBoxLayout implements Frame, WrappedFrame {
 
     protected String messagePack;
     protected FrameContext context;
-    protected DsContext dsContext;
 
     protected Frame wrapper;
 
@@ -122,6 +121,11 @@ public class WebFrame extends WebVBoxLayout implements Frame, WrappedFrame {
     }
 
     @Override
+    public FrameOwner getFrameOwner() {
+        return (FrameOwner) wrapper;
+    }
+
+    @Override
     public FrameContext getContext() {
         return context == null ? getFrame().getContext() : context;
     }
@@ -129,16 +133,6 @@ public class WebFrame extends WebVBoxLayout implements Frame, WrappedFrame {
     @Override
     public void setContext(FrameContext ctx) {
         this.context = ctx;
-    }
-
-    @Override
-    public DsContext getDsContext() {
-        return dsContext == null ? getFrame().getDsContext() : dsContext;
-    }
-
-    @Override
-    public void setDsContext(DsContext dsContext) {
-        this.dsContext = dsContext;
     }
 
     @Override

@@ -33,6 +33,7 @@ import com.haulmont.cuba.gui.data.NestedDatasource;
 import com.haulmont.cuba.gui.data.PropertyDatasource;
 import com.haulmont.cuba.gui.icons.CubaIcon;
 import com.haulmont.cuba.gui.icons.Icons;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import com.haulmont.cuba.security.entity.EntityAttrAccess;
 import org.springframework.context.annotation.Scope;
 
@@ -216,7 +217,7 @@ public class AddAction extends BaseAction implements Action.HasOpenType, Action.
         Window.Lookup.Handler handler = getHandler();
         Window.Lookup.Handler itemsHandler = handler != null ? handler : new DefaultHandler();
 
-        Window lookupWindow = target.getFrame().openLookup(getWindowId(), itemsHandler, getOpenType(), params);
+        Window lookupWindow = LegacyFrame.of(target.getFrame()).openLookup(getWindowId(), itemsHandler, getOpenType(), params);
         if (target instanceof Component.Focusable) {
             lookupWindow.addCloseListener(actionId -> {
                 // move focus to owner

@@ -16,6 +16,8 @@
 
 package com.haulmont.cuba.gui.util;
 
+import java.util.function.Supplier;
+
 public final class SuccessOperationResult implements OperationResult {
 
     public static final OperationResult INSTANCE = new SuccessOperationResult();
@@ -26,6 +28,11 @@ public final class SuccessOperationResult implements OperationResult {
     @Override
     public Status getStatus() {
         return Status.SUCCESS;
+    }
+
+    @Override
+    public OperationResult compose(Supplier<OperationResult> result) {
+        return result.get();
     }
 
     @Override

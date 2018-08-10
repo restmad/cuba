@@ -18,7 +18,7 @@ package com.haulmont.cuba.web.gui.components;
 
 import com.haulmont.cuba.gui.FrameContext;
 import com.haulmont.cuba.gui.components.*;
-import com.haulmont.cuba.gui.data.DsContext;
+import com.haulmont.cuba.gui.screen.FrameOwner;
 import com.haulmont.cuba.gui.sys.UiServices;
 
 import javax.annotation.Nullable;
@@ -29,22 +29,17 @@ import java.util.List;
 public class WebFragment extends WebVBoxLayout implements Fragment {
 
     @Override
+    public FrameOwner getFrameOwner() {
+        return null; // todo
+    }
+
+    @Override
     public FrameContext getContext() {
         return null;
     }
 
     @Override
     public void setContext(FrameContext ctx) {
-
-    }
-
-    @Override
-    public DsContext getDsContext() {
-        return null;
-    }
-
-    @Override
-    public void setDsContext(DsContext dsContext) {
 
     }
 

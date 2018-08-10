@@ -38,6 +38,7 @@ import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.data.DsContext;
 import com.haulmont.cuba.gui.dynamicattributes.DynamicAttributeCustomFieldGenerator;
 import com.haulmont.cuba.gui.dynamicattributes.DynamicAttributesGuiTools;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import com.haulmont.cuba.gui.xml.DeclarativeFieldGenerator;
 import com.haulmont.cuba.gui.xml.layout.ComponentLoader;
 import com.haulmont.cuba.gui.xml.layout.LayoutLoader;
@@ -361,7 +362,8 @@ public class FieldGroupLoader extends AbstractComponentLoader<FieldGroup> {
         CollectionDatasource optionsDs = null;
         String optDsName = element.attributeValue("optionsDatasource");
         if (StringUtils.isNotBlank(optDsName)) {
-            DsContext dsContext = getContext().getFrame().getDsContext();
+            LegacyFrame frame = (LegacyFrame) getContext().getFrame().getFrameOwner();
+            DsContext dsContext = frame.getDsContext();
             optionsDs = findDatasourceRecursively(dsContext, optDsName);
             if (optionsDs == null) {
                 throw new GuiDevelopmentException(String.format("Options datasource %s not found for field %s", optDsName, id)

@@ -27,6 +27,7 @@ import com.haulmont.cuba.gui.config.WindowInfo;
 import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.data.DsContext;
 import com.haulmont.cuba.gui.presentations.Presentations;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import com.haulmont.cuba.gui.settings.Settings;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Element;
@@ -87,7 +88,7 @@ public class WindowDelegate {
         Element element = ((Component.HasXmlDescriptor) window).getXmlDescriptor();
         String datasourceName = element.attributeValue("datasource");
         if (!StringUtils.isEmpty(datasourceName)) {
-            DsContext context = window.getDsContext();
+            DsContext context = LegacyFrame.of(window).getDsContext();
             if (context != null) {
                 ds = context.get(datasourceName);
             }
@@ -221,7 +222,7 @@ public class WindowDelegate {
         if (wrapper instanceof Window.Committable)
             return ((Window.Committable) wrapper).isModified();
         else
-            return window.getDsContext() != null && window.getDsContext().isModified();
+            return LegacyFrame.of(window).getDsContext() != null && LegacyFrame.of(window).getDsContext().isModified();
     }
 
     public Window openWindow(String windowAlias, OpenType openType, Map<String, Object> params) {

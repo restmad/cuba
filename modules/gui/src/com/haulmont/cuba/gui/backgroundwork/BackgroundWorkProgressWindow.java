@@ -22,6 +22,7 @@ import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.executors.BackgroundTask;
 import com.haulmont.cuba.gui.executors.BackgroundTaskHandler;
 import com.haulmont.cuba.gui.executors.BackgroundWorker;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import org.apache.commons.lang3.BooleanUtils;
 
 import javax.annotation.Nullable;
@@ -92,7 +93,7 @@ public class BackgroundWorkProgressWindow<T extends Number, V> extends AbstractW
         params.put("cancelAllowed", cancelAllowed);
         params.put("percentProgress", percentProgress);
 
-        task.getOwnerFrame().openWindow("backgroundWorkProgressWindow", OpenType.DIALOG, params);
+        ((LegacyFrame) task.getOwnerFrame()).openWindow("backgroundWorkProgressWindow", OpenType.DIALOG, params);
     }
 
     /**

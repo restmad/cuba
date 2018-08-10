@@ -177,10 +177,10 @@ public class AbstractEditor<T extends Entity> extends AbstractWindow implements 
     protected boolean postCommit(boolean committed, boolean close) {
         if (committed && !close) {
             if (showSaveNotification) {
-                Entity entity = ((Editor) frame).getItem();
+                Entity entity = getItem();
                 MetadataTools metadataTools = AppBeans.get(MetadataTools.class);
 
-                frame.showNotification(
+                showNotification(
                         messages.formatMainMessage("info.EntitySave",
                                 messages.getTools().getEntityCaption(entity.getMetaClass()),
                                 metadataTools.getInstanceName(entity)),

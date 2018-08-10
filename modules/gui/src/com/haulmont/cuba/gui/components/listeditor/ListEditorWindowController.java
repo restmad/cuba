@@ -17,6 +17,7 @@
 package com.haulmont.cuba.gui.components.listeditor;
 
 import com.haulmont.cuba.gui.components.Window;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 
 import java.util.List;
 

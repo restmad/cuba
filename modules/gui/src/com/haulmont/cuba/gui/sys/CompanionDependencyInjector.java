@@ -22,9 +22,8 @@ import com.haulmont.cuba.core.config.Config;
 import com.haulmont.cuba.core.global.AppBeans;
 import com.haulmont.cuba.core.global.Configuration;
 import com.haulmont.cuba.core.sys.AppContext;
-import com.haulmont.cuba.gui.AppConfig;
-import com.haulmont.cuba.gui.ComponentsHelper;
 import com.haulmont.cuba.gui.FrameContext;
+import com.haulmont.cuba.gui.components.AbstractFrame;
 import com.haulmont.cuba.gui.components.Action;
 import com.haulmont.cuba.gui.components.Component;
 import com.haulmont.cuba.gui.components.Frame;
@@ -32,6 +31,7 @@ import com.haulmont.cuba.gui.data.DataSupplier;
 import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.data.DsContext;
 import com.haulmont.cuba.gui.export.ExportDisplay;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import com.haulmont.cuba.gui.theme.ThemeConstants;
 import com.haulmont.cuba.gui.theme.ThemeConstantsManager;
 import org.apache.commons.lang3.ClassUtils;
@@ -53,9 +53,9 @@ public class CompanionDependencyInjector {
     private static final Logger log = LoggerFactory.getLogger(CompanionDependencyInjector.class);
 
     protected Object companion;
-    protected Frame frame;
+    protected AbstractFrame frame;
 
-    public CompanionDependencyInjector(Frame frame, Object companion) {
+    public CompanionDependencyInjector(AbstractFrame frame, Object companion) {
         this.companion = companion;
         this.frame = frame;
     }
@@ -163,15 +163,15 @@ public class CompanionDependencyInjector {
 
         } else if (Datasource.class.isAssignableFrom(type)) {
             // Injecting a datasource
-            return frame.getDsContext().get(name);
+            return ((LegacyFrame) frame).getDsContext().get(name);
 
         } else if (DsContext.class.isAssignableFrom(type)) {
             // Injecting the DsContext
-            return frame.getDsContext();
+            return ((LegacyFrame) frame).getDsContext();
 
         } else if (DataSupplier.class.isAssignableFrom(type)) {
             // Injecting the DataSupplier
-            return frame.getDsContext().getDataSupplier();
+            return ((LegacyFrame) frame).getDsContext().getDataSupplier();
 
         } else if (FrameContext.class.isAssignableFrom(type)) {
             // Injecting the FrameContext
@@ -179,11 +179,13 @@ public class CompanionDependencyInjector {
 
         } else if (Action.class.isAssignableFrom(type)) {
             // Injecting an action
-            return ComponentsHelper.findAction(name, frame);
+//            return ComponentsHelper.findAction(name, frame); // todo
+            return null;
 
         } else if (ExportDisplay.class.isAssignableFrom(type)) {
             // Injecting an ExportDisplay
-            return AppConfig.createExportDisplay(frame);
+//            return AppConfig.createExportDisplay(frame); // todo
+            return null;
 
         } else if (ThemeConstants.class.isAssignableFrom(type)) {
             // Injecting a Theme

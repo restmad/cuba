@@ -34,6 +34,7 @@ import com.haulmont.cuba.gui.data.impl.CollectionPropertyDatasourceImpl;
 import com.haulmont.cuba.gui.data.impl.DatasourceImplementation;
 import com.haulmont.cuba.gui.data.impl.EntityCopyUtils;
 import com.haulmont.cuba.gui.dynamicattributes.DynamicAttributesGuiTools;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import com.haulmont.cuba.security.entity.EntityOp;
 
 import javax.annotation.Nullable;
@@ -67,7 +68,8 @@ public class EditorWindowDelegate extends WindowDelegate {
 
     @Override
     public Window wrapBy(Class<?> wrapperClass) {
-        final Window.Editor editor = (Window.Editor) super.wrapBy(wrapperClass);
+        // todo
+        /*final Window.Editor editor = (Window.Editor) super.wrapBy(wrapperClass);
 
         final Component commitAndCloseButton = ComponentsHelper.findComponent(editor,
                 Window.Editor.WINDOW_COMMIT_AND_CLOSE);
@@ -125,9 +127,9 @@ public class EditorWindowDelegate extends WindowDelegate {
                         editor.close(commitActionPerformed ? Window.COMMIT_ACTION_ID : getId());
                     }
                 }
-        );
+        );*/
 
-        return editor;
+        return null;
     }
 
     public Entity getItem() {
@@ -279,7 +281,7 @@ public class EditorWindowDelegate extends WindowDelegate {
             return false;
 
         boolean committed;
-        final DsContext context = window.getDsContext();
+        final DsContext context = LegacyFrame.of(window).getDsContext();
         if (context != null) {
             committed = context.commit();
         } else {
@@ -292,7 +294,7 @@ public class EditorWindowDelegate extends WindowDelegate {
     }
 
     protected DataSupplier getDataService() {
-        final DsContext context = window.getDsContext();
+        final DsContext context = LegacyFrame.of(window).getDsContext();
         if (context == null) {
             throw new UnsupportedOperationException();
         } else {

@@ -298,15 +298,15 @@ public class ScreenDependencyInjector {
 
         } else if (Datasource.class.isAssignableFrom(type)) {
             // Injecting a datasource
-            return window.getDsContext().get(name);
+            return ((LegacyFrame) window).getDsContext().get(name);
 
         } else if (DsContext.class.isAssignableFrom(type)) {
             // Injecting the DsContext
-            return window.getDsContext();
+            return ((LegacyFrame) window).getDsContext();
 
         } else if (DataSupplier.class.isAssignableFrom(type)) {
             // Injecting the DataSupplier
-            return window.getDsContext().getDataSupplier();
+            return ((LegacyFrame) window).getDsContext().getDataSupplier();
 
         } else if (FrameContext.class.isAssignableFrom(type)) {
             // Injecting the FrameContext

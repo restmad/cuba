@@ -48,6 +48,7 @@ import com.haulmont.cuba.gui.config.WindowConfig;
 import com.haulmont.cuba.gui.config.WindowInfo;
 import com.haulmont.cuba.gui.icons.CubaIcon;
 import com.haulmont.cuba.gui.icons.Icons;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import com.haulmont.cuba.gui.screen.OpenMode;
 import com.haulmont.cuba.gui.sys.ScreenHistorySupport;
 import com.haulmont.cuba.gui.theme.ThemeConstants;
@@ -886,14 +887,15 @@ public class WebWindowManagerImpl extends WindowManagerImpl {
                 window.saveSettings();
             }
 
-            if (window instanceof WrappedWindow
+            // todo
+            /*if (window instanceof WrappedWindow
                     && ((WrappedWindow) window).getWrapper() instanceof Window.Committable) {
                 WrappedWindow wrappedWindow = (WrappedWindow) window;
                 modified = ((Window.Committable) wrappedWindow.getWrapper()).isModified();
             } else if (window.getDsContext() != null
                     && window.getDsContext().isModified()) {
                 modified = true;
-            }
+            }*/
         }
         disableSavingScreenHistory = true;
         if (modified) {
@@ -949,7 +951,8 @@ public class WebWindowManagerImpl extends WindowManagerImpl {
                     || keepOpenedCrumbs == windowBreadCrumbs || isCloseWithCloseButtonPrevented(currentWindow))
                 continue;
 
-            if (window.getDsContext() != null && window.getDsContext().isModified()) {
+            LegacyFrame legacyFrame = LegacyFrame.of(window);
+            if (legacyFrame.getDsContext() != null && legacyFrame.getDsContext().isModified()) {
                 modified = true;
             }
 
@@ -1913,9 +1916,9 @@ public class WebWindowManagerImpl extends WindowManagerImpl {
                     List<LayoutTip> tipsList = analyzer.analyze(window);
 
                     if (tipsList.isEmpty()) {
-                        window.showNotification("No layout problems found", NotificationType.HUMANIZED);
+                        LegacyFrame.of(window).showNotification("No layout problems found", NotificationType.HUMANIZED);
                     } else {
-                        window.openWindow("layoutAnalyzer", OpenType.DIALOG, ParamsMap.of("tipsList", tipsList));
+                        LegacyFrame.of(window).openWindow("layoutAnalyzer", OpenType.DIALOG, ParamsMap.of("tipsList", tipsList));
                     }
                 }
             }

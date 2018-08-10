@@ -187,7 +187,7 @@ public class WebScreens implements Screens, WindowManager {
             ComponentLoader windowLoader = createLayout(windowInfo, window, element, componentLoaderContext);
 
             // deploy views only if screen is legacy
-            if (controller instanceof LegacyScreen) {
+            if (controller instanceof LegacyFrame) {
                 screenViewsLoader.deployViews(element);
             }
 

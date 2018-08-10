@@ -28,6 +28,7 @@ import com.haulmont.cuba.gui.components.Window;
 import com.haulmont.cuba.gui.components.compatibility.FileUploadFieldListenerWrapper;
 import com.haulmont.cuba.gui.export.ExportDisplay;
 import com.haulmont.cuba.gui.export.FileDataProvider;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import com.haulmont.cuba.gui.upload.FileUploadingAPI;
 import com.haulmont.cuba.web.gui.FileUploadTypesHelper;
 import com.haulmont.cuba.web.widgets.CubaFileUpload;
@@ -158,8 +159,8 @@ public class WebFileUploadField extends WebAbstractUploadField<CubaFileUploadWra
             return getDatasource().getDataSupplier().commit(fileDescriptor);
         }
 
-        if (getFrame().getDsContext().getDataSupplier() != null) {
-            return getFrame().getDsContext().getDataSupplier().commit(fileDescriptor);
+        if (LegacyFrame.of(this).getDsContext().getDataSupplier() != null) {
+            return LegacyFrame.of(this).getDsContext().getDataSupplier().commit(fileDescriptor);
         }
 
         return AppBeans.get(DataManager.class).commit(fileDescriptor);
@@ -223,11 +224,11 @@ public class WebFileUploadField extends WebAbstractUploadField<CubaFileUploadWra
         });
         impl.addFileSizeLimitExceededListener(e -> {
             String warningMsg = messages.formatMainMessage("upload.fileTooBig.message", e.getFileName(), getFileSizeLimitString());
-            getFrame().showNotification(warningMsg, NotificationType.WARNING);
+            LegacyFrame.of(this).showNotification(warningMsg, NotificationType.WARNING);
         });
         impl.addFileExtensionNotAllowedListener(e -> {
             String warningMsg = messages.formatMainMessage("upload.fileIncorrectExtension.message", e.getFileName());
-            getFrame().showNotification(warningMsg, NotificationType.WARNING);
+            LegacyFrame.of(this).showNotification(warningMsg, NotificationType.WARNING);
         });
     }
 

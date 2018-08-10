@@ -27,6 +27,7 @@ import com.haulmont.cuba.gui.config.WindowConfig;
 import com.haulmont.cuba.gui.data.*;
 import com.haulmont.cuba.gui.icons.CubaIcon;
 import com.haulmont.cuba.gui.icons.Icons;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import com.haulmont.cuba.security.entity.EntityAttrAccess;
 import com.haulmont.cuba.security.entity.EntityOp;
 import org.springframework.context.annotation.Scope;
@@ -292,7 +293,7 @@ public class CreateAction extends BaseAction implements Action.HasOpenType, Acti
     @SuppressWarnings("unchecked")
     protected void internalOpenEditor(CollectionDatasource datasource, Entity newItem, Datasource parentDs,
                                       Map<String, Object> params) {
-        Window.Editor window = target.getFrame().openEditor(getWindowId(), newItem, getOpenType(), params, parentDs);
+        AbstractEditor window = LegacyFrame.of(target.getFrame()).openEditor(getWindowId(), newItem, getOpenType(), params, parentDs);
 
         if (editorCloseListener == null) {
             window.addCloseListener(actionId -> {

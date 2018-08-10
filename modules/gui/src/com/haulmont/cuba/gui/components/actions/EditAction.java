@@ -33,6 +33,7 @@ import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.data.PropertyDatasource;
 import com.haulmont.cuba.gui.icons.CubaIcon;
 import com.haulmont.cuba.gui.icons.Icons;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import com.haulmont.cuba.security.entity.EntityOp;
 import com.haulmont.cuba.security.global.UserSession;
 import org.springframework.context.annotation.Scope;
@@ -239,7 +240,7 @@ public class EditAction extends ItemTrackingAction implements Action.HasOpenType
                         "modelValidators", bulkEditorIntegration.getModelValidators()
                 );
 
-                Window bulkEditor = target.getFrame()
+                Window bulkEditor = LegacyFrame.of(target.getFrame())
                         .openWindow("bulkEditor", bulkEditorIntegration.getOpenType(), params);
                 bulkEditor.addCloseListener(actionId -> {
                     if (Window.COMMIT_ACTION_ID.equals(actionId)) {
@@ -278,7 +279,7 @@ public class EditAction extends ItemTrackingAction implements Action.HasOpenType
     protected void internalOpenEditor(CollectionDatasource datasource, Entity existingItem,
                                       Datasource parentDs, Map<String, Object> params) {
 
-        Window.Editor window = target.getFrame().openEditor(getWindowId(), existingItem, getOpenType(), params, parentDs);
+        AbstractEditor window = LegacyFrame.of(target.getFrame()).openEditor(getWindowId(), existingItem, getOpenType(), params, parentDs);
         if (editorCloseListener == null) {
             window.addCloseListener(actionId -> {
                 // move focus to owner

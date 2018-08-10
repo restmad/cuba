@@ -18,6 +18,7 @@ package com.haulmont.cuba.gui.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class UnknownOperationResult implements OperationResult {
     private List<Runnable> thenListeners = new ArrayList<>(2);
@@ -28,6 +29,21 @@ public class UnknownOperationResult implements OperationResult {
     @Override
     public Status getStatus() {
         return status;
+    }
+
+    @Override
+    public OperationResult compose(Supplier<OperationResult> result) {
+        UnknownOperationResult operationResult = new UnknownOperationResult();
+
+        then(() -> {
+            OperationResult resultNested = result.get();
+            resultNested
+                .then(operationResult::success)
+                .otherwise(operationResult::fail);
+        });
+        otherwise(operationResult::fail);
+
+        return operationResult;
     }
 
     @Override

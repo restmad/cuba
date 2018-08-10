@@ -767,7 +767,7 @@ public class WebTokenList<V> extends WebAbstractField<WebTokenList.CubaTokenList
 
                     WindowManager wm = App.getInstance().getWindowManager();
 
-                    Window.Lookup lookup = wm.openLookup(windowInfo, items -> {
+                    AbstractLookup lookup = (AbstractLookup) wm.openLookup(windowInfo, items -> {
                         if (lookupPickerField.isRefreshOptionsOnLookupClose()) {
                             lookupPickerField.getOptionsDatasource().refresh();
                         }

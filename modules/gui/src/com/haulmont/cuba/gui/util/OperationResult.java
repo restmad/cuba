@@ -16,11 +16,15 @@
 
 package com.haulmont.cuba.gui.util;
 
+import java.util.function.Supplier;
+
 /**
  * Operation result object
  */
 public interface OperationResult {
     Status getStatus();
+
+    OperationResult compose(Supplier<OperationResult> result);
 
     OperationResult then(Runnable runnable);
     OperationResult otherwise(Runnable runnable);

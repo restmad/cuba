@@ -25,6 +25,7 @@ import com.haulmont.cuba.gui.components.Window;
 import com.haulmont.cuba.gui.executors.BackgroundTask;
 import com.haulmont.cuba.gui.executors.BackgroundTaskHandler;
 import com.haulmont.cuba.gui.executors.BackgroundWorker;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import org.apache.commons.lang3.BooleanUtils;
 
 import javax.annotation.Nullable;
@@ -83,7 +84,7 @@ public class BackgroundWorkWindow<T, V> extends AbstractWindow {
         params.put("message", message);
         params.put("cancelAllowed", cancelAllowed);
 
-        task.getOwnerFrame().openWindow("backgroundWorkWindow", OpenType.DIALOG, params);
+        ((LegacyFrame) task.getOwnerFrame()).openWindow("backgroundWorkWindow", OpenType.DIALOG, params);
     }
 
     /**

@@ -160,7 +160,7 @@ public abstract class Screen implements FrameOwner {
                 .setActions(
                         new DialogAction(DialogAction.Type.YES)
                                 .withHandler(e -> {
-                                    discardAndClose()
+                                    closeWithDiscard()
                                             .then(result::success)
                                             .otherwise(result::fail);
                                 }),
@@ -186,7 +186,7 @@ public abstract class Screen implements FrameOwner {
                         new DialogAction(DialogAction.Type.OK, Action.Status.PRIMARY)
                                 .withCaption(messages.getMainMessage("closeUnsaved.save"))
                                 .withHandler(e -> {
-                                    commitAndClose()
+                                    closeWithCommit()
                                             .then(result::success)
                                             .otherwise(result::fail);
                                 }),
@@ -194,7 +194,7 @@ public abstract class Screen implements FrameOwner {
                                 .withIcon(getIcons().get(CubaIcon.DIALOG_CANCEL))
                                 .withCaption(messages.getMainMessage("closeUnsaved.discard"))
                                 .withHandler(e -> {
-                                    discardAndClose()
+                                    closeWithDiscard()
                                             .then(result::success)
                                             .otherwise(result::fail);
                                 }),
@@ -256,7 +256,7 @@ public abstract class Screen implements FrameOwner {
      *
      * @return
      */
-    public OperationResult close() {
+    public OperationResult closeIfNotModified() {
         return close(WINDOW_CLOSE_ACTION);
     }
 
@@ -265,16 +265,22 @@ public abstract class Screen implements FrameOwner {
      *
      * @return
      */
-    public OperationResult commitAndClose() {
-        // todo commit
-
-        return close(WINDOW_COMMIT_AND_CLOSE_ACTION);
+    public OperationResult closeWithCommit() {
+        return commitChanges()
+                .compose(() -> close(WINDOW_COMMIT_AND_CLOSE_ACTION));
     }
 
     /**
      * JavaDoc
      */
-    public OperationResult discardAndClose() {
+    protected OperationResult commitChanges() {
+        return OperationResult.success();
+    }
+
+    /**
+     * JavaDoc
+     */
+    public OperationResult closeWithDiscard() {
         // todo commit
 
         return close(WINDOW_DISCARD_AND_CLOSE_ACTION);

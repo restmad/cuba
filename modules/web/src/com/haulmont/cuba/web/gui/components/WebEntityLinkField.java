@@ -28,14 +28,12 @@ import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.core.global.View;
 import com.haulmont.cuba.gui.ComponentsHelper;
 import com.haulmont.cuba.gui.WindowManager;
-import com.haulmont.cuba.gui.components.EntityLinkField;
-import com.haulmont.cuba.gui.components.Frame;
-import com.haulmont.cuba.gui.components.ListComponent;
-import com.haulmont.cuba.gui.components.Window;
+import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.config.WindowConfig;
 import com.haulmont.cuba.gui.data.DataSupplier;
 import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.data.impl.DatasourceImplementation;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import com.haulmont.cuba.web.widgets.CubaButtonField;
 import com.vaadin.v7.data.util.converter.Converter;
 import org.apache.commons.lang3.StringUtils;
@@ -258,7 +256,7 @@ public class WebEntityLinkField<V> extends WebAbstractField<CubaButtonField, V> 
             return;
         }
 
-        DataSupplier dataSupplier = window.getDsContext().getDataSupplier();
+        DataSupplier dataSupplier = LegacyFrame.of(window).getDsContext().getDataSupplier();
         entity = dataSupplier.reload(entity, View.MINIMAL);
 
         String windowAlias = screen;
@@ -267,11 +265,11 @@ public class WebEntityLinkField<V> extends WebAbstractField<CubaButtonField, V> 
             windowAlias = windowConfig.getEditorScreenId(entity.getMetaClass());
         }
 
-        final Window.Editor editor = wm.openEditor(
+        AbstractEditor editor = (AbstractEditor) wm.openEditor(
                 windowConfig.getWindowInfo(windowAlias),
                 entity,
                 screenOpenType,
-                screenParams != null ? screenParams : Collections.<String, Object>emptyMap()
+                screenParams != null ? screenParams : Collections.emptyMap()
         );
         editor.addCloseListener(actionId -> {
             // move focus to component

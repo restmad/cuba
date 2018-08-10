@@ -224,9 +224,7 @@ public interface Window extends Frame, Component.HasCaption, Component.HasIcon {
     /**
      * @return window manager instance
      */
-    default WindowManager getWindowManager() {
-        return (WindowManager) getUiServices().getScreens();
-    }
+    WindowManager getWindowManager();
 
     /**
      * @return dialog options of window. Options will be applied only if window opened with {@link OpenMode#DIALOG}.
@@ -278,7 +276,7 @@ public interface Window extends Frame, Component.HasCaption, Component.HasIcon {
      * Implement this interface in controller if you want to support saving uncommitted changes on window close.
      * {@link AbstractEditor} already implements it.
      */
-    interface Committable extends Window {
+    interface Committable {
 
         /**
          * @return whether the window contains uncommitted changes
@@ -394,7 +392,7 @@ public interface Window extends Frame, Component.HasCaption, Component.HasIcon {
     /**
      * Represents a lookup screen.
      */
-    interface Lookup extends Window {
+    interface Lookup {
 
         /**
          * Name that is used to register a client type specific screen implementation in
@@ -446,7 +444,8 @@ public interface Window extends Frame, Component.HasCaption, Component.HasIcon {
 
         /**
          * Callback interface to receive selected entities.
-         * <br> Implementations of this interface must be passed to {@link #openLookup} methods or set directly in
+         * <br> Implementations of this interface must be passed to
+         * {@link com.haulmont.cuba.gui.screen.LegacyFrame#openLookup} methods or set directly in
          * the screen instance via {@link #setLookupHandler}.
          */
         interface Handler {
@@ -480,7 +479,7 @@ public interface Window extends Frame, Component.HasCaption, Component.HasIcon {
      * @deprecated Is not required for screen controllers anymore
      */
     @Deprecated
-    interface TopLevelWindow extends Window {
+    interface TopLevelWindow {
     }
 
     interface HasWorkArea {
@@ -637,7 +636,6 @@ public interface Window extends Frame, Component.HasCaption, Component.HasIcon {
      * Interface implemented by screen controllers which are not themselves windows,
      * but has {@link Window} interface and delegate work to wrapped real window.
      */
-    // todo for removal
     @Deprecated
     interface Wrapper {
         Window getWrappedWindow();

@@ -36,6 +36,7 @@ import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.data.DsContext;
 import com.haulmont.cuba.gui.events.sys.UiEventListenerMethodAdapter;
 import com.haulmont.cuba.gui.export.ExportDisplay;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import com.haulmont.cuba.gui.theme.ThemeConstants;
 import com.haulmont.cuba.gui.theme.ThemeConstantsManager;
 import org.apache.commons.lang3.ClassUtils;
@@ -261,15 +262,15 @@ public class ControllerDependencyInjector {
 
         } else if (Datasource.class.isAssignableFrom(type)) {
             // Injecting a datasource
-            return frame.getDsContext().get(name);
+            return ((LegacyFrame) frame).getDsContext().get(name);
 
         } else if (DsContext.class.isAssignableFrom(type)) {
             // Injecting the DsContext
-            return frame.getDsContext();
+            return ((LegacyFrame) frame).getDsContext();
 
         } else if (DataSupplier.class.isAssignableFrom(type)) {
             // Injecting the DataSupplier
-            return frame.getDsContext().getDataSupplier();
+            return ((LegacyFrame) frame).getDsContext().getDataSupplier();
 
         } else if (FrameContext.class.isAssignableFrom(type)) {
             // Injecting the FrameContext

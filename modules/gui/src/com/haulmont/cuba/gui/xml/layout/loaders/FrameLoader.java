@@ -29,6 +29,7 @@ import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.data.DsContext;
 import com.haulmont.cuba.gui.data.impl.DatasourceImplementation;
 import com.haulmont.cuba.gui.logging.UIPerformanceLogger;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import com.haulmont.cuba.gui.sys.*;
 import com.haulmont.cuba.gui.xml.data.DsContextLoader;
 import org.apache.commons.lang3.StringUtils;
@@ -178,7 +179,7 @@ public class FrameLoader<T extends Frame> extends ContainerLoader<T> {
         resultComponent.setContext(frameContext);
 
         if (dsContext != null) {
-            resultComponent.setDsContext(dsContext);
+            LegacyFrame.of(resultComponent).setDsContext(dsContext);
 
             for (Datasource ds : dsContext.getAll()) {
                 if (ds instanceof DatasourceImplementation) {

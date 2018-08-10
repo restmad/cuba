@@ -57,6 +57,7 @@ import com.haulmont.cuba.gui.config.WindowInfo;
 import com.haulmont.cuba.gui.data.CollectionDatasource;
 import com.haulmont.cuba.gui.data.HierarchicalDatasource;
 import com.haulmont.cuba.gui.presentations.Presentations;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import com.haulmont.cuba.gui.settings.SettingsImpl;
 import com.haulmont.cuba.gui.theme.ThemeConstants;
 import com.haulmont.cuba.gui.theme.ThemeConstantsManager;
@@ -2516,7 +2517,8 @@ public class FilterDelegateImpl implements FilterDelegate {
                 params.put("foldersPane", filterHelper.getFoldersPane());
                 params.put("entityClass", datasource.getMetaClass().getJavaClass().getName());
                 params.put("query", datasource.getQuery());
-                filter.getFrame().openWindow("saveSetInFolder",
+
+                LegacyFrame.of(filter).openWindow("saveSetInFolder",
                         OpenType.DIALOG,
                         params);
             }
@@ -2587,7 +2589,7 @@ public class FilterDelegateImpl implements FilterDelegate {
                 lookupAlias.delete(index, lookupAlias.length());
                 lookupAlias.append(Window.LOOKUP_WINDOW_SUFFIX);
             }
-            frame.openLookup(lookupAlias.toString(), new Window.Lookup.Handler() {
+            LegacyFrame.of(frame).openLookup(lookupAlias.toString(), new Window.Lookup.Handler() {
 
                 @Override
                 public void handleLookup(Collection items) {

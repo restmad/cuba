@@ -27,6 +27,7 @@ import com.haulmont.cuba.gui.export.ExcelExporter;
 import com.haulmont.cuba.gui.export.ExportDisplay;
 import com.haulmont.cuba.gui.icons.CubaIcon;
 import com.haulmont.cuba.gui.icons.Icons;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import org.springframework.context.annotation.Scope;
 
 import java.util.List;
@@ -211,7 +212,7 @@ public class ExcelAction extends BaseAction implements Action.HasBeforeActionPer
                     new DialogAction(Type.CANCEL)
             };
             Frame frame = listComponent.getFrame();
-            frame.showOptionDialog(title, caption, MessageType.CONFIRMATION, actions);
+            LegacyFrame.of(frame).showOptionDialog(title, caption, MessageType.CONFIRMATION, actions);
         }
     }
 
@@ -236,7 +237,7 @@ public class ExcelAction extends BaseAction implements Action.HasBeforeActionPer
         }
 
         if (exporter.isXlsMaxRowNumberExceeded()) {
-            listComponent.getFrame().showNotification(
+            LegacyFrame.of(listComponent).showNotification(
                     messages.getMainMessage("actions.warningExport.title"),
                     messages.getMainMessage("actions.warningExport.message"),
                     Frame.NotificationType.WARNING);

@@ -33,6 +33,7 @@ import com.haulmont.cuba.gui.executors.BackgroundWorker;
 import com.haulmont.cuba.gui.logging.UIPerformanceLogger;
 import com.haulmont.cuba.gui.logging.UIPerformanceLogger.LifeCycle;
 import com.haulmont.cuba.gui.logging.UserActionsLogger;
+import com.haulmont.cuba.gui.screen.LegacyFrame;
 import com.haulmont.cuba.gui.screen.OpenMode;
 import com.haulmont.cuba.gui.settings.Settings;
 import com.haulmont.cuba.gui.settings.SettingsImpl;
@@ -192,7 +193,7 @@ public abstract class WindowManagerImpl {
     }
 
     protected void initDatasources(Window window, DsContext dsContext, Map<String, Object> params) {
-        window.setDsContext(dsContext);
+        ((LegacyFrame) window).setDsContext(dsContext);
 
         for (Datasource ds : dsContext.getAll()) {
             if (Datasource.State.NOT_INITIALIZED.equals(ds.getState()) && ds instanceof DatasourceImplementation) {
@@ -553,7 +554,7 @@ public abstract class WindowManagerImpl {
         String src = windowInfo.getTemplate();
 
         ComponentLoaderContext context = new ComponentLoaderContext(params);
-        context.setDsContext(parentFrame.getDsContext());
+        context.setDsContext(((LegacyFrame) parentFrame).getDsContext());
         context.setFullFrameId(windowInfo.getId());
         context.setCurrentFrameId(windowInfo.getId());
 
@@ -696,7 +697,7 @@ public abstract class WindowManagerImpl {
             window.applySettings(getSettingsImpl(window.getId()));
         }
         if (!WindowParams.DISABLE_RESUME_SUSPENDED.getBool(window.getContext())) {
-            ((DsContextImplementation) window.getDsContext()).resumeSuspended();
+            ((DsContextImplementation) ((LegacyFrame) window).getDsContext()).resumeSuspended();
         }
 
         if (window instanceof AbstractWindow) {
@@ -796,8 +797,9 @@ public abstract class WindowManagerImpl {
                     companion = aClass.newInstance();
                     window.setCompanion(companion);
 
-                    CompanionDependencyInjector cdi = new CompanionDependencyInjector(window, companion);
-                    cdi.inject();
+//                    todo
+//                    CompanionDependencyInjector cdi = new CompanionDependencyInjector(window, companion);
+//                    cdi.inject();
                 } catch (Exception e) {
                     throw new RuntimeException("Unable to init Companion", e);
                 }

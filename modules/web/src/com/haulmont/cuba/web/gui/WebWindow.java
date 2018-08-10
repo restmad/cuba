@@ -36,6 +36,7 @@ import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.data.DsContext;
 import com.haulmont.cuba.gui.events.sys.UiEventsMulticaster;
 import com.haulmont.cuba.gui.icons.Icons;
+import com.haulmont.cuba.gui.screen.FrameOwner;
 import com.haulmont.cuba.gui.screen.Screen;
 import com.haulmont.cuba.gui.screen.StandardCloseAction;
 import com.haulmont.cuba.gui.settings.Settings;
@@ -88,7 +89,7 @@ public class WebWindow implements Window, Component.Wrapper,
     protected List<CloseListener> listeners = null; // lazy initialized listeners list
     protected List<Timer> timers = null; // lazy initialized timers list
 
-    protected String messagePack;
+    protected String messagePack; // todo rework this
 
     protected String focusComponentId;
 
@@ -461,6 +462,11 @@ public class WebWindow implements Window, Component.Wrapper,
     }
 
     @Override
+    public FrameOwner getFrameOwner() {
+        return getController();
+    }
+
+    @Override
     public WindowContext getContext() {
         return context;
     }
@@ -468,16 +474,6 @@ public class WebWindow implements Window, Component.Wrapper,
     @Override
     public void setContext(FrameContext ctx) {
         this.context = (WindowContext) ctx;
-    }
-
-    @Override
-    public DsContext getDsContext() {
-        return dsContext;
-    }
-
-    @Override
-    public void setDsContext(DsContext dsContext) {
-        this.dsContext = dsContext;
     }
 
     @Override
@@ -695,6 +691,11 @@ public class WebWindow implements Window, Component.Wrapper,
     @Override
     public void setXmlDescriptor(Element element) {
         this.element = element;
+    }
+
+    @Override
+    public WindowManager getWindowManager() {
+        return (WindowManager) getUiServices().getScreens();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1557,7 +1558,7 @@ public class WebWindow implements Window, Component.Wrapper,
         protected CubaVerticalActionsLayout rootLayout;
 
         public Lookup() {
-            addAction(new SelectAction(this));
+            addAction(new SelectAction((AbstractLookup) this.getController())); // todo
 
             // todo use BaseAction instead
             addAction(new AbstractAction(WindowDelegate.LOOKUP_CANCEL_ACTION_ID) {
@@ -1642,7 +1643,8 @@ public class WebWindow implements Window, Component.Wrapper,
 
         @Override
         public void initLookupLayout() {
-            Action selectAction = getAction(WindowDelegate.LOOKUP_SELECT_ACTION_ID);
+            // todo reimplement
+            /*Action selectAction = getAction(WindowDelegate.LOOKUP_SELECT_ACTION_ID);
             if (selectAction == null || selectAction.getOwner() == null) {
                 Frame frame = openFrame(null, "lookupWindowActions");
                 com.vaadin.ui.Component vFrame = frame.unwrapComposition(com.vaadin.ui.Component.class);
@@ -1658,7 +1660,7 @@ public class WebWindow implements Window, Component.Wrapper,
                         cancelButton.unwrap(Button.class).setCubaId("cancelButton");
                     }
                 }
-            }
+            }*/
         }
 
         @Override
