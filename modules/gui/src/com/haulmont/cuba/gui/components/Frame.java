@@ -21,7 +21,6 @@ import com.haulmont.cuba.gui.FrameContext;
 import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.screen.FrameOwner;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -48,30 +47,6 @@ public interface Frame
      * @return current frame context
      */
     FrameContext getContext();
-
-    /** INTERNAL. Don't call from application code. */
-    void setContext(FrameContext ctx);
-
-    /**
-     * @return the message pack associated with the frame, usually in XML descriptor
-     */
-    String getMessagesPack();
-
-    /**
-     * Set message pack for this frame.
-     * @param name message pack name
-     */
-    void setMessagesPack(String name);
-
-    /** INTERNAL. Don't call from application code. */
-    void registerComponent(Component component);
-
-    /** INTERNAL. Don't call from application code. */
-    void unregisterComponent(Component component);
-
-    /** INTERNAL. Don't call from application code. */
-    @Nullable
-    Component getRegisteredComponent(String id);
 
     /**
      * Check validity by invoking validators on all components which support them.
@@ -376,6 +351,7 @@ public interface Frame
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    @Deprecated
     interface Wrapper extends FrameOwner {
         Frame getWrappedFrame();
     }

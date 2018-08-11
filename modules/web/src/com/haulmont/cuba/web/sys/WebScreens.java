@@ -17,14 +17,12 @@
 package com.haulmont.cuba.web.sys;
 
 import com.haulmont.bali.events.EventHub;
+import com.haulmont.bali.util.ParamsMap;
 import com.haulmont.bali.util.ReflectionHelper;
 import com.haulmont.cuba.client.ClientConfig;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.*;
-import com.haulmont.cuba.gui.Screens;
-import com.haulmont.cuba.gui.WindowContext;
-import com.haulmont.cuba.gui.WindowManager;
-import com.haulmont.cuba.gui.WindowParams;
+import com.haulmont.cuba.gui.*;
 import com.haulmont.cuba.gui.app.core.dev.LayoutAnalyzer;
 import com.haulmont.cuba.gui.app.core.dev.LayoutTip;
 import com.haulmont.cuba.gui.components.*;
@@ -48,10 +46,7 @@ import com.haulmont.cuba.gui.data.impl.GenericDataSupplier;
 import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.gui.settings.Settings;
 import com.haulmont.cuba.gui.settings.SettingsImpl;
-import com.haulmont.cuba.gui.sys.AttributeAccessSupport;
-import com.haulmont.cuba.gui.sys.ScreenDependencyInjector;
-import com.haulmont.cuba.gui.sys.ScreenViewsLoader;
-import com.haulmont.cuba.gui.sys.WindowContextImpl;
+import com.haulmont.cuba.gui.sys.*;
 import com.haulmont.cuba.gui.util.OperationResult;
 import com.haulmont.cuba.gui.xml.data.DsContextLoader;
 import com.haulmont.cuba.gui.xml.layout.ComponentLoader;
@@ -94,6 +89,8 @@ import static com.haulmont.cuba.gui.screen.FrameOwner.NO_OPTIONS;
 @Scope(UIScope.NAME)
 @Component(Screens.NAME)
 public class WebScreens implements Screens, WindowManager {
+    @Inject
+    protected BeanLocator beanLocator;
 
     @Inject
     protected WindowConfig windowConfig;
@@ -103,8 +100,6 @@ public class WebScreens implements Screens, WindowManager {
     protected UuidSource uuidSource;
     @Inject
     protected ComponentsFactory componentsFactory;
-    @Inject
-    protected BeanLocator beanLocator;
     @Inject
     protected ScreenXmlLoader screenXmlLoader;
     @Inject
@@ -152,6 +147,12 @@ public class WebScreens implements Screens, WindowManager {
     }
 
     protected <T extends Screen> T createScreen(WindowInfo windowInfo, LaunchMode launchMode, ScreenOptions options) {
+        if (windowInfo.getType() != WindowInfo.Type.SCREEN) {
+            throw new IllegalArgumentException(
+                    String.format("Unable to create screen %s with type %s", windowInfo.getId(), windowInfo.getType())
+            );
+        }
+
         checkPermissions(launchMode, windowInfo);
 
         // todo change launchMode
@@ -166,21 +167,22 @@ public class WebScreens implements Screens, WindowManager {
 
         T controller = createController(windowInfo, window, resolvedScreenClass, launchMode);
 
-        ScreenUtils.setWindow(controller, window);
-        ScreenUtils.setWindowInfo(controller, windowInfo);
-        ScreenUtils.setScreenOptions(controller, options);
         ScreenUtils.setWindowId(controller, windowInfo.getId());
+        ScreenUtils.setWindow(controller, window);
+        ScreenUtils.setScreenContext(controller,
+                new ScreenContextImpl(windowInfo, options, this,
+                        beanLocator.get(Dialogs.NAME),
+                        beanLocator.get(Notifications.NAME))
+        );
 
         WindowImplementation windowImpl = (WindowImplementation) window;
         windowImpl.setFrameOwner(controller);
         windowImpl.setId(controller.getId());
 
-        WindowContext windowContext = new WindowContextImpl(window, launchMode, Collections.emptyMap()); // todo options
-        window.setContext(windowContext);
+        WindowContext windowContext = new WindowContextImpl(window, launchMode, options);
+        ((WindowImplementation) window).setContext(windowContext);
 
         loadScreenXml(windowInfo, window, controller, options);
-
-        // todo legacy datasource layer
 
         ScreenDependencyInjector dependencyInjector =
                 beanLocator.getPrototype(ScreenDependencyInjector.NAME, controller, options);
@@ -233,6 +235,7 @@ public class WebScreens implements Screens, WindowManager {
             windowLoader.loadComponent();
 
             EventHub eventHub = ScreenUtils.getEventHub(controller);
+
             eventHub.subscribe(AfterInitEvent.class, event ->
                     componentLoaderContext.executePostInitTasks()
             );
@@ -284,7 +287,6 @@ public class WebScreens implements Screens, WindowManager {
         LayoutLoader layoutLoader = beanLocator.getPrototype(LayoutLoader.NAME, context);
         layoutLoader.setLocale(getLocale());
 
-        // todo should we load messages depending on Class ?
         if (StringUtils.isNotEmpty(descriptorPath)) {
             if (descriptorPath.contains("/")) {
                 descriptorPath = StringUtils.substring(descriptorPath, 0, descriptorPath.lastIndexOf("/"));
@@ -354,7 +356,7 @@ public class WebScreens implements Screens, WindowManager {
         WindowContext windowContext = screen.getWindow().getContext();
 
         if (!WindowParams.DISABLE_APPLY_SETTINGS.getBool(windowContext)) {
-            screen.getWindow().applySettings(getSettingsImpl(screen.getId()));
+            ScreenUtils.applySettings(screen, getSettingsImpl(screen.getId()));
         }
 
         if (screen instanceof LegacyFrame) {
@@ -677,7 +679,7 @@ public class WebScreens implements Screens, WindowManager {
     /**
      * todo
      *
-     * @return
+     * @return operation result
      */
     public OperationResult checkModificationsAndCloseAll() {
         throw new UnsupportedOperationException("TODO");
@@ -726,6 +728,7 @@ public class WebScreens implements Screens, WindowManager {
 
     protected Window createWindow(WindowInfo windowInfo, Class<? extends Screen> screenClass, LaunchMode launchMode) {
         // todo forcibly dialog support
+        // todo support forceDialog defined in XML / controller
 
         Window window;
         if (launchMode instanceof OpenMode) {
@@ -751,8 +754,6 @@ public class WebScreens implements Screens, WindowManager {
             throw new UnsupportedOperationException("Unsupported launch mode");
         }
 
-        ((WindowImplementation) window).setUiServices(ui);
-
         return window;
     }
 
@@ -776,7 +777,7 @@ public class WebScreens implements Screens, WindowManager {
             throw new IllegalArgumentException("No @UiController annotation for class " + screenClass);
         }
 
-        String screenId = com.haulmont.cuba.gui.sys.ScreenUtils.getInferredScreenId(uiController, screenClass);
+        String screenId = ScreenDescriptorUtils.getInferredScreenId(uiController, screenClass);
 
         return windowConfig.getWindowInfo(screenId);
     }
@@ -1087,8 +1088,10 @@ public class WebScreens implements Screens, WindowManager {
 
             String tabId;
 
-            ScreenOptions options = ScreenUtils.getScreenOptions(screen);
-            WindowInfo windowInfo = ScreenUtils.getWindowInfo(screen);
+            ScreenContext screenContext = ScreenUtils.getScreenContext(screen);
+
+            ScreenOptions options = screenContext.getScreenOptions();
+            WindowInfo windowInfo = screenContext.getWindowInfo();
 
             com.vaadin.ui.ComponentContainer tab = findSameWindowTab(window, options);
 
@@ -1442,23 +1445,68 @@ public class WebScreens implements Screens, WindowManager {
         public void handleAction(com.vaadin.event.Action action, Object sender, Object target) {
             if (initialized) {
                 if (saveSettingsAction == action) {
-                    // todo call controller here
-                    window.saveSettings();
+                    Screen screen = window.getFrameOwner();
+                    ScreenUtils.saveSettings(screen);
                 } else if (restoreToDefaultsAction == action) {
-                    // todo call controller here
-                    window.deleteSettings();
+                    Screen screen = window.getFrameOwner();
+                    ScreenUtils.deleteSettings(screen);
                 } else if (analyzeAction == action) {
                     LayoutAnalyzer analyzer = new LayoutAnalyzer();
                     List<LayoutTip> tipsList = analyzer.analyze(window);
 
-                    // todo implement
-                    /*if (tipsList.isEmpty()) {
-                        window.showNotification("No layout problems found", Frame.NotificationType.HUMANIZED);
+                    if (tipsList.isEmpty()) {
+                        showNotification("No layout problems found", Frame.NotificationType.HUMANIZED);
                     } else {
-                        window.openWindow("layoutAnalyzer", WindowManager.OpenType.DIALOG, ParamsMap.of("tipsList", tipsList));
-                    }*/
+                        WindowInfo windowInfo = windowConfig.getWindowInfo("layoutAnalyzer");
+                        openWindow(windowInfo, OpenType.DIALOG, ParamsMap.of("tipsList", tipsList));
+                    }
                 }
             }
+        }
+    }
+
+    public static class ScreenContextImpl implements ScreenContext {
+
+        protected final ScreenOptions options;
+        protected final WindowInfo windowInfo;
+
+        protected final Screens screens;
+        protected final Dialogs dialogs;
+        protected final Notifications notifications;
+
+        public ScreenContextImpl(WindowInfo windowInfo, ScreenOptions options,
+                                 Screens screens, Dialogs dialogs, Notifications notifications) {
+            this.windowInfo = windowInfo;
+            this.options = options;
+
+            this.screens = screens;
+            this.dialogs = dialogs;
+            this.notifications = notifications;
+        }
+
+        @Override
+        public ScreenOptions getScreenOptions() {
+            return options;
+        }
+
+        @Override
+        public WindowInfo getWindowInfo() {
+            return windowInfo;
+        }
+
+        @Override
+        public Screens getScreens() {
+            return screens;
+        }
+
+        @Override
+        public Dialogs getDialogs() {
+            return dialogs;
+        }
+
+        @Override
+        public Notifications getNotifications() {
+            return notifications;
         }
     }
 }

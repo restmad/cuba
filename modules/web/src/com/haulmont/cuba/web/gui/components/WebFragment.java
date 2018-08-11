@@ -19,6 +19,7 @@ package com.haulmont.cuba.web.gui.components;
 import com.haulmont.cuba.gui.FrameContext;
 import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.components.*;
+import com.haulmont.cuba.gui.components.sys.FrameImplementation;
 import com.haulmont.cuba.gui.screen.FrameOwner;
 
 import javax.annotation.Nullable;
@@ -26,7 +27,7 @@ import java.util.Collection;
 import java.util.List;
 
 // todo
-public class WebFragment extends WebVBoxLayout implements Fragment {
+public class WebFragment extends WebVBoxLayout implements Fragment, FrameImplementation {
 
     @Override
     public FrameOwner getFrameOwner() {
@@ -40,27 +41,17 @@ public class WebFragment extends WebVBoxLayout implements Fragment {
 
     @Override
     public void setContext(FrameContext ctx) {
-
-    }
-
-    @Override
-    public String getMessagesPack() {
-        return null;
-    }
-
-    @Override
-    public void setMessagesPack(String name) {
-
+        // todo
     }
 
     @Override
     public void registerComponent(Component component) {
-
+        // todo
     }
 
     @Override
     public void unregisterComponent(Component component) {
-
+        // todo
     }
 
     @Nullable

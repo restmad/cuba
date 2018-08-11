@@ -38,8 +38,6 @@ public class WindowInfo {
     private final Element descriptor;
     private final String screenClassName;
 
-    // todo enum Type { SCREEN / FRAGMENT } field
-
     public WindowInfo(String id, WindowAttributesProvider windowAttributesProvider, Element descriptor) {
         checkNotNullArgument(id);
         checkNotNullArgument(descriptor);
@@ -66,6 +64,13 @@ public class WindowInfo {
      */
     public String getId() {
         return id;
+    }
+
+    /**
+     * JavaDoc
+     */
+    public Type getType() {
+        return windowAttributesProvider.getType(this);
     }
 
     @Nonnull
@@ -114,5 +119,13 @@ public class WindowInfo {
         return "id='" + id + '\'' +
                 (template != null ? ", template=" + template : "") +
                 (screenClassName != null ? ", screenClass=" + screenClassName : "");
+    }
+
+    /**
+     * Type of registered window.
+     */
+    public enum Type {
+        SCREEN,
+        FRAGMENT
     }
 }

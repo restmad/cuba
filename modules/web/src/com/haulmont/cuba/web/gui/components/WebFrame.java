@@ -20,6 +20,7 @@ import com.haulmont.cuba.gui.ComponentsHelper;
 import com.haulmont.cuba.gui.FrameContext;
 import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.components.*;
+import com.haulmont.cuba.gui.components.sys.FrameImplementation;
 import com.haulmont.cuba.gui.events.sys.UiEventsMulticaster;
 import com.haulmont.cuba.gui.screen.FrameOwner;
 import com.haulmont.cuba.web.AppUI;
@@ -36,11 +37,10 @@ import java.util.Map;
 
 import static com.haulmont.bali.util.Preconditions.checkNotNullArgument;
 
-public class WebFrame extends WebVBoxLayout implements Frame, WrappedFrame {
+public class WebFrame extends WebVBoxLayout implements Frame, WrappedFrame, FrameImplementation {
 
     private static final Logger log = LoggerFactory.getLogger(WebFrame.class);
 
-    protected String messagePack;
     protected FrameContext context;
 
     protected Frame wrapper;
@@ -133,16 +133,6 @@ public class WebFrame extends WebVBoxLayout implements Frame, WrappedFrame {
     @Override
     public void setContext(FrameContext ctx) {
         this.context = ctx;
-    }
-
-    @Override
-    public String getMessagesPack() {
-        return messagePack;
-    }
-
-    @Override
-    public void setMessagesPack(String name) {
-        messagePack = name;
     }
 
     @Override

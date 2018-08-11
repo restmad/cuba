@@ -1003,7 +1003,7 @@ public class WebWindowManagerImpl extends WindowManagerImpl {
         for (int i = entries.size() - 1; i >= 0; i--) {
             WebWindow window = (WebWindow) entries.get(i).getKey();
             if (window instanceof WebWindow.Editor) {
-                ((WebWindow.Editor) window).releaseLock();
+//                ((WebWindow.Editor) window).releaseLock(); todo support pessimistic locking
             }
             closeWindow(window, entries.get(i).getValue());
         }

@@ -50,9 +50,6 @@ public class WebComponentsFactory implements ComponentsFactory {
         classes.put(DialogWindow.NAME, WebDialogWindow.class);
         classes.put(Fragment.NAME, WebFragment.class);
 
-        classes.put(Window.Editor.NAME, WebWindow.Editor.class);
-        classes.put(Window.Lookup.NAME, WebWindow.Lookup.class);
-
         classes.put(HBoxLayout.NAME, WebHBoxLayout.class);
         classes.put(VBoxLayout.NAME, WebVBoxLayout.class);
         classes.put(GridLayout.NAME, WebGridLayout.class);

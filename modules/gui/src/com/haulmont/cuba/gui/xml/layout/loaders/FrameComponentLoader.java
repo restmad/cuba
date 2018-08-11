@@ -32,7 +32,7 @@ import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.LoggerFactory;
 
 /**
- * todo rename to WindowPartLoader
+ * todo rename to FragmentLoader
  */
 public class FrameComponentLoader extends ContainerLoader<Frame> {
 
@@ -82,9 +82,10 @@ public class FrameComponentLoader extends ContainerLoader<Frame> {
 
     @Override
     public void loadComponent() {
-        if (resultComponent.getMessagesPack() == null) {
+        // todo
+        /*if (resultComponent.getMessagesPack() == null) {
             resultComponent.setMessagesPack(messagesPack);
-        }
+        }*/
 
         assignXmlDescriptor(resultComponent, element);
         loadVisible(resultComponent, element);

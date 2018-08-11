@@ -18,7 +18,10 @@
 package com.haulmont.cuba.gui.backgroundwork;
 
 import com.haulmont.cuba.gui.WindowManager.OpenType;
-import com.haulmont.cuba.gui.components.*;
+import com.haulmont.cuba.gui.components.AbstractWindow;
+import com.haulmont.cuba.gui.components.Button;
+import com.haulmont.cuba.gui.components.Label;
+import com.haulmont.cuba.gui.components.ProgressBar;
 import com.haulmont.cuba.gui.executors.BackgroundTask;
 import com.haulmont.cuba.gui.executors.BackgroundTaskHandler;
 import com.haulmont.cuba.gui.executors.BackgroundWorker;
@@ -53,7 +56,7 @@ public class BackgroundWorkProgressWindow<T extends Number, V> extends AbstractW
     @Inject
     protected Label text;
     @Inject
-    protected Label progressText;
+    protected Label<String> progressText;
     @Inject
     protected Button cancelButton;
     @Inject
@@ -196,15 +199,15 @@ public class BackgroundWorkProgressWindow<T extends Number, V> extends AbstractW
     }
 
     public void cancel() {
-        close(Window.CLOSE_ACTION_ID);
+        close(WINDOW_CLOSE_ACTION);
     }
 
     @Override
-    public boolean close(String actionId) {
-        if (taskHandler.cancel()) {
-            return super.close(actionId);
+    protected boolean preClose(String actionId) {
+        if (!taskHandler.cancel()) {
+            return false;
         }
-        return false;
+        return super.preClose(actionId);
     }
 
     protected void showProgress(Number processedValue) {

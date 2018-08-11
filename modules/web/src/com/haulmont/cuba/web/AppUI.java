@@ -39,7 +39,6 @@ import com.haulmont.cuba.web.gui.icons.IconResolver;
 import com.haulmont.cuba.web.security.events.AppInitializedEvent;
 import com.haulmont.cuba.web.security.events.SessionHeartbeatEvent;
 import com.haulmont.cuba.web.sys.LinkHandler;
-import com.haulmont.cuba.gui.sys.UiServices;
 import com.haulmont.cuba.web.sys.WebJarResourceResolver;
 import com.haulmont.cuba.web.widgets.*;
 import com.vaadin.annotations.PreserveOnRefresh;
@@ -64,7 +63,7 @@ import java.util.*;
 @Push(transport = Transport.WEBSOCKET_XHR)
 @PreserveOnRefresh
 public class AppUI extends CubaUI
-        implements ErrorHandler, EnhancedUI, CubaHistoryControl.HistoryBackHandler, UiServices {
+        implements ErrorHandler, EnhancedUI, CubaHistoryControl.HistoryBackHandler {
 
     public static final String NAME = "cuba_AppUI";
 
@@ -190,7 +189,6 @@ public class AppUI extends CubaUI
         this.screens = screens;
     }
 
-    @Override
     public Dialogs getDialogs() {
         return dialogs;
     }
@@ -199,7 +197,6 @@ public class AppUI extends CubaUI
         this.dialogs = dialogs;
     }
 
-    @Override
     public Notifications getNotifications() {
         return notifications;
     }

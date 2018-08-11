@@ -33,7 +33,7 @@ import java.util.*;
 public class FrameContextImpl implements FrameContext {
 
     private final Frame frame;
-    private Map<String, Object> params;
+    private final Map<String, Object> params;
 
     public FrameContextImpl(Frame window, Map<String, Object> params) {
         this.frame = window;

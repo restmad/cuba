@@ -25,6 +25,7 @@ import com.haulmont.cuba.gui.components.AbstractFrame;
 import com.haulmont.cuba.gui.components.AbstractWindow;
 import com.haulmont.cuba.gui.components.Frame;
 import com.haulmont.cuba.gui.components.WrappedFrame;
+import com.haulmont.cuba.gui.components.sys.FrameImplementation;
 import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.data.DsContext;
 import com.haulmont.cuba.gui.data.impl.DatasourceImplementation;
@@ -104,10 +105,10 @@ public class FrameLoader<T extends Frame> extends ContainerLoader<T> {
     protected void loadMessagesPack(Frame frame, Element element) {
         String msgPack = element.attributeValue("messagesPack");
         if (msgPack != null) {
-            frame.setMessagesPack(msgPack);
+//            frame.setMessagesPack(msgPack); todo
             setMessagesPack(msgPack);
         } else {
-            frame.setMessagesPack(this.messagesPack);
+//            frame.setMessagesPack(this.messagesPack); todo
             setMessagesPack(this.messagesPack);
         }
     }
@@ -176,7 +177,7 @@ public class FrameLoader<T extends Frame> extends ContainerLoader<T> {
         setContext(innerContext);
 
         FrameContext frameContext = new FrameContextImpl(resultComponent, context.getParams());
-        resultComponent.setContext(frameContext);
+        ((FrameImplementation) resultComponent).setContext(frameContext);
 
         if (dsContext != null) {
             LegacyFrame.of(resultComponent).setDsContext(dsContext);

@@ -91,7 +91,7 @@ public class MultiUploader extends AbstractWindow {
     }
 
     @Override
-    public boolean close(String actionId) {
+    protected boolean preClose(String actionId) {
         // todo do this on RemoveEvent of window
         if (!COMMIT_ACTION_ID.equals(actionId)) {
             for (Map.Entry<FileDescriptor, UUID> upload : tmpFileDescriptors.entrySet()) {
@@ -103,7 +103,7 @@ public class MultiUploader extends AbstractWindow {
                 }
             }
         }
-        return super.close(actionId);
+        return super.preClose(actionId);
     }
 
     protected void saveFiles() {

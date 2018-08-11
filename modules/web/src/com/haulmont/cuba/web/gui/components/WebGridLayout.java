@@ -19,6 +19,7 @@ package com.haulmont.cuba.web.gui.components;
 import com.haulmont.bali.util.Preconditions;
 import com.haulmont.cuba.gui.ComponentsHelper;
 import com.haulmont.cuba.gui.components.*;
+import com.haulmont.cuba.gui.components.sys.FrameImplementation;
 import com.haulmont.cuba.web.widgets.CubaGridLayout;
 import com.vaadin.event.LayoutEvents;
 import com.vaadin.event.ShortcutListener;
@@ -55,7 +56,7 @@ public class WebGridLayout extends WebAbstractComponent<CubaGridLayout> implemen
                     && ((BelongToFrame) childComponent).getFrame() == null) {
                 ((BelongToFrame) childComponent).setFrame(frame);
             } else {
-                frame.registerComponent(childComponent);
+                ((FrameImplementation) frame).registerComponent(childComponent);
             }
         }
 
@@ -105,7 +106,7 @@ public class WebGridLayout extends WebAbstractComponent<CubaGridLayout> implemen
                     && ((BelongToFrame) childComponent).getFrame() == null) {
                 ((BelongToFrame) childComponent).setFrame(frame);
             } else {
-                frame.registerComponent(childComponent);
+                ((FrameImplementation) frame).registerComponent(childComponent);
             }
         }
 

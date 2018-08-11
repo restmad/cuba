@@ -59,7 +59,7 @@ public class ScreensConfiguration {
                         throw new RuntimeException("Screen class does not have @UiController annotation : " + screenClass);
                     }
 
-                    String id = ScreenUtils.getInferredScreenId(uiController, screenClass);
+                    String id = ScreenDescriptorUtils.getInferredScreenId(uiController, screenClass);
 
                     return new UIControllerDefinition(id, className);
                 })

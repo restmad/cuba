@@ -25,6 +25,7 @@ import com.haulmont.cuba.gui.components.Frame;
 import com.haulmont.cuba.gui.components.HasDebugId;
 import com.haulmont.cuba.gui.components.SizeUnit;
 import com.haulmont.cuba.gui.components.sys.EventHubOwner;
+import com.haulmont.cuba.gui.components.sys.FrameImplementation;
 import com.haulmont.cuba.gui.icons.Icons;
 import com.haulmont.cuba.web.AppUI;
 import com.haulmont.cuba.web.gui.icons.IconResolver;
@@ -92,7 +93,7 @@ public abstract class WebAbstractComponent<T extends com.vaadin.ui.Component>
     public void setFrame(Frame frame) {
         this.frame = frame;
         if (frame != null) {
-            frame.registerComponent(this);
+            ((FrameImplementation) frame).registerComponent(this);
         }
     }
 
@@ -134,7 +135,7 @@ public abstract class WebAbstractComponent<T extends com.vaadin.ui.Component>
     public void setId(String id) {
         if (!Objects.equals(this.id, id)) {
             if (frame != null) {
-                frame.unregisterComponent(this);
+                ((FrameImplementation) frame).unregisterComponent(this);
             }
 
             this.id = id;
@@ -143,7 +144,7 @@ public abstract class WebAbstractComponent<T extends com.vaadin.ui.Component>
             }
 
             if (frame != null) {
-                frame.registerComponent(this);
+                ((FrameImplementation) frame).registerComponent(this);
             }
         }
     }

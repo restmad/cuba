@@ -20,6 +20,7 @@ import com.haulmont.bali.util.Preconditions;
 import com.haulmont.cuba.gui.ComponentsHelper;
 import com.haulmont.cuba.gui.GuiDevelopmentException;
 import com.haulmont.cuba.gui.components.*;
+import com.haulmont.cuba.gui.components.sys.FrameImplementation;
 import com.vaadin.event.LayoutEvents;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.shared.ui.MarginInfo;
@@ -89,7 +90,7 @@ public abstract class WebAbstractBox<T extends AbstractOrderedLayout>
     }
 
     protected void attachToFrame(Component childComponent) {
-        frame.registerComponent(childComponent);
+        ((FrameImplementation) frame).registerComponent(childComponent);
     }
 
     @Override
@@ -104,7 +105,7 @@ public abstract class WebAbstractBox<T extends AbstractOrderedLayout>
     public void removeAll() {
         component.removeAllComponents();
 
-        Component[] components = ownComponents.toArray(new Component[ownComponents.size()]);
+        Component[] components = ownComponents.toArray(new Component[0]);
         ownComponents.clear();
 
         for (Component childComponent : components) {

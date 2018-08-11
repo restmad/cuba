@@ -18,9 +18,6 @@ package com.haulmont.cuba.web.gui;
 
 import com.haulmont.bali.events.EventRouter;
 import com.haulmont.bali.util.Preconditions;
-import com.haulmont.chile.core.model.Instance;
-import com.haulmont.chile.core.model.MetaClass;
-import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.AppBeans;
 import com.haulmont.cuba.core.global.Configuration;
 import com.haulmont.cuba.core.global.Messages;
@@ -31,17 +28,12 @@ import com.haulmont.cuba.gui.components.LookupComponent.LookupSelectionChangeNot
 import com.haulmont.cuba.gui.components.Timer;
 import com.haulmont.cuba.gui.components.Window;
 import com.haulmont.cuba.gui.components.security.ActionsPermissions;
+import com.haulmont.cuba.gui.components.sys.FrameImplementation;
 import com.haulmont.cuba.gui.components.sys.WindowImplementation;
-import com.haulmont.cuba.gui.data.Datasource;
-import com.haulmont.cuba.gui.data.DsContext;
-import com.haulmont.cuba.gui.events.sys.UiEventsMulticaster;
 import com.haulmont.cuba.gui.icons.Icons;
 import com.haulmont.cuba.gui.screen.Screen;
-import com.haulmont.cuba.gui.screen.StandardCloseAction;
-import com.haulmont.cuba.gui.settings.Settings;
+import com.haulmont.cuba.gui.screen.ScreenUtils;
 import com.haulmont.cuba.gui.sys.TestIdManager;
-import com.haulmont.cuba.gui.sys.UiServices;
-import com.haulmont.cuba.gui.util.OperationResult;
 import com.haulmont.cuba.web.AppUI;
 import com.haulmont.cuba.web.WebConfig;
 import com.haulmont.cuba.web.gui.components.WebComponentsHelper;
@@ -61,7 +53,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationListener;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -72,7 +63,7 @@ import static com.haulmont.bali.util.Preconditions.checkNotNullArgument;
 public class WebWindow implements Window, Component.Wrapper,
                                   Component.HasXmlDescriptor, WrappedWindow, Component.Disposable,
                                   SecuredActionsHolder, Component.HasIcon,
-                                  WindowImplementation {
+        FrameImplementation, WindowImplementation {
 
     protected static final String C_WINDOW_LAYOUT = "c-window-layout";
 
@@ -84,10 +75,7 @@ public class WebWindow implements Window, Component.Wrapper,
     protected List<Component> ownComponents = new ArrayList<>();
     protected Map<String, Component> allComponents = new HashMap<>();
 
-    protected List<CloseListener> listeners = null; // lazy initialized listeners list
     protected List<Timer> timers = null; // lazy initialized timers list
-
-    protected String messagePack; // todo rework this
 
     protected String focusComponentId;
 
@@ -97,16 +85,11 @@ public class WebWindow implements Window, Component.Wrapper,
 
     protected Element element;
 
-    protected DsContext dsContext;
     protected WindowContext context;
 
     protected String icon;
     protected String caption;
     protected String description;
-
-    protected UiServices uiServices;
-
-    protected WindowDelegate delegate; // todo get rid of delegate
 
     protected WebFrameActionsHolder actionsHolder = new WebFrameActionsHolder(this);
     protected ActionsPermissions actionsPermissions = new ActionsPermissions(this);
@@ -123,7 +106,6 @@ public class WebWindow implements Window, Component.Wrapper,
 
     public WebWindow() {
         component = createLayout();
-        delegate = createDelegate();
         if (component instanceof com.vaadin.event.Action.Container) {
             ((com.vaadin.event.Action.Container) component).addActionHandler(actionsHolder);
         }
@@ -147,7 +129,8 @@ public class WebWindow implements Window, Component.Wrapper,
     }
 
     protected void disableEventListeners() {
-        Frame wrapper = delegate.getWrapper();
+        // todo
+        /*Frame wrapper = delegate.getWrapper();
         if (wrapper != null) {
             List<ApplicationListener> uiEventListeners = ((AbstractFrame) wrapper).getUiEventListeners();
             if (uiEventListeners != null) {
@@ -158,11 +141,12 @@ public class WebWindow implements Window, Component.Wrapper,
                     multicaster.removeApplicationListener(listener);
                 }
             }
-        }
+        }*/
     }
 
     protected void enableEventListeners() {
-        Frame wrapper = delegate.getWrapper();
+        // todo
+        /*Frame wrapper = delegate.getWrapper();
         if (wrapper != null) {
             List<ApplicationListener> uiEventListeners = ((AbstractFrame) wrapper).getUiEventListeners();
             if (uiEventListeners != null) {
@@ -173,11 +157,7 @@ public class WebWindow implements Window, Component.Wrapper,
                     multicaster.addApplicationListener(listener);
                 }
             }
-        }
-    }
-
-    protected WindowDelegate createDelegate() {
-        return new WindowDelegate(this);
+        }*/
     }
 
     protected com.vaadin.ui.ComponentContainer createLayout() {
@@ -204,16 +184,6 @@ public class WebWindow implements Window, Component.Wrapper,
             }
         }
         return null;
-    }
-
-    @Override
-    public String getMessagesPack() {
-        return messagePack;
-    }
-
-    @Override
-    public void setMessagesPack(String name) {
-        messagePack = name;
     }
 
     @Override
@@ -359,12 +329,28 @@ public class WebWindow implements Window, Component.Wrapper,
 
     @Override
     public boolean isValid() {
-        return delegate.isValid();
+        Collection<Component> components = ComponentsHelper.getComponents(this);
+        for (Component component : components) {
+            if (component instanceof Validatable) {
+                Validatable validatable = (Validatable) component;
+                if (validatable.isValidateOnCommit() && !validatable.isValid())
+                    return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public void validate() throws ValidationException {
-        delegate.validate();
+        Collection<Component> components = ComponentsHelper.getComponents(this);
+        for (Component component : components) {
+            if (component instanceof Validatable) {
+                Validatable validatable = (Validatable) component;
+                if (validatable.isValidateOnCommit()) {
+                    validatable.validate();
+                }
+            }
+        }
     }
 
     @Override
@@ -415,26 +401,16 @@ public class WebWindow implements Window, Component.Wrapper,
         return handleValidationErrors(errors);
     }
 
-    @Override
-    public UiServices getUiServices() {
-        return uiServices;
-    }
-
-    @Override
-    public void setUiServices(UiServices uiServices) {
-        this.uiServices = uiServices;
-    }
-
     protected void validateAdditionalRules(ValidationErrors errors) {
     }
 
     protected boolean handleValidationErrors(ValidationErrors errors) {
-        delegate.postValidate(errors);
+//        delegate.postValidate(errors); todo
 
         if (errors.isEmpty())
             return true;
 
-        delegate.showValidationErrors(errors);
+//        delegate.showValidationErrors(errors); todo
 
         WebComponentsHelper.focusProblemComponent(errors);
 
@@ -516,6 +492,7 @@ public class WebWindow implements Window, Component.Wrapper,
     @Override
     public void setFocusComponent(String componentId) {
         this.focusComponentId = componentId;
+
         if (componentId != null) {
             Component focusComponent = getComponent(componentId);
             if (focusComponent instanceof Focusable) {
@@ -525,53 +502,6 @@ public class WebWindow implements Window, Component.Wrapper,
             }
         } else {
             findAndFocusChildComponent();
-        }
-    }
-
-    @Override
-    public void addListener(CloseListener listener) {
-        addCloseListener(listener);
-    }
-
-    @Override
-    public void removeListener(CloseListener listener) {
-        removeCloseListener(listener);
-    }
-
-    @Override
-    public void addCloseListener(CloseListener listener) {
-        if (listeners == null) {
-            listeners = new LinkedList<>();
-        }
-
-        if (!listeners.contains(listener)) {
-            listeners.add(listener);
-        }
-    }
-
-    @Override
-    public void removeCloseListener(CloseListener listener) {
-        if (listeners != null) {
-            listeners.remove(listener);
-        }
-    }
-
-    @Override
-    public void addCloseWithCommitListener(CloseWithCommitListener listener) {
-        if (listeners == null) {
-            listeners = new LinkedList<>();
-        }
-
-        CloseListenerAdapter adapter = new CloseListenerAdapter(listener);
-        if (!listeners.contains(adapter)) {
-            listeners.add(adapter);
-        }
-    }
-
-    @Override
-    public void removeCloseWithCommitListener(CloseWithCommitListener listener) {
-        if (listeners != null) {
-            listeners.remove(new CloseListenerAdapter(listener));
         }
     }
 
@@ -619,11 +549,6 @@ public class WebWindow implements Window, Component.Wrapper,
     }
 
     @Override
-    public void applySettings(Settings settings) {
-        delegate.applySettings(settings);
-    }
-
-    @Override
     public void addTimer(Timer timer) {
         if (component.isAttached()) {
             attachTimerToUi((WebTimer) timer);
@@ -641,7 +566,7 @@ public class WebWindow implements Window, Component.Wrapper,
         }
 
         if (timers == null) {
-            timers = new ArrayList<>();
+            timers = new ArrayList<>(2);
         }
         timers.add(timer);
     }
@@ -679,11 +604,6 @@ public class WebWindow implements Window, Component.Wrapper,
     }
 
     @Override
-    public Settings getSettings() {
-        return delegate.getSettings();
-    }
-
-    @Override
     public Element getXmlDescriptor() {
         return element;
     }
@@ -697,7 +617,7 @@ public class WebWindow implements Window, Component.Wrapper,
 
     @Override
     public WindowManager getWindowManager() {
-        return (WindowManager) getUiServices().getScreens();
+        return (WindowManager) ScreenUtils.getScreenContext(getFrameOwner()).getScreens();
     }
 
     @Override
@@ -788,21 +708,6 @@ public class WebWindow implements Window, Component.Wrapper,
     @Override
     public Collection<Component> getComponents() {
         return ComponentsHelper.getComponents(this);
-    }
-
-    protected boolean onClose(String actionId) {
-        fireWindowClosed(actionId);
-        return true;
-    }
-
-    protected void fireWindowClosed(String actionId) {
-        if (listeners != null) {
-            for (Object listener : listeners) {
-                if (listener instanceof CloseListener) {
-                    ((CloseListener) listener).windowClosed(actionId);
-                }
-            }
-        }
     }
 
     @Override
@@ -991,24 +896,6 @@ public class WebWindow implements Window, Component.Wrapper,
         return component;
     }
 
-    @Override
-    public void closeAndRun(String actionId, Runnable runnable) {
-        getFrameOwner().close(new StandardCloseAction(actionId))
-            .then(runnable);
-    }
-
-    @Override
-    public boolean close(String actionId, boolean force) {
-        OperationResult result = getFrameOwner().close(new StandardCloseAction(actionId, force));
-        return result.getStatus() == OperationResult.Status.SUCCESS;
-    }
-
-    @Override
-    public boolean close(String actionId) {
-        OperationResult result = getFrameOwner().close(new StandardCloseAction(actionId));
-        return result.getStatus() == OperationResult.Status.SUCCESS;
-    }
-
     public boolean findAndFocusChildComponent() {
         com.vaadin.ui.Component.Focusable focusComponent = getComponentToFocus(getContainer());
         if (focusComponent != null) {
@@ -1016,16 +903,6 @@ public class WebWindow implements Window, Component.Wrapper,
             return true;
         }
         return false;
-    }
-
-    @Override
-    public void saveSettings() {
-        delegate.saveSettings(); // todo rework
-    }
-
-    @Override
-    public void deleteSettings() {
-        delegate.deleteSettings(); // todo rework
     }
 
     @Override
@@ -1119,11 +996,6 @@ public class WebWindow implements Window, Component.Wrapper,
     }
 
     @Override
-    public Window wrapBy(Class<?> wrapperClass) {
-        return delegate.wrapBy(wrapperClass);
-    }
-
-    @Override
     public Window getWrapper() {
         return ((Window) frameOwner);
     }
@@ -1181,21 +1053,17 @@ public class WebWindow implements Window, Component.Wrapper,
     }
 
     // todo remove
-    public static class Editor extends WebWindow implements Window.Editor {
-
-        @Override
-        protected WindowDelegate createDelegate() {
-            return new EditorWindowDelegate(this);
-        }
-
+    /*public static class Editor extends WebWindow implements Window.Editor {
         @Override
         public Entity getItem() {
-            return ((EditorWindowDelegate) delegate).getItem();
+            return null; // todo
+            // return ((EditorWindowDelegate) delegate).getItem();
         }
 
         @Override
         public void setItem(Entity item) {
-            ((EditorWindowDelegate) delegate).setItem(item);
+//            ((EditorWindowDelegate) delegate).setItem(item);
+            // todo
         }
 
         @Override
@@ -1205,7 +1073,8 @@ public class WebWindow implements Window, Component.Wrapper,
         }
 
         public void releaseLock() {
-            ((EditorWindowDelegate) delegate).releaseLock();
+            // todo
+//            ((EditorWindowDelegate) delegate).releaseLock();
         }
 
         @Nullable
@@ -1259,11 +1128,6 @@ public class WebWindow implements Window, Component.Wrapper,
         }
 
         @Override
-        public boolean isModified() {
-            return false;
-        }
-
-        @Override
         public void commitAndClose() {
             if (!getWrapper().validateAll())
                 return;
@@ -1291,7 +1155,7 @@ public class WebWindow implements Window, Component.Wrapper,
         protected void validateAdditionalRules(ValidationErrors errors) {
             ((EditorWindowDelegate) delegate).validateAdditionalRules(errors);
         }
-    }
+    }*/
 
     // todo remove
     public static class Lookup extends WebWindow implements Window.Lookup, LookupComponent.LookupSelectionChangeListener {
@@ -1462,42 +1326,6 @@ public class WebWindow implements Window, Component.Wrapper,
                         }
                     }
                 }
-            }
-        }
-    }
-
-    protected static class CloseListenerAdapter implements CloseListener {
-
-        protected CloseWithCommitListener closeWithCommitListener;
-
-        public CloseListenerAdapter(CloseWithCommitListener closeWithCommitListener) {
-            this.closeWithCommitListener = closeWithCommitListener;
-        }
-
-        @Override
-        public int hashCode() {
-            return closeWithCommitListener.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-
-            if (obj == null || getClass() != obj.getClass()) {
-                return false;
-            }
-
-            CloseListenerAdapter wrapper = (CloseListenerAdapter) obj;
-
-            return this.closeWithCommitListener.equals(wrapper.closeWithCommitListener);
-        }
-
-        @Override
-        public void windowClosed(String actionId) {
-            if (COMMIT_ACTION_ID.equals(actionId)) {
-                closeWithCommitListener.windowClosedWithCommitAction();
             }
         }
     }

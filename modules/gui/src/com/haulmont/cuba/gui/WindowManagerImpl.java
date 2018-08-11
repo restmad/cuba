@@ -33,6 +33,7 @@ import com.haulmont.cuba.gui.executors.BackgroundWorker;
 import com.haulmont.cuba.gui.logging.UIPerformanceLogger;
 import com.haulmont.cuba.gui.logging.UIPerformanceLogger.LifeCycle;
 import com.haulmont.cuba.gui.logging.UserActionsLogger;
+import com.haulmont.cuba.gui.screen.FrameOwner;
 import com.haulmont.cuba.gui.screen.LegacyFrame;
 import com.haulmont.cuba.gui.screen.OpenMode;
 import com.haulmont.cuba.gui.settings.Settings;
@@ -133,7 +134,6 @@ public abstract class WindowManagerImpl {
 
         ComponentLoader windowLoader = createLayout(windowInfo, element, componentLoaderContext);
         Window clientSpecificWindow = (Window) windowLoader.getResultComponent();
-        Window windowWrapper = wrapByCustomClass(clientSpecificWindow, element);
 
         screenViewsLoader.deployViews(element);
 
@@ -142,20 +142,16 @@ public abstract class WindowManagerImpl {
 
         componentLoaderContext.setDsContext(dsContext);
 
-        WindowContext windowContext = new WindowContextImpl(clientSpecificWindow, OpenMode.NEW_TAB, params);
-        clientSpecificWindow.setContext(windowContext);
+        WindowContext windowContext = new WindowContextImpl(clientSpecificWindow, OpenMode.NEW_TAB, FrameOwner.NO_OPTIONS);
+//        clientSpecificWindow.setContext(windowContext);
         dsContext.setFrameContext(windowContext);
 
         //noinspection unchecked
         windowLoader.loadComponent();
 
-//        clientSpecificWindow.setWindowManager(this);
-
         loadDescriptorWatch.stop();
 
-        initWrapperFrame(windowWrapper, componentLoaderContext, element, params);
-
-        componentLoaderContext.setFrame(windowWrapper);
+        componentLoaderContext.setFrame(clientSpecificWindow);
         componentLoaderContext.executePostInitTasks();
 
         if (configuration.getConfig(GlobalConfig.class).getTestMode()) {
@@ -171,7 +167,7 @@ public abstract class WindowManagerImpl {
 
         uiPermissionsWatch.stop();
 
-        return windowWrapper;
+        return null; // todo
     }
 
     protected void preloadMainScreenClass(Element element) {
@@ -373,13 +369,14 @@ public abstract class WindowManagerImpl {
         } else {
             caption = WindowParams.CAPTION.getString(params);
             if (StringUtils.isEmpty(caption)) {
-                String msgPack = window.getMessagesPack();
+//                todo
+                /*String msgPack = window.getMessagesPack();
                 if (msgPack != null) {
                     caption = messages.getMessage(msgPack, "caption");
                     if (!"caption".equals(caption)) {
                         caption = TemplateHelper.processTemplate(caption, params);
                     }
-                }
+                }*/
             } else {
                 caption = TemplateHelper.processTemplate(caption, params);
             }
@@ -559,7 +556,7 @@ public abstract class WindowManagerImpl {
 
         LayoutLoader loader = beanLocator.getPrototype(LayoutLoader.NAME, context);
         loader.setLocale(getLocale());
-        loader.setMessagesPack(parentFrame.getMessagesPack());
+//        loader.setMessagesPack(parentFrame.getMessagesPack()); // todo
 
         StopWatch loadDescriptorWatch = new Slf4JStopWatch(windowInfo.getId() + "#" +
                 LifeCycle.LOAD,
@@ -579,9 +576,9 @@ public abstract class WindowManagerImpl {
 
         loaderElementPair.getFirst().loadComponent();
 
-        if (component.getMessagesPack() == null) {
+        /*if (component.getMessagesPack() == null) {
             component.setMessagesPack(parentFrame.getMessagesPack());
-        }
+        }*/ // todo
 
         context.executeInjectTasks();
         context.setFrame(component);
@@ -723,21 +720,6 @@ public abstract class WindowManagerImpl {
 
     protected Locale getLocale() {
         return userSessionSource.getUserSession().getLocale();
-    }
-
-    protected Window wrapByCustomClass(Frame window, Element element) {
-        String screenClass = element.attributeValue("class");
-        if (StringUtils.isBlank(screenClass)) {
-            throw new GuiDevelopmentException("'class' attribute is not defined in XML descriptor", window.getId());
-        }
-
-        Class<?> aClass = scripting.loadClass(screenClass);
-        if (aClass == null) {
-            throw new GuiDevelopmentException("Unable to load controller class", window.getId());
-        }
-        //noinspection UnnecessaryLocalVariable
-        Window wrappingWindow = ((WrappedWindow) window).wrapBy(aClass);
-        return wrappingWindow;
     }
 
     protected void initWrapperFrame(Window wrappingWindow, ComponentLoaderContext context, Element element,

@@ -21,7 +21,6 @@ import com.google.common.collect.Iterables;
 import com.haulmont.bali.datastruct.Pair;
 import com.haulmont.bali.events.EventRouter;
 import com.haulmont.bali.util.Preconditions;
-import com.haulmont.cuba.client.ClientConfig;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.AppBeans;
 import com.haulmont.cuba.core.global.Configuration;
@@ -37,18 +36,20 @@ import com.haulmont.cuba.desktop.sys.layout.BoxLayoutAdapter;
 import com.haulmont.cuba.desktop.sys.layout.LayoutAdapter;
 import com.haulmont.cuba.desktop.sys.layout.MigLayoutHelper;
 import com.haulmont.cuba.desktop.sys.vcl.JTabbedPaneExt;
-import com.haulmont.cuba.gui.*;
+import com.haulmont.cuba.gui.ComponentsHelper;
+import com.haulmont.cuba.gui.DialogOptions;
+import com.haulmont.cuba.gui.FrameContext;
+import com.haulmont.cuba.gui.WindowContext;
 import com.haulmont.cuba.gui.components.AbstractAction;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.components.Action;
-import com.haulmont.cuba.gui.components.Action.Status;
 import com.haulmont.cuba.gui.components.Component;
-import com.haulmont.cuba.gui.components.DialogAction.Type;
 import com.haulmont.cuba.gui.components.Frame;
 import com.haulmont.cuba.gui.components.LookupComponent.LookupSelectionChangeNotifier;
 import com.haulmont.cuba.gui.components.Timer;
 import com.haulmont.cuba.gui.components.Window;
-import com.haulmont.cuba.gui.components.actions.BaseAction;
+import com.haulmont.cuba.gui.components.Window.Lookup.Handler;
+import com.haulmont.cuba.gui.components.Window.Lookup.Validator;
 import com.haulmont.cuba.gui.components.security.ActionsPermissions;
 import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.data.DsContext;
@@ -81,6 +82,7 @@ public class DesktopWindow implements Window, Component.Disposable,
         Component.Wrapper, Component.HasXmlDescriptor, SecuredActionsHolder, WrappedWindow, DesktopContainer {
 
     protected static final Logger log = LoggerFactory.getLogger(DesktopWindow.class);
+
     protected Logger userActionsLog = LoggerFactory.getLogger(UserActionsLogger.class);
 
     protected boolean disposed = false;
@@ -237,47 +239,6 @@ public class DesktopWindow implements Window, Component.Disposable,
         xmlDescriptor = element;
     }
 
-    @Override
-    public void addListener(CloseListener listener) {
-        addCloseListener(listener);
-    }
-
-    @Override
-    public void removeListener(CloseListener listener) {
-        removeCloseListener(listener);
-    }
-
-    @Override
-    public void addCloseListener(CloseListener listener) {
-        if (!listeners.contains(listener)) {
-            listeners.add(listener);
-        }
-    }
-
-    @Override
-    public void removeCloseListener(CloseListener listener) {
-        listeners.remove(listener);
-    }
-
-    @Override
-    public void addCloseWithCommitListener(CloseWithCommitListener listener) {
-        if (listeners == null) {
-            listeners = new LinkedList<>();
-        }
-
-        CloseListenerAdapter adapter = new CloseListenerAdapter(listener);
-        if (!listeners.contains(adapter)) {
-            listeners.add(adapter);
-        }
-    }
-
-    @Override
-    public void removeCloseWithCommitListener(CloseWithCommitListener listener) {
-        if (listeners != null) {
-            listeners.remove(new CloseListenerAdapter(listener));
-        }
-    }
-
     /**
      * Use EventRouter for listeners instead of fields with listeners List.
      *
@@ -319,21 +280,6 @@ public class DesktopWindow implements Window, Component.Disposable,
     public void fireBeforeCloseWithCloseButton(BeforeCloseWithCloseButtonEvent event) {
         getEventRouter().fireEvent(BeforeCloseWithCloseButtonListener.class,
                 BeforeCloseWithCloseButtonListener::beforeCloseWithCloseButton, event);
-    }
-
-    @Override
-    public void applySettings(Settings settings) {
-        delegate.applySettings(settings);
-    }
-
-    @Override
-    public void saveSettings() {
-        delegate.saveSettings();
-    }
-
-    @Override
-    public void deleteSettings() {
-        delegate.deleteSettings();
     }
 
     @Override
@@ -414,7 +360,7 @@ public class DesktopWindow implements Window, Component.Disposable,
         this.responsive = responsive;
     }
 
-    @Override
+    /*@Override
     public boolean close(final String actionId) {
         if (!forceClose) {
             if (!delegate.preClose(actionId))
@@ -492,7 +438,7 @@ public class DesktopWindow implements Window, Component.Disposable,
         userActionsLog.trace("Window {} was closed", getId());
 
         return res;
-    }
+    }*/
 
     public boolean isModified() {
         return delegate.isModified();
@@ -503,18 +449,6 @@ public class DesktopWindow implements Window, Component.Disposable,
         for (Timer timer : timers) {
             ((DesktopTimer)timer).disposeTimer();
         }
-    }
-
-    @Override
-    public boolean close(String actionId, boolean force) {
-        forceClose = force;
-        return close(actionId);
-    }
-
-    @Override
-    public void closeAndRun(String actionId, Runnable runnable) {
-        this.doAfterClose = runnable;
-        close(actionId);
     }
 
     @Override
@@ -724,26 +658,6 @@ public class DesktopWindow implements Window, Component.Disposable,
     @Override
     public void setContext(FrameContext ctx) {
         context = (WindowContext) ctx;
-    }
-
-    @Override
-    public DsContext getDsContext() {
-        return dsContext;
-    }
-
-    @Override
-    public void setDsContext(DsContext dsContext) {
-        this.dsContext = dsContext;
-    }
-
-    @Override
-    public String getMessagesPack() {
-        return messagePack;
-    }
-
-    @Override
-    public void setMessagesPack(String name) {
-        messagePack = name;
     }
 
     @Override
@@ -1222,11 +1136,6 @@ public class DesktopWindow implements Window, Component.Disposable,
     }
 
     @Override
-    public Window wrapBy(Class<?> wrapperClass) {
-        return delegate.wrapBy(wrapperClass);
-    }
-
-    @Override
     public Window getWrapper() {
         return delegate.getWrapper();
     }
@@ -1693,7 +1602,7 @@ public class DesktopWindow implements Window, Component.Disposable,
         }
     }
 
-    public static class Lookup extends DesktopWindow implements Window.Lookup, LookupComponent.LookupSelectionChangeListener {
+    public static class Lookup extends DesktopWindow implements LookupComponent.LookupSelectionChangeListener {
 
         protected Component lookupComponent;
         protected Handler handler;
@@ -1856,42 +1765,6 @@ public class DesktopWindow implements Window, Component.Disposable,
             Action selectAction = getSelectAction();
             if (selectAction != null)
                 selectAction.setEnabled(!event.getSource().getLookupSelectedItems().isEmpty());
-        }
-    }
-
-    protected static class CloseListenerAdapter implements CloseListener {
-
-        protected CloseWithCommitListener closeWithCommitListener;
-
-        public CloseListenerAdapter(CloseWithCommitListener closeWithCommitListener) {
-            this.closeWithCommitListener = closeWithCommitListener;
-        }
-
-        @Override
-        public int hashCode() {
-            return closeWithCommitListener.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-
-            if (obj == null || getClass() != obj.getClass()) {
-                return false;
-            }
-
-            CloseListenerAdapter wrapper = (CloseListenerAdapter) obj;
-
-            return this.closeWithCommitListener.equals(wrapper.closeWithCommitListener);
-        }
-
-        @Override
-        public void windowClosed(String actionId) {
-            if (COMMIT_ACTION_ID.equals(actionId)) {
-                closeWithCommitListener.windowClosedWithCommitAction();
-            }
         }
     }
 }

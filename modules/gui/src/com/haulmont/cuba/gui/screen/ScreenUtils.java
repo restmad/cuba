@@ -18,7 +18,7 @@ package com.haulmont.cuba.gui.screen;
 
 import com.haulmont.bali.events.EventHub;
 import com.haulmont.cuba.gui.components.Window;
-import com.haulmont.cuba.gui.config.WindowInfo;
+import com.haulmont.cuba.gui.settings.Settings;
 
 /**
  * Internal methods used in WindowManager implementations.
@@ -41,19 +41,27 @@ public final class ScreenUtils {
         return screen.getEventHub();
     }
 
-    public static void setWindowInfo(Screen screen, WindowInfo windowInfo) {
-        screen.setWindowInfo(windowInfo);
+    public static void setScreenContext(Screen screen, ScreenContext screenContext) {
+        screen.setScreenContext(screenContext);
     }
 
-    public static WindowInfo getWindowInfo(Screen screen) {
-        return screen.getWindowInfo();
+    public static ScreenContext getScreenContext(Screen screen) {
+        return screen.getScreenContext();
     }
 
-    public static ScreenOptions getScreenOptions(Screen screen) {
-        return screen.getScreenOptions();
+    public static void applySettings(Screen screen, Settings settings) {
+        screen.applySettings(settings);
     }
 
-    public static void setScreenOptions(Screen screen, ScreenOptions screenOptions) {
-        screen.setScreenOptions(screenOptions);
+    public static void saveSettings(Screen screen) {
+        screen.saveSettings();
+    }
+
+    public static void deleteSettings(Screen screen) {
+        screen.deleteSettings();
+    }
+
+    public static Settings getSettings(Screen screen) {
+        return screen.getSettings();
     }
 }

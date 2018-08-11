@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2016 Haulmont.
+ * Copyright (c) 2008-2018 Haulmont.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,25 +12,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package com.haulmont.cuba.gui;
+package com.haulmont.cuba.gui.screen;
 
-import com.haulmont.cuba.gui.Screens.LaunchMode;
-import com.haulmont.cuba.gui.screen.ScreenOptions;
+import com.haulmont.cuba.gui.Dialogs;
+import com.haulmont.cuba.gui.Notifications;
+import com.haulmont.cuba.gui.Screens;
+import com.haulmont.cuba.gui.config.WindowInfo;
 
-/**
- * Provides access to window parameters and component values.
- */
-public interface WindowContext extends FrameContext {
-    /**
-     * How the window is opened.
-     */
-    LaunchMode getLaunchMode();
+public interface ScreenContext {
+    ScreenOptions getScreenOptions();
 
-    /**
-     * @return options passed to window
-     */
-    ScreenOptions getOptions();
+    WindowInfo getWindowInfo();
+
+    Screens getScreens();
+
+    Dialogs getDialogs();
+
+    Notifications getNotifications();
 }

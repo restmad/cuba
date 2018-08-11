@@ -30,6 +30,7 @@ import com.haulmont.cuba.core.global.MetadataTools;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.components.actions.*;
 import com.haulmont.cuba.gui.components.mainwindow.AppWorkArea;
+import com.haulmont.cuba.gui.components.sys.FrameImplementation;
 import com.haulmont.cuba.gui.components.sys.ValuePathHelper;
 import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.screen.Screen;
@@ -71,14 +72,15 @@ public abstract class ComponentsHelper {
     @Nullable
     public static Component getWindowComponent(Window window, String id) {
         final String[] elements = ValuePathHelper.parse(id);
+        FrameImplementation frameImpl = (FrameImplementation) window;
         if (elements.length == 1) {
-            Component component = window.getRegisteredComponent(id);
+            Component component = frameImpl.getRegisteredComponent(id);
             if (component != null)
                 return component;
             else
                 return window.getTimer(id);
         } else {
-            Component innerComponent = window.getRegisteredComponent(elements[0]);
+            Component innerComponent = frameImpl.getRegisteredComponent(elements[0]);
             if (innerComponent instanceof FieldGroup) {
                 List<String> subList = Arrays.asList(elements).subList(1, elements.length);
                 String subPath = ValuePathHelper.format(subList.toArray(new String[0]));
@@ -103,15 +105,16 @@ public abstract class ComponentsHelper {
 
     @Nullable
     public static Component getFrameComponent(Frame frame, String id) {
+        FrameImplementation frameImpl = (FrameImplementation) frame;
         String[] elements = ValuePathHelper.parse(id);
         if (elements.length == 1) {
-            Component component = frame.getRegisteredComponent(id);
+            Component component = frameImpl.getRegisteredComponent(id);
             if (component == null && frame.getFrame() != null && frame.getFrame() != frame) {
                 component = frame.getFrame().getComponent(id);
             }
             return component;
         } else {
-            Component innerComponent = frame.getRegisteredComponent(elements[0]);
+            Component innerComponent = frameImpl.getRegisteredComponent(elements[0]);
             if (innerComponent instanceof FieldGroup) {
                 final List<String> subList = Arrays.asList(elements).subList(1, elements.length);
                 String subPath = ValuePathHelper.format(subList.toArray(new String[0]));

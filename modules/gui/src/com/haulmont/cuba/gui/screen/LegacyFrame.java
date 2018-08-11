@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface LegacyFrame extends Component.HasXmlDescriptor,
-        Component.HasCaption, Component.HasIcon, Component.Wrapper, Component.BelongToFrame,
+        Component.HasCaption, Component.HasIcon, Component.Wrapper, Component.BelongToFrame, Frame.Wrapper,
         ActionsHolder, HasSpacing, HasMargin,
         OrderedContainer, ExpandingLayout {
 
@@ -45,25 +45,14 @@ public interface LegacyFrame extends Component.HasXmlDescriptor,
         return ((LegacyFrame) frame.getFrameOwner());
     }
 
-    WindowManager getWindowManager();
-
-    Frame getWrappedFrame();
+    default WindowManager getWindowManager() {
+        return getWrappedFrame().getWindowManager();
+    }
 
     FrameContext getContext();
-    void setContext(FrameContext ctx);
 
     String getMessagesPack();
     void setMessagesPack(String name);
-
-    /** INTERNAL. Don't call from application code. */
-    void registerComponent(Component component);
-
-    /** INTERNAL. Don't call from application code. */
-    void unregisterComponent(Component component);
-
-    /** INTERNAL. Don't call from application code. */
-    @Nullable
-    Component getRegisteredComponent(String id);
 
     boolean validateAll();
 

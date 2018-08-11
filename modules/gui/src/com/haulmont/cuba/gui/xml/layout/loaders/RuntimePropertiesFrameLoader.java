@@ -70,9 +70,10 @@ public class RuntimePropertiesFrameLoader extends ContainerLoader<Frame> {
 
     @Override
     public void loadComponent() {
-        if (resultComponent.getMessagesPack() == null) {
+        // todo
+        /*if (resultComponent.getMessagesPack() == null) {
             resultComponent.setMessagesPack(messagesPack);
-        }
+        }*/
 
         assignXmlDescriptor(resultComponent, element);
         loadVisible(resultComponent, element);

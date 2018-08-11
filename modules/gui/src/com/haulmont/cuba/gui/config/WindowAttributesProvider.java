@@ -6,6 +6,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public interface WindowAttributesProvider {
+
+    WindowInfo.Type getType(WindowInfo windowInfo);
+
     @Nullable
     String getTemplate(WindowInfo windowInfo);
 

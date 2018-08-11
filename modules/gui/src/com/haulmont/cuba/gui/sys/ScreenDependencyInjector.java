@@ -30,23 +30,20 @@ import com.haulmont.cuba.gui.components.Action;
 import com.haulmont.cuba.gui.components.Component;
 import com.haulmont.cuba.gui.components.Window;
 import com.haulmont.cuba.gui.components.sys.EventHubOwner;
-import com.haulmont.cuba.gui.components.sys.WindowImplementation;
 import com.haulmont.cuba.gui.data.DataSupplier;
 import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.data.DsContext;
 import com.haulmont.cuba.gui.events.sys.UiEventListenerMethodAdapter;
 import com.haulmont.cuba.gui.export.ExportDisplay;
 import com.haulmont.cuba.gui.screen.*;
-import com.haulmont.cuba.gui.screen.ScreenUtils;
 import com.haulmont.cuba.gui.theme.ThemeConstants;
 import com.haulmont.cuba.gui.theme.ThemeConstantsManager;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.dom4j.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.event.EventListener;
@@ -132,10 +129,6 @@ public class ScreenDependencyInjector {
 
         subscribeUiEventListeners(screen);
 
-        if (screen instanceof ApplicationContextAware) {
-            ((ApplicationContextAware) screen).setApplicationContext(beanLocator.get(ApplicationContext.class));
-        }
-
         // todo @PostConstruct
     }
 
@@ -152,7 +145,7 @@ public class ScreenDependencyInjector {
 
             Consumer listener = new DeclarativeSubscribeExecutor(screen, method);
 
-            String target = com.haulmont.cuba.gui.sys.ScreenUtils.getInferredSubscribeId(annotation);
+            String target = ScreenDescriptorUtils.getInferredSubscribeId(annotation);
 
             Parameter parameter = method.getParameters()[0];
             Class<?> parameterType = parameter.getType();
@@ -290,7 +283,6 @@ public class ScreenDependencyInjector {
         Window window = screen.getWindow();
 
         if (annotationClass == WindowParam.class) {
-            // todo support ScreenOptions
             //Injecting a parameter
             return params.get(name);
 
@@ -333,18 +325,39 @@ public class ScreenDependencyInjector {
 
         } else if (Screens.class == type) {
             // injecting screens
-            UiServices uiServices = getUiServices(screen);
-            return uiServices.getScreens();
+            return ScreenUtils.getScreenContext(screen).getScreens();
 
         } else if (Dialogs.class == type) {
             // injecting screens
-            UiServices uiServices = getUiServices(screen);
-            return uiServices.getDialogs();
+            return ScreenUtils.getScreenContext(screen).getDialogs();
 
         } else if (Notifications.class == type) {
             // injecting screens
-            UiServices uiServices = getUiServices(screen);
-            return uiServices.getNotifications();
+            return ScreenUtils.getScreenContext(screen).getNotifications();
+
+        } else if (MessageBundle.class == type) {
+            MessageBundle messageBundle = beanLocator.getPrototype(MessageBundle.NAME);
+
+            String packageName;
+            if (element instanceof Field) {
+                packageName = ((Field) element).getDeclaringClass().getPackage().getName();
+            } else if (element instanceof Method) {
+                packageName = ((Method) element).getDeclaringClass().getPackage().getName();
+            } else {
+                throw new UnsupportedOperationException("Unsupported annotated element for MessageBundle");
+            }
+
+            messageBundle.setMessagesPack(packageName);
+
+            if (window instanceof Component.HasXmlDescriptor) {
+                Element xmlDescriptor = ((Component.HasXmlDescriptor) window).getXmlDescriptor();
+                String messagePack = xmlDescriptor.attributeValue("messagesPack");
+                if (messagePack != null) {
+                    messageBundle.setMessagesPack(messagePack);
+                }
+            }
+
+            return messageBundle;
 
         } else if (ThemeConstants.class.isAssignableFrom(type)) {
             // Injecting a Theme
@@ -375,10 +388,6 @@ public class ScreenDependencyInjector {
             }*/
         }
         return null;
-    }
-
-    protected UiServices getUiServices(Screen screen) {
-        return ((WindowImplementation) screen.getWindow()).getUiServices();
     }
 
     protected void assignValue(AnnotatedElement element, Object value) {

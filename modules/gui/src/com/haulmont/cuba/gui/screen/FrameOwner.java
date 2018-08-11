@@ -19,9 +19,10 @@ package com.haulmont.cuba.gui.screen;
 import com.haulmont.cuba.gui.components.Window;
 
 /**
- * JavaDoc
- * <p>
  * Marker interface for UI controllers.
+ *
+ * @see Screen
+ * @see ScreenFragment
  */
 public interface FrameOwner {
 

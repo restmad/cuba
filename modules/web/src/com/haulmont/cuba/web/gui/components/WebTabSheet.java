@@ -22,6 +22,7 @@ import com.haulmont.cuba.gui.ComponentsHelper;
 import com.haulmont.cuba.gui.app.security.role.edit.UiPermissionDescriptor;
 import com.haulmont.cuba.gui.app.security.role.edit.UiPermissionValue;
 import com.haulmont.cuba.gui.components.*;
+import com.haulmont.cuba.gui.components.sys.FrameImplementation;
 import com.haulmont.cuba.gui.data.impl.DsContextImplementation;
 import com.haulmont.cuba.gui.icons.Icons;
 import com.haulmont.cuba.gui.screen.LegacyFrame;
@@ -317,7 +318,7 @@ public class WebTabSheet extends WebAbstractComponent<CubaTabSheet> implements T
                     && ((BelongToFrame) childComponent).getFrame() == null) {
                 ((BelongToFrame) childComponent).setFrame(frame);
             } else {
-                frame.registerComponent(childComponent);
+                ((FrameImplementation) frame).registerComponent(childComponent);
             }
         }
 

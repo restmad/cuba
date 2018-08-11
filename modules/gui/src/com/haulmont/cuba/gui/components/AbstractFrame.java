@@ -27,7 +27,7 @@ import com.haulmont.cuba.gui.components.Frame.NotificationType;
 import com.haulmont.cuba.gui.data.DsContext;
 import com.haulmont.cuba.gui.icons.Icons;
 import com.haulmont.cuba.gui.screen.LegacyFrame;
-import com.haulmont.cuba.gui.sys.UiServices;
+import com.haulmont.cuba.gui.screen.MessageBundle;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationListener;
 
@@ -36,7 +36,6 @@ import javax.inject.Inject;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Base class for frame controllers.
@@ -53,22 +52,15 @@ public class AbstractFrame implements Frame.Wrapper, LegacyFrame {
 
     @Inject
     protected Messages messages;
+    @Inject
+    private MessageBundle messageBundle;
 
     public AbstractFrame() {
-    }
-
-    public UiServices getUiServices() {
-        throw new UnsupportedOperationException("TODO"); // todo
     }
 
     /** INTERNAL. Don't call from application code. */
     public void setWrappedFrame(Frame frame) {
         this.frame = frame;
-    }
-
-    @Override
-    public WindowManager getWindowManager() {
-        return frame.getWindowManager();
     }
 
     @Override
@@ -93,22 +85,7 @@ public class AbstractFrame implements Frame.Wrapper, LegacyFrame {
 
     @Override
     public void setId(String id) {
-        String currentId = getId();
-
-        if (!Objects.equals(currentId, id)) {
-            if (getFrame() != null) {
-                getFrame().unregisterComponent(this);
-            }
-        }
-
-        frame.setId(id);
-
-        // register this wrapper instead of underlying frame
-        if (!Objects.equals(currentId, id)) {
-            if (getFrame() != null) {
-                getFrame().registerComponent(this);
-            }
-        }
+        frame.setId(id); // todo
     }
 
     @Override
@@ -323,11 +300,6 @@ public class AbstractFrame implements Frame.Wrapper, LegacyFrame {
     }
 
     @Override
-    public void setContext(FrameContext ctx) {
-        frame.setContext(ctx);
-    }
-
-    @Override
     public DsContext getDsContext() {
         return dsContext;
     }
@@ -339,12 +311,12 @@ public class AbstractFrame implements Frame.Wrapper, LegacyFrame {
 
     @Override
     public String getMessagesPack() {
-        return frame.getMessagesPack();
+        return messageBundle.getMessagesPack();
     }
 
     @Override
     public void setMessagesPack(String name) {
-        frame.setMessagesPack(name);
+        messageBundle.setMessagesPack(name);
     }
 
     /**
@@ -377,22 +349,6 @@ public class AbstractFrame implements Frame.Wrapper, LegacyFrame {
         }
 
         return messages.formatMessage(msgPack, key, params);
-    }
-
-    @Override
-    public void registerComponent(Component component) {
-        frame.registerComponent(component);
-    }
-
-    @Override
-    public void unregisterComponent(Component component) {
-        frame.unregisterComponent(component);
-    }
-
-    @Nullable
-    @Override
-    public Component getRegisteredComponent(String id) {
-        return frame.getRegisteredComponent(id);
     }
 
     @Override
@@ -482,8 +438,6 @@ public class AbstractFrame implements Frame.Wrapper, LegacyFrame {
     @Override
     public void setFrame(Frame frame) {
         this.frame.setFrame(frame);
-        // register this wrapper instead of underlying frame
-        frame.registerComponent(this);
     }
 
     @Override

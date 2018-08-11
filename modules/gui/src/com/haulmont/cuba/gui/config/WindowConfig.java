@@ -29,7 +29,7 @@ import com.haulmont.cuba.gui.components.Window;
 import com.haulmont.cuba.gui.screen.Screen;
 import com.haulmont.cuba.gui.screen.UiController;
 import com.haulmont.cuba.gui.screen.UiDescriptor;
-import com.haulmont.cuba.gui.sys.ScreenUtils;
+import com.haulmont.cuba.gui.sys.ScreenDescriptorUtils;
 import com.haulmont.cuba.gui.sys.ScreensConfiguration;
 import com.haulmont.cuba.gui.sys.ScreensConfiguration.UIControllerDefinition;
 import com.haulmont.cuba.gui.xml.layout.ScreenXmlLoader;
@@ -87,6 +87,11 @@ public class WindowConfig {
     protected ReadWriteLock lock = new ReentrantReadWriteLock();
 
     protected WindowAttributesProvider windowAttributesProvider = new WindowAttributesProvider() {
+        @Override
+        public WindowInfo.Type getType(WindowInfo windowInfo) {
+            return extractWindowInfoType(windowInfo);
+        }
+
         @Nullable
         @Override
         public String getTemplate(WindowInfo windowInfo) {
@@ -104,6 +109,10 @@ public class WindowConfig {
             return extractScreenClass(windowInfo);
         }
     };
+
+    protected WindowInfo.Type extractWindowInfoType(WindowInfo windowInfo) {
+        return WindowInfo.Type.SCREEN; // todo support fragment
+    }
 
     @Nonnull
     @SuppressWarnings("unchecked")
@@ -164,7 +173,7 @@ public class WindowConfig {
             if (annotation == null) {
                 return null;
             }
-            String template = ScreenUtils.getInferredDesignTemplate(annotation, screenClass);
+            String template = ScreenDescriptorUtils.getInferredDesignTemplate(annotation, screenClass);
             if (!template.startsWith("/")) {
                 String packageName = screenClass.getPackage().getName();
                 if (StringUtils.isNotEmpty(packageName)) {

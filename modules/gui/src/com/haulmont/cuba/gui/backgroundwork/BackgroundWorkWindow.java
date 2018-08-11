@@ -21,7 +21,6 @@ import com.haulmont.cuba.gui.WindowManager.OpenType;
 import com.haulmont.cuba.gui.components.AbstractWindow;
 import com.haulmont.cuba.gui.components.Button;
 import com.haulmont.cuba.gui.components.Label;
-import com.haulmont.cuba.gui.components.Window;
 import com.haulmont.cuba.gui.executors.BackgroundTask;
 import com.haulmont.cuba.gui.executors.BackgroundTaskHandler;
 import com.haulmont.cuba.gui.executors.BackgroundWorker;
@@ -48,10 +47,8 @@ import java.util.Map;
  * <br>
  */
 public class BackgroundWorkWindow<T, V> extends AbstractWindow {
-
     @Inject
-    protected Label text;
-
+    protected Label<String> text;
     @Inject
     protected Button cancelButton;
 
@@ -153,14 +150,14 @@ public class BackgroundWorkWindow<T, V> extends AbstractWindow {
     }
 
     public void cancel() {
-        close(Window.CLOSE_ACTION_ID);
+        close(WINDOW_CLOSE_ACTION);
     }
 
     @Override
-    public boolean close(String actionId) {
-        if (taskHandler.cancel()) {
-            return super.close(actionId);
+    protected boolean preClose(String actionId) {
+        if (!taskHandler.cancel()) {
+            return false;
         }
-        return false;
+        return super.preClose(actionId);
     }
 }

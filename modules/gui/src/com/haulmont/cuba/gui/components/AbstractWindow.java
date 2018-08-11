@@ -19,10 +19,8 @@ package com.haulmont.cuba.gui.components;
 import com.haulmont.cuba.client.ClientConfig;
 import com.haulmont.cuba.core.global.AppBeans;
 import com.haulmont.cuba.core.global.Configuration;
-import com.haulmont.cuba.core.global.DevelopmentException;
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.gui.DialogOptions;
-import com.haulmont.cuba.gui.FrameContext;
 import com.haulmont.cuba.gui.WindowContext;
 import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.components.security.ActionsPermissions;
@@ -30,13 +28,15 @@ import com.haulmont.cuba.gui.data.DsContext;
 import com.haulmont.cuba.gui.icons.Icons;
 import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.gui.settings.Settings;
-import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Element;
 import org.springframework.context.ApplicationListener;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Base class for simple screen controllers.
@@ -54,6 +54,8 @@ public class AbstractWindow extends Screen implements Window, LegacyFrame, Compo
 
     @Inject
     protected Messages messages;
+    @Inject
+    private MessageBundle messageBundle;
 
     public AbstractWindow() {
     }
@@ -103,28 +105,8 @@ public class AbstractWindow extends Screen implements Window, LegacyFrame, Compo
     }
 
     @Override
-    public String getId() {
-        return frame.getId();
-    }
-
-    @Override
     public void setId(String id) {
-        String currentId = getId();
-
-        if (!Objects.equals(currentId, id)) {
-            if (getFrame() != null) {
-                getFrame().unregisterComponent(this);
-            }
-        }
-
-        frame.setId(id);
-
-        // register this wrapper instead of underlying frame
-        if (!Objects.equals(currentId, id)) {
-            if (getFrame() != null) {
-                getFrame().registerComponent(this);
-            }
-        }
+        super.setId(id);
     }
 
     @Override
@@ -314,66 +296,37 @@ public class AbstractWindow extends Screen implements Window, LegacyFrame, Compo
     }
 
     @Override
-    public void setContext(FrameContext ctx) {
-        frame.setContext(ctx);
-    }
-
-    @Override
     public String getMessagesPack() {
-        return frame.getMessagesPack();
+        return messageBundle.getMessagesPack();
     }
 
     @Override
     public void setMessagesPack(String name) {
-        frame.setMessagesPack(name);
+        messageBundle.setMessagesPack(name);
     }
 
     /**
      * Get localized message from the message pack associated with this frame or window.
-     * @param key   message key
-     * @return      localized message
+     *
+     * @param key message key
+     * @return localized message
      * @see Messages#getMessage(String, String)
      */
     protected String getMessage(String key) {
-        String msgPack = getMessagesPack();
-        if (StringUtils.isEmpty(msgPack)) {
-            throw new DevelopmentException("MessagePack is not set");
-        }
-
-        return messages.getMessage(msgPack, key);
+        return messageBundle.getMessage(key);
     }
 
     /**
      * Get localized message from the message pack associated with this frame or window, and use it as a format
      * string for parameters provided.
-     * @param key       message key
-     * @param params    parameter values
-     * @return          formatted string or the key in case of IllegalFormatException
+     *
+     * @param key    message key
+     * @param params parameter values
+     * @return formatted string or the key in case of IllegalFormatException
      * @see Messages#formatMessage(String, String, Object...)
      */
     protected String formatMessage(String key, Object... params) {
-        String msgPack = getMessagesPack();
-        if (StringUtils.isEmpty(msgPack)) {
-            throw new DevelopmentException("MessagePack is not set");
-        }
-
-        return messages.formatMessage(msgPack, key, params);
-    }
-
-    @Override
-    public void registerComponent(Component component) {
-        frame.registerComponent(component);
-    }
-
-    @Override
-    public void unregisterComponent(Component component) {
-        frame.unregisterComponent(component);
-    }
-
-    @Nullable
-    @Override
-    public Component getRegisteredComponent(String id) {
-        return frame.getRegisteredComponent(id);
+        return messageBundle.formatMessage(key, params);
     }
 
     @Override
@@ -452,9 +405,7 @@ public class AbstractWindow extends Screen implements Window, LegacyFrame, Compo
 
     @Override
     public void setFrame(Frame frame) {
-        this.frame.setFrame(frame);
-        // register this wrapper instead of underlying frame
-        frame.registerComponent(this);
+        // do nothing
     }
 
     @Override
@@ -594,44 +545,6 @@ public class AbstractWindow extends Screen implements Window, LegacyFrame, Compo
     }
 
     /**
-     * @deprecated Use {@link #addCloseListener(CloseListener)}
-     */
-    @Deprecated
-    @Override
-    public void addListener(CloseListener listener) {
-        addCloseListener(listener);
-    }
-
-    /**
-     * @deprecated Use {@link #removeCloseListener(CloseListener)}
-     */
-    @Deprecated
-    @Override
-    public void removeListener(CloseListener listener) {
-        removeCloseListener(listener);
-    }
-
-    @Override
-    public void addCloseListener(CloseListener listener) {
-        ((Window) frame).addCloseListener(listener);
-    }
-
-    @Override
-    public void removeCloseListener(CloseListener listener) {
-        ((Window) frame).removeCloseListener(listener);
-    }
-
-    @Override
-    public void addCloseWithCommitListener(CloseWithCommitListener listener) {
-        ((Window) frame).addCloseWithCommitListener(listener);
-    }
-
-    @Override
-    public void removeCloseWithCommitListener(CloseWithCommitListener listener) {
-        ((Window) frame).removeCloseWithCommitListener(listener);
-    }
-
-    /**
      * @return screen caption which is set in XML or via {@link #setCaption(String)}
      */
     @Override
@@ -688,7 +601,7 @@ public class AbstractWindow extends Screen implements Window, LegacyFrame, Compo
      */
     @Override
     public void applySettings(Settings settings) {
-        ((Window) frame).applySettings(settings);
+        super.applySettings(settings);
     }
 
     /**
@@ -696,12 +609,17 @@ public class AbstractWindow extends Screen implements Window, LegacyFrame, Compo
      */
     @Override
     public void saveSettings() {
-        ((Window) frame).saveSettings();
+        super.saveSettings();
     }
 
     @Override
     public void deleteSettings() {
-        ((Window) frame).deleteSettings();
+        super.deleteSettings();
+    }
+
+    @Override
+    public Settings getSettings() {
+        return super.getSettings();
     }
 
     @Override
@@ -712,14 +630,6 @@ public class AbstractWindow extends Screen implements Window, LegacyFrame, Compo
     @Override
     public String getFocusComponent() {
         return ((Window) frame).getFocusComponent();
-    }
-
-    /**
-     * @return  the screen settings interface. Never null.
-     */
-    @Override
-    public Settings getSettings() {
-        return ((Window) frame).getSettings();
     }
 
     @Override
@@ -743,6 +653,7 @@ public class AbstractWindow extends Screen implements Window, LegacyFrame, Compo
      * support additional validation.
      * <p>You should override this method in subclasses ONLY if you want to completely replace the validation process,
      * otherwise use {@link #postValidate(ValidationErrors)}.
+     *
      * @return true if the validation was successful, false if there were any problems
      */
     @Override
@@ -781,52 +692,14 @@ public class AbstractWindow extends Screen implements Window, LegacyFrame, Compo
 
     /**
      * Hook to be implemented in subclasses. Called by the framework before closing the screen.
-     * @param actionId  a string that is passed to one of {@link #close} methods by calling code to identify itself.
-     *                  Can be an {@link Action} ID, or a constant like {@link #COMMIT_ACTION_ID} or
-     *                  {@link #CLOSE_ACTION_ID}.
-     * @return          true to proceed with closing, false to interrupt and leave the screen open
+     *
+     * @param actionId a string that is passed to one of {@link #close} methods by calling code to identify itself.
+     *                 Can be an {@link Action} ID, or a constant like {@link #COMMIT_ACTION_ID} or
+     *                 {@link #CLOSE_ACTION_ID}.
+     * @return true to proceed with closing, false to interrupt and leave the screen open
      */
     protected boolean preClose(String actionId) {
         return true;
-    }
-
-    /**
-     * Close the screen.
-     * <br> If the screen has uncommitted changes in its {@link com.haulmont.cuba.gui.data.DsContext},
-     * the confirmation dialog will be shown.
-     * <br> Don't override this method in subclasses, use hook {@link #preClose(String)}
-     *
-     * @param actionId action ID that will be propagated to attached {@link CloseListener}s.
-     *                 Use {@link #COMMIT_ACTION_ID} if some changes have just been committed, or
-     *                 {@link #CLOSE_ACTION_ID} otherwise. These constants are recognized by various mechanisms of the
-     *                 framework.
-     */
-    @Override
-    public boolean close(String actionId) {
-        return ((Window) frame).close(actionId);
-    }
-
-    /** 
-     * Close the screen.
-     * <br> If the window has uncommitted changes in its {@link com.haulmont.cuba.gui.data.DsContext},
-     * and force=false, the confirmation dialog will be shown.
-     * <br> Don't override this method in subclasses, use hook {@link #preClose(String)}
-     *
-     * @param actionId action ID that will be propagated to attached {@link CloseListener}s.
-     *                 Use {@link #COMMIT_ACTION_ID} if some changes have just been committed, or
-     *                 {@link #CLOSE_ACTION_ID} otherwise. These constants are recognized by various mechanisms of the
-     *                 framework.
-     * @param force    if true, no confirmation dialog will be shown even if the screen has uncommitted changes
-     */
-    @Override
-    public boolean close(String actionId, boolean force) {
-        return ((Window) frame).close(actionId, force);
-    }
-
-    /** INTERNAL. Don't call or override in application code. */
-    @Override
-    public void closeAndRun(String actionId, Runnable runnable) {
-        ((Window) frame).closeAndRun(actionId, runnable);
     }
 
     @Override

@@ -20,20 +20,37 @@ package com.haulmont.cuba.gui.sys;
 import com.haulmont.cuba.gui.Screens.LaunchMode;
 import com.haulmont.cuba.gui.WindowContext;
 import com.haulmont.cuba.gui.components.Frame;
+import com.haulmont.cuba.gui.screen.MapScreenOptions;
+import com.haulmont.cuba.gui.screen.ScreenOptions;
 
+import java.util.Collections;
 import java.util.Map;
 
 public class WindowContextImpl extends FrameContextImpl implements WindowContext {
 
-    private LaunchMode launchMode;
+    private final LaunchMode launchMode;
+    private final ScreenOptions options;
 
-    public WindowContextImpl(Frame window, LaunchMode launchMode, Map<String, Object> params) {
-        super(window, params);
+    public WindowContextImpl(Frame window, LaunchMode launchMode, ScreenOptions options) {
+        super(window, getParams(options));
         this.launchMode = launchMode;
+        this.options = options;
     }
 
     @Override
     public LaunchMode getLaunchMode() {
         return launchMode;
+    }
+
+    @Override
+    public ScreenOptions getOptions() {
+        return options;
+    }
+
+    private static Map<String, Object> getParams(ScreenOptions options) {
+        if (options instanceof MapScreenOptions) {
+            return ((MapScreenOptions) options).getParams();
+        }
+        return Collections.emptyMap();
     }
 }
