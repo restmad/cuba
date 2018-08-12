@@ -29,6 +29,10 @@ import com.haulmont.cuba.gui.components.actions.BaseAction;
 import com.haulmont.cuba.gui.icons.CubaIcon;
 import com.haulmont.cuba.gui.icons.Icons;
 import com.haulmont.cuba.gui.presentations.Presentations;
+import com.haulmont.cuba.gui.screen.events.AfterCloseEvent;
+import com.haulmont.cuba.gui.screen.events.AfterInitEvent;
+import com.haulmont.cuba.gui.screen.events.BeforeCloseEvent;
+import com.haulmont.cuba.gui.screen.events.CloseTriggeredEvent;
 import com.haulmont.cuba.gui.settings.Settings;
 import com.haulmont.cuba.gui.util.OperationResult;
 import com.haulmont.cuba.gui.util.UnknownOperationResult;
@@ -224,16 +228,21 @@ public abstract class Screen implements FrameOwner {
      * @return
      */
     public OperationResult close(CloseAction action) {
-        if (action instanceof StandardCloseAction
-                && Window.COMMIT_ACTION_ID.equals(((StandardCloseAction) action).getActionId())) {
+        CloseTriggeredEvent closeTriggeredEvent = new CloseTriggeredEvent(this, action);
+        fireEvent(CloseTriggeredEvent.class, closeTriggeredEvent);
+        if (closeTriggeredEvent.isClosePrevented()) {
+            return OperationResult.fail();
+        }
+
+        if (isCommitAction(action)) {
             return commitChanges()
                     .compose(() -> close(WINDOW_COMMIT_AND_CLOSE_ACTION));
         }
 
-        Configuration configuration = beanLocator.get(Configuration.NAME);
-        ClientConfig clientConfig = configuration.getConfig(ClientConfig.class);
-
         if (action.isCheckForUnsavedChanges() && isModified()) {
+            Configuration configuration = beanLocator.get(Configuration.NAME);
+            ClientConfig clientConfig = configuration.getConfig(ClientConfig.class);
+
             if (clientConfig.getUseSaveConfirmation()) {
                 return showSaveConfirmationDialog();
             } else {
@@ -243,13 +252,12 @@ public abstract class Screen implements FrameOwner {
 
         BeforeCloseEvent beforeCloseEvent = new BeforeCloseEvent(this, action);
         fireEvent(BeforeCloseEvent.class, beforeCloseEvent);
-
         if (beforeCloseEvent.isClosePrevented()) {
             return OperationResult.fail();
         }
 
         // save settings right before removing
-        if (!clientConfig.getManualScreenSettingsSaving()) {
+        if (isSaveSettingsOnClose(action)) {
             saveSettings();
         }
 
@@ -259,6 +267,24 @@ public abstract class Screen implements FrameOwner {
         fireEvent(AfterCloseEvent.class, afterCloseEvent);
 
         return OperationResult.success();
+    }
+
+    protected boolean isSaveSettingsOnClose(@SuppressWarnings("unused") CloseAction action) {
+        Configuration configuration = beanLocator.get(Configuration.NAME);
+        ClientConfig clientConfig = configuration.getConfig(ClientConfig.class);
+        return !clientConfig.getManualScreenSettingsSaving();
+    }
+
+    protected boolean isCommitAction(CloseAction action) {
+        return action instanceof StandardCloseAction
+                && Window.COMMIT_ACTION_ID.equals(((StandardCloseAction) action).getActionId());
+    }
+
+    /**
+     * JavaDoc
+     */
+    public boolean isModified() {
+        return false;
     }
 
     /**
@@ -356,14 +382,10 @@ public abstract class Screen implements FrameOwner {
         );
     }
 
-    protected void deleteSettings() {
-        settings.delete();
-    }
-
     /**
      * JavaDoc
      */
-    public boolean isModified() {
-        return false;
+    protected void deleteSettings() {
+        settings.delete();
     }
 }

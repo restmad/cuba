@@ -22,6 +22,7 @@ import com.haulmont.cuba.gui.components.mainwindow.AppWorkArea;
 import com.haulmont.cuba.gui.components.mainwindow.FoldersPane;
 import com.haulmont.cuba.gui.icons.CubaIcon;
 import com.haulmont.cuba.gui.screen.*;
+import com.haulmont.cuba.gui.screen.events.AfterShowEvent;
 import com.haulmont.cuba.gui.xml.layout.ComponentsFactory;
 import com.haulmont.cuba.web.WebConfig;
 import com.haulmont.cuba.web.theme.HaloTheme;

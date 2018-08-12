@@ -12,44 +12,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package com.haulmont.cuba.gui.screen;
+package com.haulmont.cuba.gui.screen.events;
+
+import com.haulmont.cuba.gui.screen.Screen;
 
 import java.util.EventObject;
 
 /**
  * JavaDoc
  */
-public class BeforeCloseEvent extends EventObject {
-
-    protected boolean closePrevented = false;
-    protected final CloseAction closeAction;
-
-    public BeforeCloseEvent(Screen source, CloseAction closeAction) {
+public class AfterShowEvent extends EventObject {
+    public AfterShowEvent(Screen source) {
         super(source);
-        this.closeAction = closeAction;
     }
 
     @Override
     public Screen getSource() {
         return (Screen) super.getSource();
-    }
-
-    public Screen getScreen() {
-        return (Screen) super.getSource();
-    }
-
-    public CloseAction getCloseAction() {
-        return closeAction;
-    }
-
-    public void preventWindowClose() {
-        this.closePrevented = true;
-    }
-
-    public boolean isClosePrevented() {
-        return closePrevented;
     }
 }

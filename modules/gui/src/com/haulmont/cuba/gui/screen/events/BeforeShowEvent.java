@@ -14,32 +14,22 @@
  * limitations under the License.
  */
 
-package com.haulmont.cuba.gui.screen;
+package com.haulmont.cuba.gui.screen.events;
+
+import com.haulmont.cuba.gui.screen.Screen;
 
 import java.util.EventObject;
 
 /**
  * JavaDoc
  */
-public class AfterCloseEvent extends EventObject {
-
-    protected final CloseAction closeAction;
-
-    public AfterCloseEvent(Screen source, CloseAction closeAction) {
+public class BeforeShowEvent extends EventObject {
+    public BeforeShowEvent(Screen source) {
         super(source);
-        this.closeAction = closeAction;
     }
 
     @Override
     public Screen getSource() {
         return (Screen) super.getSource();
-    }
-
-    public Screen getScreen() {
-        return (Screen) super.getSource();
-    }
-
-    public CloseAction getCloseAction() {
-        return closeAction;
     }
 }

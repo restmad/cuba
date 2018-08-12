@@ -30,6 +30,7 @@ import com.haulmont.cuba.gui.components.mainwindow.FoldersPane;
 import com.haulmont.cuba.gui.components.mainwindow.UserIndicator;
 import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.screen.*;
+import com.haulmont.cuba.gui.screen.events.AfterCloseEvent;
 import com.haulmont.cuba.gui.settings.Settings;
 import com.haulmont.cuba.gui.util.OperationResult;
 
