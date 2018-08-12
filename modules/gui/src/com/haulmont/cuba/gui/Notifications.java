@@ -20,16 +20,18 @@ package com.haulmont.cuba.gui;
 import com.haulmont.cuba.gui.components.ContentMode;
 
 /**
- * JavaDoc
+ * Notifications API.
  */
 public interface Notifications {
 
     String NAME = "cuba_Notifications";
 
-    Notification createNotification();
+    Notification create();
 
+    /**
+     * JavaDoc
+     */
     interface Notification {
-        // todo
         Notification setCaption(String caption);
         String getCaption();
 
@@ -41,6 +43,8 @@ public interface Notifications {
 
         Notification setContentMode(ContentMode contentMode);
         ContentMode getContentMode();
+
+        void show();
     }
 
     enum NotificationType {

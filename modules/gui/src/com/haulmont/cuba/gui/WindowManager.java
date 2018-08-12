@@ -500,7 +500,7 @@ public interface WindowManager extends Screens {
      * <p>
      * Default screen can be defined with the {@code cuba.web.defaultScreenId} application property.
      *
-     * todo move to WindowManagerTools
+     * todo move to ScreenTools bean
      */
     void openDefaultScreen();
 
@@ -574,19 +574,20 @@ public interface WindowManager extends Screens {
 
     /**
      * Open a web page in browser.
-     * @param url       URL of the page
-     * @param params    optional parameters.
-     * <br>The following parameters are recognized by Web client:
-     * <ul>
-     * <li>{@code target} - String value used as the target name in a
-     * window.open call in the client. This means that special values such as
-     * "_blank", "_self", "_top", "_parent" have special meaning. If not specified, "_blank" is used.</li>
-     * <li> {@code width} - Integer value specifying the width of the browser window in pixels</li>
-     * <li> {@code height} - Integer value specifying the height of the browser window in pixels</li>
-     * <li> {@code border} - String value specifying the border style of the window of the browser window.
-     * Possible values are "DEFAULT", "MINIMAL", "NONE".</li>
-     * </ul>
-     * Desktop client doesn't support any parameters and just ignores them.
+     *
+     * @param url    URL of the page
+     * @param params optional parameters.
+     *               <br>The following parameters are recognized by Web client:
+     *               <ul>
+     *               <li>{@code target} - String value used as the target name in a
+     *               window.open call in the client. This means that special values such as
+     *               "_blank", "_self", "_top", "_parent" have special meaning. If not specified, "_blank" is used.</li>
+     *               <li> {@code width} - Integer value specifying the width of the browser window in pixels</li>
+     *               <li> {@code height} - Integer value specifying the height of the browser window in pixels</li>
+     *               <li> {@code border} - String value specifying the border style of the window of the browser window.
+     *               Possible values are "DEFAULT", "MINIMAL", "NONE".</li>
+     *               </ul>
+     *               Desktop client doesn't support any parameters and just ignores them.
      */
     void showWebPage(String url, @Nullable Map<String, Object> params);
 }

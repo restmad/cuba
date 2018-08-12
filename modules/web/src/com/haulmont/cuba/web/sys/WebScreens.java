@@ -23,6 +23,7 @@ import com.haulmont.cuba.client.ClientConfig;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.*;
+import com.haulmont.cuba.gui.Notifications.NotificationType;
 import com.haulmont.cuba.gui.app.core.dev.LayoutAnalyzer;
 import com.haulmont.cuba.gui.app.core.dev.LayoutTip;
 import com.haulmont.cuba.gui.components.*;
@@ -114,6 +115,11 @@ public class WebScreens implements Screens, WindowManager {
     protected Messages messages;
 
     @Inject
+    protected Dialogs dialogs;
+    @Inject
+    protected Notifications notifications;
+
+    @Inject
     protected WebConfig webConfig;
     @Inject
     protected ClientConfig clientConfig;
@@ -170,9 +176,7 @@ public class WebScreens implements Screens, WindowManager {
         ScreenUtils.setWindowId(controller, windowInfo.getId());
         ScreenUtils.setWindow(controller, window);
         ScreenUtils.setScreenContext(controller,
-                new ScreenContextImpl(windowInfo, options, this,
-                        beanLocator.get(Dialogs.NAME),
-                        beanLocator.get(Notifications.NAME))
+                new ScreenContextImpl(windowInfo, options, this, dialogs, notifications)
         );
 
         WindowImplementation windowImpl = (WindowImplementation) window;
@@ -614,17 +618,51 @@ public class WebScreens implements Screens, WindowManager {
 
     @Override
     public void showNotification(String caption) {
-        throw new UnsupportedOperationException();
+        notifications.create()
+                .setCaption(caption)
+                .show();
     }
 
     @Override
     public void showNotification(String caption, Frame.NotificationType type) {
-        // todo
+        notifications.create()
+                .setCaption(caption)
+                .setContentMode(Frame.NotificationType.isHTML(type) ? ContentMode.HTML : ContentMode.TEXT)
+                .setType(convertType(type))
+                .show();
+    }
+
+    protected NotificationType convertType(Frame.NotificationType type) {
+        switch (type) {
+            case TRAY:
+            case TRAY_HTML:
+                return NotificationType.TRAY;
+
+            case ERROR:
+            case ERROR_HTML:
+                return NotificationType.ERROR;
+
+            case HUMANIZED:
+            case HUMANIZED_HTML:
+                return NotificationType.HUMANIZED;
+
+            case WARNING:
+            case WARNING_HTML:
+                return NotificationType.WARNING;
+
+            default:
+                throw new UnsupportedOperationException("Unsupported notification type");
+        }
     }
 
     @Override
     public void showNotification(String caption, String description, Frame.NotificationType type) {
-        throw new UnsupportedOperationException();
+        notifications.create()
+                .setCaption(caption)
+                .setDescription(description)
+                .setContentMode(Frame.NotificationType.isHTML(type) ? ContentMode.HTML : ContentMode.TEXT)
+                .setType(convertType(type))
+                .show();
     }
 
     @Override

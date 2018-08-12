@@ -30,6 +30,9 @@ import javax.inject.Inject;
 @Scope(UIScope.NAME)
 public class WebNotifications implements Notifications {
 
+    public static final int HUMANIZED_NOTIFICATION_DELAY_MSEC = 3000;
+    public static final int WARNING_NOTIFICATION_DELAY_MSEC = -1;
+
     protected AppUI ui;
 
     protected BackgroundWorker backgroundWorker;
@@ -39,61 +42,112 @@ public class WebNotifications implements Notifications {
     }
 
     @Inject
-    public void setBackgroundWorker(BackgroundWorker backgroundWorker) {
+    protected void setBackgroundWorker(BackgroundWorker backgroundWorker) {
         this.backgroundWorker = backgroundWorker;
     }
 
     @Override
-    public Notification createNotification() {
+    public Notification create() {
         backgroundWorker.checkUIAccess();
 
         return new NotificationImpl();
     }
 
-    // todo
     public class NotificationImpl implements Notification {
+        protected String caption;
+        protected String description;
+
+        protected ContentMode contentMode = ContentMode.TEXT;
+        protected NotificationType notificationType = NotificationType.HUMANIZED;
+
+        public NotificationImpl() {
+        }
+
         @Override
         public Notification setCaption(String caption) {
-
+            this.caption = caption;
             return this;
         }
 
         @Override
         public String getCaption() {
-            return null;
+            return caption;
         }
 
         @Override
         public Notification setDescription(String description) {
-
+            this.description = description;
             return this;
         }
 
         @Override
         public String getDescription() {
-            return null;
+            return description;
         }
 
         @Override
         public Notification setType(NotificationType notificationType) {
-
+            this.notificationType = notificationType;
             return this;
         }
 
         @Override
         public NotificationType getType() {
-            return null;
+            return notificationType;
         }
 
         @Override
         public Notification setContentMode(ContentMode contentMode) {
-
+            this.contentMode = contentMode;
             return this;
         }
 
         @Override
         public ContentMode getContentMode() {
-            return null;
+            return contentMode;
+        }
+
+        protected com.vaadin.ui.Notification.Type convertType(NotificationType notificationType) {
+            com.vaadin.ui.Notification.Type vType;
+            switch (notificationType) {
+                case TRAY:
+                    return com.vaadin.ui.Notification.Type.TRAY_NOTIFICATION;
+
+                case HUMANIZED:
+                    return com.vaadin.ui.Notification.Type.HUMANIZED_MESSAGE;
+
+                case WARNING:
+                    return com.vaadin.ui.Notification.Type.WARNING_MESSAGE;
+
+                case ERROR:
+                    return com.vaadin.ui.Notification.Type.ERROR_MESSAGE;
+
+                default:
+                    throw new UnsupportedOperationException("Unsupported notification type");
+            }
+        }
+
+        protected void setNotificationDelayMsec(com.vaadin.ui.Notification notification, NotificationType type) {
+            switch (type) {
+                case HUMANIZED:
+                    notification.setDelayMsec(HUMANIZED_NOTIFICATION_DELAY_MSEC);
+                    break;
+                case WARNING:
+                    notification.setDelayMsec(WARNING_NOTIFICATION_DELAY_MSEC);
+                    break;
+            }
+        }
+
+        @Override
+        public void show() {
+            com.vaadin.ui.Notification vNotification =
+                    new com.vaadin.ui.Notification(caption, description, convertType(notificationType));
+
+            setNotificationDelayMsec(vNotification, notificationType);
+
+            vNotification.setHtmlContentAllowed(contentMode == ContentMode.HTML);
+
+            vNotification.show(ui.getPage());
         }
     }
 }

@@ -67,7 +67,6 @@ import com.haulmont.cuba.web.gui.icons.IconResolver;
 import com.haulmont.cuba.web.widgets.*;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
-import com.vaadin.server.Page;
 import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.shared.ui.window.WindowMode;
@@ -91,7 +90,6 @@ import static com.haulmont.cuba.gui.WindowManager.OpenType;
 import static com.haulmont.cuba.gui.components.Component.AUTO_SIZE_PX;
 import static com.haulmont.cuba.gui.components.Frame.MessageType;
 import static com.haulmont.cuba.gui.components.Frame.NotificationType;
-import static com.haulmont.cuba.web.gui.components.WebComponentsHelper.convertNotificationType;
 import static com.vaadin.server.Sizeable.Unit;
 
 @org.springframework.stereotype.Component(WebWindowManagerImpl.NAME)
@@ -1138,35 +1136,14 @@ public class WebWindowManagerImpl extends WindowManagerImpl {
 
     @Override
     public void showNotification(String caption) {
-        showNotification(caption, null, NotificationType.HUMANIZED);
     }
 
     @Override
     public void showNotification(String caption, NotificationType type) {
-        showNotification(caption, null, type);
     }
 
     @Override
     public void showNotification(String caption, String description, NotificationType type) {
-        backgroundWorker.checkUIAccess();
-
-        Notification notification = new Notification(caption, description, convertNotificationType(type));
-        notification.setHtmlContentAllowed(NotificationType.isHTML(type));
-        setNotificationDelayMsec(notification, type);
-        notification.show(Page.getCurrent());
-    }
-
-    protected void setNotificationDelayMsec(Notification notification, NotificationType type) {
-        switch (type) {
-            case HUMANIZED:
-            case HUMANIZED_HTML:
-                notification.setDelayMsec(HUMANIZED_NOTIFICATION_DELAY_MSEC);
-                break;
-            case WARNING:
-            case WARNING_HTML:
-                notification.setDelayMsec(WARNING_NOTIFICATION_DELAY_MSEC);
-                break;
-        }
     }
 
     @Override
