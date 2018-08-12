@@ -19,10 +19,7 @@ package com.haulmont.cuba.web;
 
 import com.haulmont.cuba.client.ClientUserSession;
 import com.haulmont.cuba.core.global.*;
-import com.haulmont.cuba.gui.Dialogs;
-import com.haulmont.cuba.gui.Notifications;
-import com.haulmont.cuba.gui.Screens;
-import com.haulmont.cuba.gui.WindowManager;
+import com.haulmont.cuba.gui.*;
 import com.haulmont.cuba.gui.components.RootWindow;
 import com.haulmont.cuba.gui.components.Window;
 import com.haulmont.cuba.gui.events.sys.UiEventsMulticaster;
@@ -76,25 +73,21 @@ public class AppUI extends CubaUI
 
     @Inject
     protected Messages messages;
-
     @Inject
     protected Events events;
 
     @Inject
     protected GlobalConfig globalConfig;
-
     @Inject
     protected WebConfig webConfig;
 
     @Inject
     protected UserSettingsTools userSettingsTools;
-
     @Inject
     protected ThemeConstantsRepository themeConstantsRepository;
 
     @Inject
     protected UserSessionSource userSessionSource;
-
     @Inject
     protected UserSessionService userSessionService;
 
@@ -103,9 +96,11 @@ public class AppUI extends CubaUI
 
     @Inject
     protected IconResolver iconResolver;
-
     @Inject
     protected WebJarResourceResolver webJarResourceResolver;
+
+    @Inject
+    protected BeanLocator beanLocator;
 
     protected TestIdManager testIdManager = new TestIdManager();
 
@@ -122,6 +117,7 @@ public class AppUI extends CubaUI
     protected Screens screens;
     protected Dialogs dialogs;
     protected Notifications notifications;
+    protected WebBrowserTools webBrowserTools;
 
     public AppUI() {
     }
@@ -205,9 +201,26 @@ public class AppUI extends CubaUI
         this.notifications = notifications;
     }
 
+    public WebBrowserTools getWebBrowserTools() {
+        return webBrowserTools;
+    }
+
+    public void setWebBrowserTools(WebBrowserTools webBrowserTools) {
+        this.webBrowserTools = webBrowserTools;
+    }
+
     @Override
     protected void init(VaadinRequest request) {
         log.trace("Initializing UI {}", this);
+
+        Dialogs dialogs = beanLocator.getPrototype(Dialogs.NAME, this);
+        setDialogs(dialogs);
+
+        Notifications notifications = beanLocator.getPrototype(Notifications.NAME, this);
+        setNotifications(notifications);
+
+        WebBrowserTools webBrowserTools = beanLocator.getPrototype(WebBrowserTools.NAME, this);
+        setWebBrowserTools(webBrowserTools);
 
         try {
             this.testMode = globalConfig.getTestMode();

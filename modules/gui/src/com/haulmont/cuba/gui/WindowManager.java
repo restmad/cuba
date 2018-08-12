@@ -573,6 +573,8 @@ public interface WindowManager extends Screens {
     void showExceptionDialog(Throwable throwable, @Nullable String caption, @Nullable String message);
 
     /**
+     * WebPages bean!
+     *
      * Open a web page in browser.
      *
      * @param url    URL of the page

@@ -118,6 +118,8 @@ public class WebScreens implements Screens, WindowManager {
     protected Dialogs dialogs;
     @Inject
     protected Notifications notifications;
+    @Inject
+    protected WebBrowserTools webBrowserTools;
 
     @Inject
     protected WebConfig webConfig;
@@ -687,7 +689,7 @@ public class WebScreens implements Screens, WindowManager {
 
     @Override
     public void showWebPage(String url, @Nullable Map<String, Object> params) {
-        throw new UnsupportedOperationException();
+        webBrowserTools.showWebPage(url, params);
     }
 
     /**

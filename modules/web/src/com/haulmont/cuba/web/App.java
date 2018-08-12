@@ -18,10 +18,7 @@
 package com.haulmont.cuba.web;
 
 import com.haulmont.cuba.core.global.*;
-import com.haulmont.cuba.gui.Dialogs;
-import com.haulmont.cuba.gui.Notifications;
-import com.haulmont.cuba.gui.Screens;
-import com.haulmont.cuba.gui.WindowManager;
+import com.haulmont.cuba.gui.*;
 import com.haulmont.cuba.gui.components.Frame;
 import com.haulmont.cuba.gui.components.RootWindow;
 import com.haulmont.cuba.gui.config.WindowConfig;
@@ -303,14 +300,9 @@ public abstract class App {
     }
 
     protected void setUiServices(AppUI ui) {
-        Screens wm = beanLocator.getPrototype(Screens.NAME, ui);
-        ui.setScreens(wm);
-
-        Dialogs dialogs = beanLocator.getPrototype(Dialogs.NAME, ui);
-        ui.setDialogs(dialogs);
-
-        Notifications notifications = beanLocator.getPrototype(Notifications.NAME, ui);
-        ui.setNotifications(notifications);
+        // screens depends on the previous beans
+        Screens screens = beanLocator.getPrototype(Screens.NAME, ui);
+        ui.setScreens(screens);
     }
 
     protected abstract String routeTopLevelWindowId();

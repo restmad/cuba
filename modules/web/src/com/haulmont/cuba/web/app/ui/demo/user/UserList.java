@@ -17,6 +17,7 @@
 package com.haulmont.cuba.web.app.ui.demo.user;
 
 import com.haulmont.cuba.gui.Screens;
+import com.haulmont.cuba.gui.WebBrowserTools;
 import com.haulmont.cuba.gui.components.Button;
 import com.haulmont.cuba.gui.components.Label;
 import com.haulmont.cuba.gui.components.actions.BaseAction;
@@ -24,6 +25,7 @@ import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.gui.xml.layout.ComponentsFactory;
 
 import javax.inject.Inject;
+import java.util.Collections;
 
 @UiController("user-list")
 public class UserList extends Screen {
@@ -31,6 +33,9 @@ public class UserList extends Screen {
     protected ComponentsFactory componentsFactory;
     @Inject
     protected Screens screens;
+
+    @Inject
+    protected WebBrowserTools webBrowserTools;
 
     @Subscribe
     protected void init(InitEvent event) {
@@ -56,6 +61,8 @@ public class UserList extends Screen {
                 spacer
         );
         getWindow().expand(spacer);
+
+        webBrowserTools.showWebPage("http://ya.ru", Collections.emptyMap());
     }
 
     /*@Subscribe

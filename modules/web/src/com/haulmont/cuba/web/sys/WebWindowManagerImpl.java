@@ -67,7 +67,6 @@ import com.haulmont.cuba.web.gui.icons.IconResolver;
 import com.haulmont.cuba.web.widgets.*;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
-import com.vaadin.shared.ui.BorderStyle;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.shared.ui.window.WindowMode;
 import com.vaadin.ui.*;
@@ -1466,28 +1465,6 @@ public class WebWindowManagerImpl extends WindowManagerImpl {
 
     @Override
     public void showWebPage(String url, @Nullable Map<String, Object> params) {
-        String target = null;
-        Integer width = null;
-        Integer height = null;
-        String border = "DEFAULT";
-        Boolean tryToOpenAsPopup = null;
-        if (params != null) {
-            target = (String) params.get("target");
-            width = (Integer) params.get("width");
-            height = (Integer) params.get("height");
-            border = (String) params.get("border");
-            tryToOpenAsPopup = (Boolean) params.get("tryToOpenAsPopup");
-        }
-        if (target == null) {
-            target = "_blank";
-        }
-        if (width != null && height != null && border != null) {
-            ui.getPage().open(url, target, width, height, BorderStyle.valueOf(border));
-        } else if (tryToOpenAsPopup != null) {
-            ui.getPage().open(url, target, tryToOpenAsPopup);
-        } else {
-            ui.getPage().open(url, target, false);
-        }
     }
 
     @Override

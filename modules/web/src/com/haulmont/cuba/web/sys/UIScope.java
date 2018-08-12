@@ -20,6 +20,7 @@ package com.haulmont.cuba.web.sys;
 import com.haulmont.cuba.gui.Dialogs;
 import com.haulmont.cuba.gui.Notifications;
 import com.haulmont.cuba.gui.Screens;
+import com.haulmont.cuba.gui.WebBrowserTools;
 import com.haulmont.cuba.web.AppUI;
 import com.vaadin.server.VaadinSession;
 import org.springframework.beans.factory.ObjectFactory;
@@ -59,6 +60,13 @@ public class UIScope implements Scope {
                     notifications = (Notifications) objectFactory.getObject();
                 }
                 return notifications;
+
+            case WebBrowserTools.NAME:
+                WebBrowserTools webBrowserTools = ui.getWebBrowserTools();
+                if (webBrowserTools == null) {
+                    webBrowserTools = (WebBrowserTools) objectFactory.getObject();
+                }
+                return webBrowserTools;
 
             default:
                 throw new UnsupportedOperationException("Unknown UI scoped bean " + name);
