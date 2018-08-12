@@ -75,6 +75,11 @@ public class AbstractEditor<T extends Entity> extends AbstractWindow implements 
     }
 
     @Override
+    public boolean hasUnsavedChanges() {
+        return isModified();
+    }
+
+    @Override
     public boolean isModified() {
         return getDsContext() != null && getDsContext().isModified();
     }
@@ -110,7 +115,7 @@ public class AbstractEditor<T extends Entity> extends AbstractWindow implements 
      */
     @Override
     public void commitAndClose() {
-        ((Editor) frame).commitAndClose();
+        closeWithCommit();
     }
 
     @Override

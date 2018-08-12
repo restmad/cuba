@@ -25,7 +25,7 @@ import com.haulmont.cuba.gui.components.Window;
 import com.haulmont.cuba.gui.executors.BackgroundTask;
 import com.haulmont.cuba.gui.executors.BackgroundWorker;
 import com.haulmont.cuba.gui.executors.TaskLifeCycle;
-import com.haulmont.cuba.gui.screen.LegacyFrame;
+import com.haulmont.cuba.gui.screen.compatibility.LegacyFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

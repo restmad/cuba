@@ -22,7 +22,6 @@ import com.haulmont.cuba.client.ClientConfig;
 import com.haulmont.cuba.core.global.BeanLocator;
 import com.haulmont.cuba.core.global.Configuration;
 import com.haulmont.cuba.core.global.Messages;
-import com.haulmont.cuba.gui.ComponentsHelper;
 import com.haulmont.cuba.gui.Dialogs.MessageType;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.components.actions.BaseAction;
@@ -45,6 +44,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import static com.haulmont.bali.util.Preconditions.checkNotNullArgument;
+import static com.haulmont.cuba.gui.ComponentsHelper.walkComponents;
 
 /**
  * Base class for all screen controllers.
@@ -228,12 +228,7 @@ public abstract class Screen implements FrameOwner {
             return OperationResult.fail();
         }
 
-        if (isCommitAction(action)) {
-            return commitChanges()
-                    .compose(() -> close(WINDOW_COMMIT_AND_CLOSE_ACTION));
-        }
-
-        if (action.isCheckForUnsavedChanges() && isModified()) {
+        if (action.isCheckForUnsavedChanges() && hasUnsavedChanges()) {
             Configuration configuration = beanLocator.get(Configuration.NAME);
             ClientConfig clientConfig = configuration.getConfig(ClientConfig.class);
 
@@ -269,15 +264,10 @@ public abstract class Screen implements FrameOwner {
         return !clientConfig.getManualScreenSettingsSaving();
     }
 
-    protected boolean isCommitAction(CloseAction action) {
-        return action instanceof StandardCloseAction
-                && Window.COMMIT_ACTION_ID.equals(((StandardCloseAction) action).getActionId());
-    }
-
     /**
-     * JavaDoc
+     * @return if the screen has unsaved changes
      */
-    public boolean isModified() {
+    public boolean hasUnsavedChanges() {
         return false;
     }
 
@@ -287,7 +277,8 @@ public abstract class Screen implements FrameOwner {
      * @return
      */
     public OperationResult closeWithCommit() {
-        return close(WINDOW_COMMIT_AND_CLOSE_ACTION);
+        return commitChanges()
+                .compose(() -> close(WINDOW_COMMIT_AND_CLOSE_ACTION));
     }
 
     /**
@@ -316,7 +307,7 @@ public abstract class Screen implements FrameOwner {
      */
     protected void saveSettings() {
         if (settings != null) {
-            ComponentsHelper.walkComponents(
+            walkComponents(
                     window,
                     (component, name) -> {
                         if (component.getId() != null
@@ -352,7 +343,7 @@ public abstract class Screen implements FrameOwner {
     protected void applySettings(Settings settings) {
         this.settings = settings;
 
-        ComponentsHelper.walkComponents(
+        walkComponents(
                 window,
                 (component, name) -> {
                     if (component.getId() != null

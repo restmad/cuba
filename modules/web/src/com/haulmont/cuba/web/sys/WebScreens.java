@@ -45,6 +45,7 @@ import com.haulmont.cuba.gui.data.impl.DatasourceImplementation;
 import com.haulmont.cuba.gui.data.impl.DsContextImplementation;
 import com.haulmont.cuba.gui.data.impl.GenericDataSupplier;
 import com.haulmont.cuba.gui.screen.*;
+import com.haulmont.cuba.gui.screen.compatibility.LegacyFrame;
 import com.haulmont.cuba.gui.screen.events.AfterInitEvent;
 import com.haulmont.cuba.gui.screen.events.AfterShowEvent;
 import com.haulmont.cuba.gui.screen.events.BeforeShowEvent;
@@ -67,6 +68,7 @@ import com.haulmont.cuba.web.gui.components.WebTabWindow;
 import com.haulmont.cuba.web.gui.components.mainwindow.WebAppWorkArea;
 import com.haulmont.cuba.web.gui.components.util.ShortcutListenerDelegate;
 import com.haulmont.cuba.web.gui.icons.IconResolver;
+import com.haulmont.cuba.gui.screen.compatibility.ScreenWrapper;
 import com.haulmont.cuba.web.widgets.*;
 import com.vaadin.event.Action;
 import com.vaadin.event.ShortcutAction;
@@ -551,14 +553,20 @@ public class WebScreens implements Screens, WindowManager {
         throw new UnsupportedOperationException();
     }
 
+    @SuppressWarnings("IncorrectCreateGuiComponent")
     @Override
     public Window openWindow(WindowInfo windowInfo, OpenType openType, Map<String, Object> params) {
-        return create(windowInfo, openType.getOpenMode(), new MapScreenOptions(params));
+        Screen screen = create(windowInfo, openType.getOpenMode(), new MapScreenOptions(params));
+        show(screen);
+        return new ScreenWrapper(screen);
     }
 
+    @SuppressWarnings("IncorrectCreateGuiComponent")
     @Override
     public Window openWindow(WindowInfo windowInfo, OpenType openType) {
-        return create(windowInfo, openType.getOpenMode(), NO_OPTIONS);
+        Screen screen = create(windowInfo, openType.getOpenMode(), NO_OPTIONS);
+        show(screen);
+        return new ScreenWrapper(screen);
     }
 
     @Override

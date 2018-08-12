@@ -22,7 +22,7 @@ import com.haulmont.cuba.gui.components.ContentMode;
 import com.haulmont.cuba.gui.components.SizeUnit;
 
 /**
- * JavaDoc
+ * Utility dialogs API.
  */
 public interface Dialogs {
 
@@ -34,6 +34,9 @@ public interface Dialogs {
 
     ExceptionDialog createExceptionDialog();
 
+    /**
+     * JavaDoc
+     */
     interface OptionDialog {
         OptionDialog setCaption(String caption);
         String getCaption();
@@ -61,6 +64,9 @@ public interface Dialogs {
         void show();
     }
 
+    /**
+     * JavaDoc
+     */
     interface MessageDialog {
         MessageDialog setCaption(String caption);
         String getCaption();
@@ -85,10 +91,23 @@ public interface Dialogs {
         void show();
     }
 
+    /**
+     * JavaDoc
+     */
     interface ExceptionDialog {
+        ExceptionDialog setThrowable(Throwable throwable);
+        Throwable getThrowable();
 
+        ExceptionDialog setCaption(String caption);
+        String getCaption();
+
+        ExceptionDialog setDescription(String description);
+        String getDescription();
     }
 
+    /**
+     * JavaDoc
+     */
     enum MessageType {
         CONFIRMATION,
         WARNING

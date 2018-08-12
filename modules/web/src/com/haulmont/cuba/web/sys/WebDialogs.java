@@ -237,6 +237,34 @@ public class WebDialogs implements Dialogs {
 
     // todo
     public class ExceptionDialogImpl implements ExceptionDialog {
-        // todo
+        @Override
+        public ExceptionDialog setThrowable(Throwable throwable) {
+            return null;
+        }
+
+        @Override
+        public Throwable getThrowable() {
+            return null;
+        }
+
+        @Override
+        public ExceptionDialog setCaption(String caption) {
+            return null;
+        }
+
+        @Override
+        public String getCaption() {
+            return null;
+        }
+
+        @Override
+        public ExceptionDialog setDescription(String description) {
+            return null;
+        }
+
+        @Override
+        public String getDescription() {
+            return null;
+        }
     }
 }

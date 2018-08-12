@@ -16,10 +16,12 @@
 
 package com.haulmont.cuba.gui.util;
 
+import javax.annotation.concurrent.NotThreadSafe;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+@NotThreadSafe
 public class UnknownOperationResult implements OperationResult {
     private List<Runnable> thenListeners = new ArrayList<>(2);
     private List<Runnable> otherwiseListeners = new ArrayList<>(2);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2017 Haulmont.
+ * Copyright (c) 2008-2018 Haulmont.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-package com.haulmont.cuba.gui.components.listeditor;
+package com.haulmont.cuba.gui.screen.compatibility;
 
-import com.haulmont.cuba.gui.components.Window;
-
-import java.util.List;
+import com.haulmont.cuba.gui.components.AbstractEditor;
+import com.haulmont.cuba.gui.screen.Screen;
 
 /**
- * Interface for editor window controller of ListEditor component
+ * Wrapper object for compatibility with legacy code.
  */
-public interface ListEditorWindowController extends Window {
+public class ScreenEditorWrapper extends AbstractEditor {
 
-    List<Object> getValue();
+    private Screen screen;
+
+    public ScreenEditorWrapper(Screen screen) {
+        this.screen = screen;
+    }
+
+    // todo
 }
