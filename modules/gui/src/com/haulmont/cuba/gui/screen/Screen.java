@@ -150,17 +150,9 @@ public abstract class Screen implements FrameOwner {
         return eventHub.subscribe(AfterCloseEvent.class, listener);
     }
 
-    protected Messages getMessages() {
-        return beanLocator.get(Messages.NAME);
-    }
-
-    protected Icons getIcons() {
-        return beanLocator.get(Icons.NAME);
-    }
-
     protected OperationResult showUnsavedChangesDialog() {
         UnknownOperationResult result = new UnknownOperationResult();
-        Messages messages = getMessages();
+        Messages messages = beanLocator.get(Messages.NAME);
 
         screenContext.getDialogs().createOptionDialog()
                 .setCaption(messages.getMainMessage("closeUnsaved.caption"))
@@ -186,7 +178,9 @@ public abstract class Screen implements FrameOwner {
 
     protected OperationResult showSaveConfirmationDialog() {
         UnknownOperationResult result = new UnknownOperationResult();
-        Messages messages = getMessages();
+        Messages messages = beanLocator.get(Messages.NAME);
+
+        Icons icons = beanLocator.get(Icons.NAME);
 
         screenContext.getDialogs().createOptionDialog()
                 .setCaption(messages.getMainMessage("closeUnsaved.caption"))
@@ -200,7 +194,7 @@ public abstract class Screen implements FrameOwner {
                                             .otherwise(result::fail);
                                 }),
                         new BaseAction("discard")
-                                .withIcon(getIcons().get(CubaIcon.DIALOG_CANCEL))
+                                .withIcon(icons.get(CubaIcon.DIALOG_CANCEL))
                                 .withCaption(messages.getMainMessage("closeUnsaved.discard"))
                                 .withHandler(e -> {
                                     closeWithDiscard()
