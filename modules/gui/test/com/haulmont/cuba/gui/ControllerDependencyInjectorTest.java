@@ -22,7 +22,6 @@ import com.haulmont.cuba.client.sys.MessagesClientImpl;
 import com.haulmont.cuba.client.testsupport.CubaClientTestCase;
 import com.haulmont.cuba.core.global.BeanLocator;
 import com.haulmont.cuba.core.global.Messages;
-import com.haulmont.cuba.gui.components.AbstractFrame;
 import com.haulmont.cuba.gui.components.AbstractWindow;
 import com.haulmont.cuba.gui.sys.ControllerDependencyInjector;
 import mockit.Expectations;
@@ -64,8 +63,9 @@ public class ControllerDependencyInjectorTest extends CubaClientTestCase {
         injector.inject();
         assertSame(controller.messages, messages);
 
-        Field field = AbstractFrame.class.getDeclaredField("messages");
+        Field field = AbstractWindow.class.getDeclaredField("messages");
         field.setAccessible(true);
+
         assertSame(field.get(controller), messages);
     }
 
