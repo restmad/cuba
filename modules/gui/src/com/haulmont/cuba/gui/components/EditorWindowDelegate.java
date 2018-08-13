@@ -64,8 +64,8 @@ public class EditorWindowDelegate extends WindowDelegate {
         super(window);
     }
 
-    @Override
-    public Window wrapBy(Class<?> wrapperClass) {
+//    @Override
+//    public Window wrapBy(Class<?> wrapperClass) {
         // todo
         /*final Window.Editor editor = (Window.Editor) super.wrapBy(wrapperClass);
 
@@ -127,8 +127,8 @@ public class EditorWindowDelegate extends WindowDelegate {
                 }
         );*/
 
-        return null;
-    }
+//        return null;
+//    }
 
     public Entity getItem() {
         return getDatasource().getItem();

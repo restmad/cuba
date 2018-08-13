@@ -228,11 +228,6 @@ public class ParamWrapper implements Component, HasValue<Object> {
     }
 
     @Override
-    public int getHeightUnits() {
-        return 0;
-    }
-
-    @Override
     public SizeUnit getHeightSizeUnit() {
         return SizeUnit.PIXELS;
     }
@@ -243,11 +238,6 @@ public class ParamWrapper implements Component, HasValue<Object> {
 
     @Override
     public float getWidth() {
-        return 0;
-    }
-
-    @Override
-    public int getWidthUnits() {
         return 0;
     }
 

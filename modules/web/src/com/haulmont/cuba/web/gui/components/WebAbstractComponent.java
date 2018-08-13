@@ -289,11 +289,6 @@ public abstract class WebAbstractComponent<T extends com.vaadin.ui.Component>
     }
 
     @Override
-    public int getHeightUnits() {
-        return ComponentsHelper.convertFromSizeUnit(getHeightSizeUnit());
-    }
-
-    @Override
     public SizeUnit getHeightSizeUnit() {
         return WebWrapperUtils.toSizeUnit(getComposition().getHeightUnits());
     }
@@ -306,11 +301,6 @@ public abstract class WebAbstractComponent<T extends com.vaadin.ui.Component>
     @Override
     public float getWidth() {
         return getComposition().getWidth();
-    }
-
-    @Override
-    public int getWidthUnits() {
-        return ComponentsHelper.convertFromSizeUnit(getWidthSizeUnit());
     }
 
     @Override

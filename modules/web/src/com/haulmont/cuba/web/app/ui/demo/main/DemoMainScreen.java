@@ -21,13 +21,17 @@ import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.components.mainwindow.AppWorkArea;
 import com.haulmont.cuba.gui.components.mainwindow.FoldersPane;
 import com.haulmont.cuba.gui.icons.CubaIcon;
-import com.haulmont.cuba.gui.screen.*;
+import com.haulmont.cuba.gui.screen.Screen;
+import com.haulmont.cuba.gui.screen.Subscribe;
+import com.haulmont.cuba.gui.screen.UiController;
+import com.haulmont.cuba.gui.screen.UiDescriptor;
 import com.haulmont.cuba.gui.screen.events.AfterShowEvent;
+import com.haulmont.cuba.gui.screen.events.InitEvent;
 import com.haulmont.cuba.gui.xml.layout.ComponentsFactory;
 import com.haulmont.cuba.web.WebConfig;
 import com.haulmont.cuba.web.theme.HaloTheme;
 import com.haulmont.cuba.web.widgets.CubaHorizontalSplitPanel;
-import com.vaadin.server.Sizeable;
+import com.vaadin.server.Sizeable.Unit;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
@@ -81,7 +85,7 @@ public class DemoMainScreen extends Screen implements Window.HasWorkArea {
 
             CubaHorizontalSplitPanel vSplitPanel = foldersSplit.unwrap(CubaHorizontalSplitPanel.class);
             vSplitPanel.setDefaultPosition(webConfig.getFoldersPaneDefaultWidth() + "px");
-            vSplitPanel.setMaxSplitPosition(50, Sizeable.Unit.PERCENTAGE);
+            vSplitPanel.setMaxSplitPosition(50, Unit.PERCENTAGE);
             vSplitPanel.setDockable(true);
         } else {
             foldersPane.setEnabled(false);

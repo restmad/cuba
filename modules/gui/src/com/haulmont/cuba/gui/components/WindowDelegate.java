@@ -17,28 +17,18 @@
 
 package com.haulmont.cuba.gui.components;
 
-import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.AppBeans;
 import com.haulmont.cuba.gui.ComponentsHelper;
 import com.haulmont.cuba.gui.GuiDevelopmentException;
-import com.haulmont.cuba.gui.WindowManager.OpenType;
 import com.haulmont.cuba.gui.config.WindowConfig;
-import com.haulmont.cuba.gui.config.WindowInfo;
 import com.haulmont.cuba.gui.data.Datasource;
 import com.haulmont.cuba.gui.data.DsContext;
-import com.haulmont.cuba.gui.presentations.Presentations;
 import com.haulmont.cuba.gui.screen.compatibility.LegacyFrame;
 import com.haulmont.cuba.gui.settings.Settings;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
-import java.util.Map;
-import java.util.UUID;
 
 // todo get rid of it
 public class WindowDelegate {
@@ -54,28 +44,8 @@ public class WindowDelegate {
 
     protected WindowConfig windowConfig = AppBeans.get(WindowConfig.NAME);
 
-    private final Logger log = LoggerFactory.getLogger(WindowDelegate.class);
-
     public WindowDelegate(Window window) {
         this.window = window;
-    }
-
-    // fixme move to WindowManager
-    public Window wrapBy(Class<?> wrapperClass) {
-        Constructor<?> constructor;
-        try {
-            constructor = wrapperClass.getConstructor();
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Unable to get constructor for screen class " + wrapperClass);
-        }
-
-        try {
-            wrapper = (Window) constructor.newInstance();
-            ((AbstractFrame) wrapper).setWrappedFrame(window);
-            return wrapper;
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Unable to init window controller", e);
-        }
     }
 
     public Window getWrapper() {
@@ -106,61 +76,12 @@ public class WindowDelegate {
     }
 
     public void saveSettings() {
-        if (settings != null) {
-            ComponentsHelper.walkComponents(
-                    window,
-                    (component, name) -> {
-                        if (component.getId() != null
-                                && component instanceof HasSettings) {
-                            log.trace("Saving settings for : {} : {}", name, component);
-
-                            Element e = WindowDelegate.this.settings.get(name);
-                            boolean modified = ((HasSettings) component).saveSettings(e);
-
-                            if (component instanceof HasPresentations
-                                    && ((HasPresentations) component).isUsePresentations()) {
-                                Object def = ((HasPresentations) component).getDefaultPresentationId();
-                                e.addAttribute("presentation", def != null ? def.toString() : "");
-                                Presentations presentations = ((HasPresentations) component).getPresentations();
-                                if (presentations != null) {
-                                    presentations.commit();
-                                }
-                            }
-                            WindowDelegate.this.settings.setModified(modified);
-                        }
-                    }
-            );
-            settings.commit();
-        }
     }
 
     public void deleteSettings() {
-        settings.delete();
     }
 
     public void applySettings(Settings settings) {
-        this.settings = settings;
-        ComponentsHelper.walkComponents(
-                window,
-                (component, name) -> {
-                    if (component.getId() != null
-                            && component instanceof HasSettings) {
-                        log.trace("Applying settings for : {} : {} ", name, component);
-
-                        Element e = WindowDelegate.this.settings.get(name);
-                        ((HasSettings) component).applySettings(e);
-
-                        if (component instanceof HasPresentations
-                                && e.attributeValue("presentation") != null) {
-                            final String def = e.attributeValue("presentation");
-                            if (!StringUtils.isEmpty(def)) {
-                                UUID defaultId = UUID.fromString(def);
-                                ((HasPresentations) component).applyPresentationAsDefault(defaultId);
-                            }
-                        }
-                    }
-                }
-        );
     }
 
     public void disposeComponents() {
@@ -223,82 +144,5 @@ public class WindowDelegate {
             return ((Window.Committable) wrapper).isModified();
         else
             return LegacyFrame.of(window).getDsContext() != null && LegacyFrame.of(window).getDsContext().isModified();
-    }
-
-    public Window openWindow(String windowAlias, OpenType openType, Map<String, Object> params) {
-        WindowInfo windowInfo = windowConfig.getWindowInfo(windowAlias);
-        return window.getWindowManager().openWindow(windowInfo, openType, params);
-    }
-
-    public Window openWindow(String windowAlias, OpenType openType) {
-        WindowInfo windowInfo = windowConfig.getWindowInfo(windowAlias);
-        return window.getWindowManager().openWindow(windowInfo, openType);
-    }
-
-    public Window.Editor openEditor(Entity item, OpenType openType) {
-        WindowInfo editorScreen = windowConfig.getEditorScreen(item);
-        return window.getWindowManager().openEditor(editorScreen, item, openType);
-    }
-
-    public Window.Editor openEditor(Entity item, OpenType openType, Map<String, Object> params) {
-        WindowInfo editorScreen = windowConfig.getEditorScreen(item);
-        return window.getWindowManager().openEditor(editorScreen, item, openType, params);
-    }
-
-    public Window.Editor openEditor(Entity item, OpenType openType, Map<String, Object> params, Datasource parentDs) {
-        WindowInfo editorScreen = windowConfig.getEditorScreen(item);
-        return window.getWindowManager().openEditor(editorScreen, item, openType, params, parentDs);
-    }
-
-    public Window.Editor openEditor(String windowAlias, Entity item, OpenType openType, Map<String, Object> params, Datasource parentDs) {
-        WindowInfo windowInfo = windowConfig.getWindowInfo(windowAlias);
-        return window.getWindowManager().openEditor(windowInfo, item, openType, params, parentDs);
-    }
-
-    public Window.Editor openEditor(String windowAlias, Entity item, OpenType openType, Map<String, Object> params) {
-        WindowInfo windowInfo = windowConfig.getWindowInfo(windowAlias);
-        return window.getWindowManager().openEditor(windowInfo, item, openType, params);
-    }
-
-    public Window.Editor openEditor(String windowAlias, Entity item, OpenType openType, Datasource parentDs) {
-        WindowInfo windowInfo = windowConfig.getWindowInfo(windowAlias);
-        return window.getWindowManager().openEditor(windowInfo, item, openType, parentDs);
-    }
-
-    public Window.Editor openEditor(String windowAlias, Entity item, OpenType openType) {
-        WindowInfo windowInfo = windowConfig.getWindowInfo(windowAlias);
-        return window.getWindowManager().openEditor(windowInfo, item, openType);
-    }
-
-    public Window.Lookup openLookup(Class<? extends Entity>  entityClass, Window.Lookup.Handler handler, OpenType openType) {
-        WindowInfo lookupScreen = windowConfig.getLookupScreen(entityClass);
-        return window.getWindowManager().openLookup(lookupScreen, handler, openType);
-    }
-
-    public Window.Lookup openLookup(Class<? extends Entity>  entityClass, Window.Lookup.Handler handler, OpenType openType, Map<String, Object> params) {
-        WindowInfo lookupScreen = windowConfig.getLookupScreen(entityClass);
-        return window.getWindowManager().openLookup(lookupScreen, handler, openType, params);
-    }
-
-    public Window.Lookup openLookup(String windowAlias, Window.Lookup.Handler handler, OpenType openType, Map<String, Object> params) {
-        WindowInfo windowInfo = windowConfig.getWindowInfo(windowAlias);
-        return window.getWindowManager().openLookup(windowInfo, handler, openType, params);
-    }
-
-    public Window.Lookup openLookup(String windowAlias, Window.Lookup.Handler handler, OpenType openType) {
-        WindowInfo windowInfo = windowConfig.getWindowInfo(windowAlias);
-        return window.getWindowManager().openLookup(windowInfo, handler, openType);
-    }
-
-    public Frame openFrame(Component parent, String windowAlias) {
-        WindowInfo windowInfo = windowConfig.getWindowInfo(windowAlias);
-        Frame wrappedFrame = ((Frame.Wrapper) wrapper).getWrappedFrame();
-        return window.getWindowManager().openFrame(wrappedFrame, parent, windowInfo);
-    }
-
-    public Frame openFrame(Component parent, String windowAlias, Map<String, Object> params) {
-        WindowInfo windowInfo = windowConfig.getWindowInfo(windowAlias);
-        Frame wrappedFrame = ((Frame.Wrapper) wrapper).getWrappedFrame();
-        return window.getWindowManager().openFrame(wrappedFrame, parent, windowInfo, params);
     }
 }

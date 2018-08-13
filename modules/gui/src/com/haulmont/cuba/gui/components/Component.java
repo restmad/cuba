@@ -16,7 +16,7 @@
  */
 package com.haulmont.cuba.gui.components;
 
-import com.haulmont.cuba.gui.WindowManager;
+import com.haulmont.cuba.gui.ComponentsHelper;
 import com.haulmont.cuba.gui.icons.Icons;
 import org.dom4j.Element;
 
@@ -37,9 +37,14 @@ public interface Component {
         BOTTOM_CENTER
     }
 
-    // vaadin8 JavaDoc for deprecated
+    /**
+     * @deprecated Use {@link SizeUnit} instead.
+     */
     @Deprecated
     int UNITS_PIXELS = 0;
+    /**
+     * @deprecated @deprecated Use {@link SizeUnit} instead.
+     */
     @Deprecated
     int UNITS_PERCENTAGE = 8;
 
@@ -123,12 +128,14 @@ public interface Component {
         return isEnabled();
     }
 
-    /** Get component height in {@link #getHeightUnits()} */
+    /** Get component height in {@link #getHeightSizeUnit()} */
     float getHeight();
 
     /** Height units: {@link #UNITS_PIXELS}, {@link #UNITS_PERCENTAGE} */
     @Deprecated
-    int getHeightUnits();
+    default int getHeightUnits() {
+        return ComponentsHelper.convertFromSizeUnit(getHeightSizeUnit());
+    }
 
     /**
      * Gets the height property units.
@@ -155,7 +162,9 @@ public interface Component {
 
     /** Width units: {@link #UNITS_PIXELS}, {@link #UNITS_PERCENTAGE} */
     @Deprecated
-    int getWidthUnits();
+    default int getWidthUnits() {
+        return ComponentsHelper.convertFromSizeUnit(getWidthSizeUnit());
+    }
 
     /**
      * Set focus to this component
@@ -176,7 +185,7 @@ public interface Component {
      */
     SizeUnit getWidthSizeUnit();
 
-    /** Set component width in {@link #getWidthUnits()} */
+    /** Set component width in {@link #getWidthSizeUnit()}} */
     void setWidth(String width);
 
     /** Set component width to {@link #AUTO_SIZE} */
@@ -283,7 +292,7 @@ public interface Component {
     }
 
     /**
-     * JavaDoc
+     * Object having a description.
      */
     interface HasDescription {
         String getDescription();
@@ -291,7 +300,7 @@ public interface Component {
     }
 
     /**
-     * Object having a caption
+     * Object having a caption.
      */
     interface HasCaption extends HasDescription {
         String getCaption();
@@ -299,7 +308,7 @@ public interface Component {
     }
 
     /**
-     * Object having an XML descriptor attached
+     * Object having an XML descriptor attached.
      */
     interface HasXmlDescriptor {
         Element getXmlDescriptor();

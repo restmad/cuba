@@ -29,6 +29,7 @@ import com.haulmont.cuba.gui.icons.Icons;
 import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.gui.screen.compatibility.LegacyFrame;
 import com.haulmont.cuba.gui.screen.events.AfterShowEvent;
+import com.haulmont.cuba.gui.screen.events.InitEvent;
 import com.haulmont.cuba.gui.settings.Settings;
 import org.dom4j.Element;
 import org.springframework.context.ApplicationListener;
@@ -157,11 +158,6 @@ public class AbstractWindow extends Screen implements Window, LegacyFrame, Compo
     }
 
     @Override
-    public int getHeightUnits() {
-        return frame.getHeightUnits();
-    }
-
-    @Override
     public SizeUnit getHeightSizeUnit() {
         return frame.getHeightSizeUnit();
     }
@@ -174,11 +170,6 @@ public class AbstractWindow extends Screen implements Window, LegacyFrame, Compo
     @Override
     public float getWidth() {
         return frame.getWidth();
-    }
-
-    @Override
-    public int getWidthUnits() {
-        return frame.getWidthUnits();
     }
 
     @Override

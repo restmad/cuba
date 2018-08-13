@@ -46,9 +46,11 @@ import com.haulmont.cuba.gui.data.impl.DsContextImplementation;
 import com.haulmont.cuba.gui.data.impl.GenericDataSupplier;
 import com.haulmont.cuba.gui.screen.*;
 import com.haulmont.cuba.gui.screen.compatibility.LegacyFrame;
+import com.haulmont.cuba.gui.screen.compatibility.ScreenWrapper;
 import com.haulmont.cuba.gui.screen.events.AfterInitEvent;
 import com.haulmont.cuba.gui.screen.events.AfterShowEvent;
 import com.haulmont.cuba.gui.screen.events.BeforeShowEvent;
+import com.haulmont.cuba.gui.screen.events.InitEvent;
 import com.haulmont.cuba.gui.settings.Settings;
 import com.haulmont.cuba.gui.settings.SettingsImpl;
 import com.haulmont.cuba.gui.sys.*;
@@ -68,7 +70,6 @@ import com.haulmont.cuba.web.gui.components.WebTabWindow;
 import com.haulmont.cuba.web.gui.components.mainwindow.WebAppWorkArea;
 import com.haulmont.cuba.web.gui.components.util.ShortcutListenerDelegate;
 import com.haulmont.cuba.web.gui.icons.IconResolver;
-import com.haulmont.cuba.gui.screen.compatibility.ScreenWrapper;
 import com.haulmont.cuba.web.widgets.*;
 import com.vaadin.event.Action;
 import com.vaadin.event.ShortcutAction;
@@ -558,7 +559,7 @@ public class WebScreens implements Screens, WindowManager {
     public Window openWindow(WindowInfo windowInfo, OpenType openType, Map<String, Object> params) {
         Screen screen = create(windowInfo, openType.getOpenMode(), new MapScreenOptions(params));
         show(screen);
-        return new ScreenWrapper(screen);
+        return screen instanceof Window ? (Window) screen : new ScreenWrapper(screen);
     }
 
     @SuppressWarnings("IncorrectCreateGuiComponent")
@@ -566,7 +567,7 @@ public class WebScreens implements Screens, WindowManager {
     public Window openWindow(WindowInfo windowInfo, OpenType openType) {
         Screen screen = create(windowInfo, openType.getOpenMode(), NO_OPTIONS);
         show(screen);
-        return new ScreenWrapper(screen);
+        return screen instanceof Window ? (Window) screen : new ScreenWrapper(screen);
     }
 
     @Override

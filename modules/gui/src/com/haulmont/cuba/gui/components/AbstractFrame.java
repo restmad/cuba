@@ -134,11 +134,6 @@ public class AbstractFrame implements Frame.Wrapper, LegacyFrame {
     }
 
     @Override
-    public int getHeightUnits() {
-        return frame.getHeightUnits();
-    }
-
-    @Override
     public SizeUnit getHeightSizeUnit() {
         return frame.getHeightSizeUnit();
     }
@@ -151,11 +146,6 @@ public class AbstractFrame implements Frame.Wrapper, LegacyFrame {
     @Override
     public float getWidth() {
         return frame.getWidth();
-    }
-
-    @Override
-    public int getWidthUnits() {
-        return frame.getWidthUnits();
     }
 
     @Override
