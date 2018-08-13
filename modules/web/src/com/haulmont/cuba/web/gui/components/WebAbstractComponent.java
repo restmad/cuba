@@ -19,7 +19,6 @@ package com.haulmont.cuba.web.gui.components;
 import com.haulmont.bali.events.EventHub;
 import com.haulmont.bali.events.EventRouter;
 import com.haulmont.cuba.core.global.AppBeans;
-import com.haulmont.cuba.gui.ComponentsHelper;
 import com.haulmont.cuba.gui.components.Component;
 import com.haulmont.cuba.gui.components.Frame;
 import com.haulmont.cuba.gui.components.HasDebugId;
@@ -92,7 +91,8 @@ public abstract class WebAbstractComponent<T extends com.vaadin.ui.Component>
     @Override
     public void setFrame(Frame frame) {
         this.frame = frame;
-        if (frame != null) {
+
+        if (frame instanceof FrameImplementation) {
             ((FrameImplementation) frame).registerComponent(this);
         }
     }
