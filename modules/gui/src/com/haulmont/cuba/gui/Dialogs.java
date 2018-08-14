@@ -64,6 +64,9 @@ public interface Dialogs {
         boolean isMaximized();
         OptionDialog setMaximized(boolean maximized);
 
+        OptionDialog setStyleName(String styleName);
+        String getStyleName();
+
         void show();
     }
 
@@ -99,6 +102,9 @@ public interface Dialogs {
 
         boolean isCloseOnClickOutside();
         MessageDialog setCloseOnClickOutside(boolean closeOnClickOutside);
+
+        MessageDialog setStyleName(String styleName);
+        String getStyleName();
 
         void show();
     }

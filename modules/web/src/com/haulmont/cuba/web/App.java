@@ -42,7 +42,10 @@ import com.haulmont.cuba.web.exception.ExceptionHandlers;
 import com.haulmont.cuba.web.log.AppLog;
 import com.haulmont.cuba.web.security.events.SessionHeartbeatEvent;
 import com.haulmont.cuba.web.settings.WebSettingsClient;
-import com.haulmont.cuba.web.sys.*;
+import com.haulmont.cuba.web.sys.AppCookies;
+import com.haulmont.cuba.web.sys.BackgroundTaskManager;
+import com.haulmont.cuba.web.sys.LinkHandler;
+import com.haulmont.cuba.web.sys.WebScreens;
 import com.vaadin.server.AbstractClientConnector;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.server.VaadinSession;
@@ -308,21 +311,28 @@ public abstract class App {
 
     protected abstract String routeTopLevelWindowId();
 
+    // todo move to UI
     public void createTopLevelWindow() {
         createTopLevelWindow(AppUI.getCurrent());
     }
 
     /**
-     * Initialize new TopLevelWindow and replace current
+     * Initialize new TopLevelWindow and replace current.
+     *
+     * todo move to UI
      *
      * @param topLevelWindowId target top level window id
      */
     public void navigateTo(String topLevelWindowId) {
-        // todo rework
-        WebWindowManagerImpl wm = AppBeans.getPrototype(WebWindowManagerImpl.NAME);
-        wm.setUi(AppUI.getCurrent());
+        AppUI ui = AppUI.getCurrent();
+        setUiServices(ui);
 
-        wm.createTopLevelWindow(windowConfig.getWindowInfo(topLevelWindowId));
+        WindowInfo windowInfo = windowConfig.getWindowInfo(topLevelWindowId);
+
+        Screens screens = ui.getScreens();
+
+        Screen screen = screens.create(windowInfo.getScreenClass(), OpenMode.ROOT);
+        screens.show(screen);
     }
 
     /**

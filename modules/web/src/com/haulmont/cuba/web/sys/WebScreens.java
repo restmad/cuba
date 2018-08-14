@@ -23,6 +23,8 @@ import com.haulmont.cuba.client.ClientConfig;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.*;
+import com.haulmont.cuba.gui.Dialogs.MessageDialog;
+import com.haulmont.cuba.gui.Dialogs.OptionDialog;
 import com.haulmont.cuba.gui.Notifications.NotificationType;
 import com.haulmont.cuba.gui.app.core.dev.LayoutAnalyzer;
 import com.haulmont.cuba.gui.app.core.dev.LayoutTip;
@@ -546,11 +548,6 @@ public class WebScreens implements Screens, WindowManager {
     }
 
     @Override
-    public void setWindowCaption(Window window, String caption, String description) {
-        // todo
-    }
-
-    @Override
     public boolean windowExist(WindowInfo windowInfo, Map<String, Object> params) {
         throw new UnsupportedOperationException();
     }
@@ -682,7 +679,7 @@ public class WebScreens implements Screens, WindowManager {
 
     @Override
     public void showMessageDialog(String title, String message, Frame.MessageType messageType) {
-        Dialogs.MessageDialog messageDialog = dialogs.createMessageDialog()
+        MessageDialog messageDialog = dialogs.createMessageDialog()
                 .setCaption(title)
                 .setMessage(message)
                 .setType(convertMessageType(messageType.getMessageMode()))
@@ -723,7 +720,20 @@ public class WebScreens implements Screens, WindowManager {
 
     @Override
     public void showOptionDialog(String title, String message, Frame.MessageType messageType, Action[] actions) {
-        throw new UnsupportedOperationException();
+        OptionDialog optionDialog = dialogs.createOptionDialog()
+                .setCaption(title)
+                .setMessage(message)
+                .setType(convertMessageType(messageType.getMessageMode()))
+                .setActions(actions);
+
+        if (messageType.getWidth() != null) {
+            optionDialog.setWidth(messageType.getWidth() + messageType.getWidthUnit().getSymbol());
+        }
+        if (messageType.getMaximized() != null) {
+            optionDialog.setMaximized(messageType.getMaximized());
+        }
+
+        optionDialog.show();
     }
 
     @Override

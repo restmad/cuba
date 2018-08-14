@@ -458,7 +458,10 @@ public interface WindowManager extends Screens {
      * @deprecated Please use {@link Window#setCaption(String)} ()} and {@link Window#setDescription(String)} ()} methods.
      */
     @Deprecated
-    void setWindowCaption(Window window, String caption, String description);
+    default void setWindowCaption(Window window, String caption, String description) {
+        window.setCaption(caption);
+        window.setDescription(description);
+    }
 
     boolean windowExist(WindowInfo windowInfo, Map<String, Object> params);
 

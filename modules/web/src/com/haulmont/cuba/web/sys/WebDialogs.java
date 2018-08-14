@@ -17,6 +17,7 @@
 
 package com.haulmont.cuba.web.sys;
 
+import com.haulmont.cuba.client.ClientConfig;
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.gui.Dialogs;
 import com.haulmont.cuba.gui.components.*;
@@ -25,6 +26,7 @@ import com.haulmont.cuba.gui.icons.Icons;
 import com.haulmont.cuba.gui.theme.ThemeConstants;
 import com.haulmont.cuba.web.AppUI;
 import com.haulmont.cuba.web.gui.components.WebButton;
+import com.haulmont.cuba.web.gui.components.util.ShortcutListenerDelegate;
 import com.haulmont.cuba.web.gui.icons.IconResolver;
 import com.haulmont.cuba.web.widgets.CubaButton;
 import com.haulmont.cuba.web.widgets.CubaLabel;
@@ -39,8 +41,11 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
+import java.util.EnumSet;
 
+import static com.haulmont.cuba.web.gui.components.WebComponentsHelper.setClickShortcut;
 import static com.haulmont.cuba.web.gui.components.WebWrapperUtils.*;
 
 @Component(Dialogs.NAME)
@@ -57,6 +62,8 @@ public class WebDialogs implements Dialogs {
     protected IconResolver iconResolver;
     @Inject
     protected Icons icons;
+    @Inject
+    protected ClientConfig clientConfig;
 
     public WebDialogs(AppUI ui) {
         this.ui = ui;
@@ -83,7 +90,33 @@ public class WebDialogs implements Dialogs {
         return new ExceptionDialogImpl();
     }
 
-    // todo
+    public CubaButton createButton(Action action) {
+        CubaButton button = new CubaButton();
+
+        if (action instanceof DialogAction) {
+            DialogAction.Type type = ((DialogAction) action).getType();
+
+            button.setCaption(messages.getMainMessage(type.getMsgKey()));
+            String iconPath = icons.get(type.getIconKey());
+            button.setIcon(iconResolver.getIconResource(iconPath));
+        }
+
+        button.setEnabled(action.isEnabled());
+
+        if (StringUtils.isNotEmpty(action.getCaption())) {
+            button.setCaption(action.getCaption());
+        }
+        if (StringUtils.isNotEmpty(action.getDescription())) {
+            button.setDescription(action.getDescription());
+        }
+        if (StringUtils.isNotEmpty(action.getIcon())) {
+            button.setIcon(iconResolver.getIconResource(action.getIcon()));
+            button.addStyleName(WebButton.ICON_STYLE);
+        }
+
+        return button;
+    }
+
     public class OptionDialogImpl implements OptionDialog {
 
         protected CubaWindow window;
@@ -98,9 +131,9 @@ public class WebDialogs implements Dialogs {
         public OptionDialogImpl() {
             this.window = new CubaWindow();
 
-            window.setResizable(false);
+            window.setModal(true);
             window.setClosable(false);
-            window.setModal(false);
+            window.setResizable(false);
 
             this.messageLabel = new CubaLabel();
 
@@ -212,12 +245,12 @@ public class WebDialogs implements Dialogs {
             if (getHeight() < 0) {
                 messageLabel.setHeightUndefined();
                 layout.setExpandRatio(messageLabel, 0);
+                layout.setHeightUndefined();
             } else {
                 messageLabel.setHeight(100, Sizeable.Unit.PERCENTAGE);
+                layout.setHeight(100, Sizeable.Unit.PERCENTAGE);
                 layout.setExpandRatio(messageLabel, 1);
             }
-
-            // todo layout size
 
             return this;
         }
@@ -244,15 +277,32 @@ public class WebDialogs implements Dialogs {
         }
 
         @Override
+        public OptionDialog setStyleName(String styleName) {
+            window.setStyleName(styleName);
+            return this;
+        }
+
+        @Override
+        public String getStyleName() {
+            return window.getStyleName();
+        }
+
+        @Override
         public void show() {
-            // todo find OK / CANCEL shortcut actions
+            // find OK / CANCEL shortcut actions
+            DialogAction firstDeclineAction = findFirstActionWithType(actions,
+                    EnumSet.of(DialogAction.Type.YES, DialogAction.Type.OK)
+            );
+            DialogAction firstCommitAction = findFirstActionWithType(actions,
+                    EnumSet.of(DialogAction.Type.CANCEL, DialogAction.Type.CLOSE, DialogAction.Type.NO)
+            );
 
             boolean hasPrimaryAction = false;
             for (Action action : actions) {
                 CubaButton button = createButton(action);
-                button.addClickListener(event -> {
+                button.setClickHandler(mouseEventDetails -> {
                     try {
-                        action.actionPerform(null);
+                        action.actionPerform(ui.getTopLevelWindow());
                     } finally {
                         ui.removeWindow(window);
                     }
@@ -274,13 +324,17 @@ public class WebDialogs implements Dialogs {
                     // todo check if performance mode enabled
                     button.setId(ui.getTestIdManager().getTestId("optionDialog_" + action.getId()));
                 }
+
+                if (action == firstCommitAction) {
+                    setClickShortcut(button, clientConfig.getCommitShortcut());
+                } else if (action == firstDeclineAction) {
+                    setClickShortcut(button, clientConfig.getCloseShortcut());
+                }
             }
 
             if (!hasPrimaryAction && actions.length > 0) {
                 ((com.vaadin.ui.Component.Focusable) buttonsContainer.getComponent(0)).focus();
             }
-
-            // todo assign shortcuts
 
             if (ui.isTestMode()) {
                 window.setCubaId("optionDialog");
@@ -293,47 +347,54 @@ public class WebDialogs implements Dialogs {
             window.center();
         }
 
-        public CubaButton createButton(Action action) {
-            CubaButton button = new CubaButton();
-
-            if (action instanceof DialogAction) {
-                DialogAction.Type type = ((DialogAction) action).getType();
-
-                button.setCaption(messages.getMainMessage(type.getMsgKey()));
-                String iconPath = icons.get(type.getIconKey());
-                button.setIcon(iconResolver.getIconResource(iconPath));
+        @Nullable
+        protected DialogAction findFirstActionWithType(Action[] actions, EnumSet<DialogAction.Type> types) {
+            for (DialogAction.Type type : types) {
+                for (Action action : actions) {
+                    if (action instanceof DialogAction && ((DialogAction) action).getType() == type) {
+                        return (DialogAction) action;
+                    }
+                }
             }
-
-            button.setEnabled(action.isEnabled());
-
-            if (StringUtils.isNotEmpty(action.getCaption())) {
-                button.setCaption(action.getCaption());
-            }
-            if (StringUtils.isNotEmpty(action.getDescription())) {
-                button.setDescription(action.getDescription());
-            }
-            if (StringUtils.isNotEmpty(action.getIcon())) {
-                button.setIcon(iconResolver.getIconResource(action.getIcon()));
-                button.addStyleName(WebButton.ICON_STYLE);
-            }
-
-            return button;
+            return null;
         }
     }
 
-    // todo
     public class MessageDialogImpl implements MessageDialog {
         protected CubaWindow window;
         protected CubaLabel messageLabel;
         protected VerticalLayout layout;
-
-        protected boolean modal = true;
-        protected boolean maximized = false;
-        protected boolean closeOnClickOutside = false;
+        protected CubaButton okButton;
 
         protected MessageType type = MessageType.CONFIRMATION;
 
         public MessageDialogImpl() {
+            window = new CubaWindow();
+
+            window.setModal(true);
+            window.setResizable(false);
+
+            this.messageLabel = new CubaLabel();
+
+            layout = new VerticalLayout();
+            layout.setStyleName("c-app-message-dialog");
+            layout.setMargin(false);
+            layout.setSpacing(true);
+
+            DialogAction action = new DialogAction(DialogAction.Type.OK);
+            okButton = createButton(action);
+            okButton.setClickHandler(mouseEventDetails -> {
+                try {
+                    action.actionPerform(ui.getTopLevelWindow());
+                } finally {
+                    ui.removeWindow(window);
+                }
+            });
+
+            layout.addComponent(okButton);
+            layout.setComponentAlignment(okButton, Alignment.BOTTOM_RIGHT);
+
+            window.setContent(layout);
         }
 
         @Override
@@ -386,8 +447,10 @@ public class WebDialogs implements Dialogs {
 
             if (getWidth() < 0) {
                 messageLabel.setWidthUndefined();
+                layout.setWidthUndefined();
             } else {
                 messageLabel.setWidth(100, Sizeable.Unit.PERCENTAGE);
+                layout.setWidth(100, Sizeable.Unit.PERCENTAGE);
             }
 
             return this;
@@ -410,8 +473,10 @@ public class WebDialogs implements Dialogs {
             if (getHeight() < 0) {
                 messageLabel.setHeightUndefined();
                 layout.setExpandRatio(messageLabel, 0);
+                layout.setHeightUndefined();
             } else {
                 messageLabel.setHeight(100, Sizeable.Unit.PERCENTAGE);
+                layout.setHeight(100, Sizeable.Unit.PERCENTAGE);
                 layout.setExpandRatio(messageLabel, 1);
             }
 
@@ -430,40 +495,93 @@ public class WebDialogs implements Dialogs {
 
         @Override
         public boolean isModal() {
-            return modal;
+            return window.isModal();
         }
 
         @Override
         public MessageDialog setModal(boolean modal) {
-            this.modal = modal;
+            window.setModal(modal);
             return this;
         }
 
         @Override
         public boolean isMaximized() {
-            return maximized;
+            return window.getWindowMode() == WindowMode.MAXIMIZED;
         }
 
         @Override
         public MessageDialog setMaximized(boolean maximized) {
-            this.maximized = maximized;
+            window.setWindowMode(maximized ? WindowMode.MAXIMIZED : WindowMode.NORMAL);
             return this;
         }
 
         @Override
         public boolean isCloseOnClickOutside() {
-            return closeOnClickOutside;
+            return window.getCloseOnClickOutside();
         }
 
         @Override
         public MessageDialog setCloseOnClickOutside(boolean closeOnClickOutside) {
-            this.closeOnClickOutside = closeOnClickOutside;
+            window.setCloseOnClickOutside(closeOnClickOutside);
             return this;
         }
 
         @Override
+        public MessageDialog setStyleName(String styleName) {
+            window.setStyleName(styleName);
+            return this;
+        }
+
+        @Override
+        public String getStyleName() {
+            return window.getStyleName();
+        }
+
+        @Override
         public void show() {
-            // todo
+            initShortcuts();
+
+            if (ui.isTestMode()) {
+                window.setCubaId("messageDialog");
+                messageLabel.setCubaId("messageDialogLabel");
+                okButton.setCubaId("messageDialogOk");
+
+                // todo check if performance mode enabled
+                window.setId(ui.getTestIdManager().getTestId("messageDialog"));
+            }
+
+            if (!window.isModal()) {
+                for (com.vaadin.ui.Window w : ui.getWindows()) {
+                    if (w.isModal()) {
+                        window.setModal(true);
+                        break;
+                    }
+                }
+            }
+
+            ui.addWindow(window);
+            window.center();
+            window.bringToFront();
+
+            okButton.focus();
+        }
+
+        protected void initShortcuts() {
+            String closeShortcut = clientConfig.getCloseShortcut();
+            KeyCombination closeCombination = KeyCombination.create(closeShortcut);
+
+            window.addAction(
+                    new ShortcutListenerDelegate("Esc",
+                            closeCombination.getKey().getCode(),
+                            KeyCombination.Modifier.codes(closeCombination.getModifiers())
+                    ).withHandler((sender, target) ->
+                            window.close()
+                    ));
+
+            window.addAction(new ShortcutListenerDelegate("Enter", com.vaadin.event.ShortcutAction.KeyCode.ENTER, null)
+                    .withHandler((sender, target) ->
+                            window.close()
+                    ));
         }
     }
 

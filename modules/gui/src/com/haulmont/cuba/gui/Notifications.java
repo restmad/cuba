@@ -29,7 +29,7 @@ public interface Notifications {
     Notification create();
 
     /**
-     * JavaDoc
+     * Notification object.
      */
     interface Notification {
         Notification setCaption(String caption);
@@ -50,9 +50,15 @@ public interface Notifications {
         Notification setPosition(Position position);
         Position getPosition();
 
+        /**
+         * Shows notification.
+         */
         void show();
     }
 
+    /**
+     * Popup notification type.
+     */
     enum NotificationType {
         TRAY,
         HUMANIZED,
@@ -60,6 +66,9 @@ public interface Notifications {
         ERROR
     }
 
+    /**
+     * Popup notification position.
+     */
     enum Position {
         TOP_LEFT, TOP_CENTER, TOP_RIGHT,
         MIDDLE_LEFT, MIDDLE_CENTER, MIDDLE_RIGHT,

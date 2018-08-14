@@ -215,8 +215,8 @@ public abstract class Screen implements FrameOwner {
     /**
      * JavaDoc
      *
-     * @param action
-     * @return
+     * @param action close action
+     * @return result of operation
      */
     public OperationResult close(CloseAction action) {
         CloseTriggeredEvent closeTriggeredEvent = new CloseTriggeredEvent(this, action);
