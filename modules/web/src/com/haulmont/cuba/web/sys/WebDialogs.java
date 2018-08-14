@@ -219,11 +219,11 @@ public class WebDialogs implements Dialogs {
 
             if (getWidth() < 0) {
                 messageLabel.setWidthUndefined();
+                layout.setWidthUndefined();
             } else {
                 messageLabel.setWidth(100, Sizeable.Unit.PERCENTAGE);
+                layout.setWidth(100, Sizeable.Unit.PERCENTAGE);
             }
-
-            // todo layout size
 
             return this;
         }
@@ -290,10 +290,10 @@ public class WebDialogs implements Dialogs {
         @Override
         public void show() {
             // find OK / CANCEL shortcut actions
-            DialogAction firstDeclineAction = findFirstActionWithType(actions,
+            DialogAction firstCommitAction = findFirstActionWithType(actions,
                     EnumSet.of(DialogAction.Type.YES, DialogAction.Type.OK)
             );
-            DialogAction firstCommitAction = findFirstActionWithType(actions,
+            DialogAction firstDeclineAction = findFirstActionWithType(actions,
                     EnumSet.of(DialogAction.Type.CANCEL, DialogAction.Type.CLOSE, DialogAction.Type.NO)
             );
 
@@ -391,10 +391,15 @@ public class WebDialogs implements Dialogs {
                 }
             });
 
+            layout.addComponent(messageLabel);
+
             layout.addComponent(okButton);
             layout.setComponentAlignment(okButton, Alignment.BOTTOM_RIGHT);
 
             window.setContent(layout);
+
+            ThemeConstants theme = ui.getApp().getThemeConstants();
+            window.setWidth(theme.get("cuba.web.WebWindowManager.messageDialog.width"));
         }
 
         @Override

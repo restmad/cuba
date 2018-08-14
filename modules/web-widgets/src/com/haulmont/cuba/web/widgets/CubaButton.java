@@ -52,6 +52,15 @@ public class CubaButton extends com.vaadin.ui.Button {
     }
 
     @Override
+    protected void fireClick() {
+        if (clickHandler != null) {
+            clickHandler.accept(null);
+        } else {
+            super.fireClick();
+        }
+    }
+
+    @Override
     protected void fireClick(MouseEventDetails details) {
         try {
             if (clickHandler != null) {

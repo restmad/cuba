@@ -35,7 +35,7 @@ public interface Dialogs {
     ExceptionDialog createExceptionDialog();
 
     /**
-     * JavaDoc
+     * Dialog with options.
      */
     interface OptionDialog {
         OptionDialog setCaption(String caption);
@@ -67,11 +67,14 @@ public interface Dialogs {
         OptionDialog setStyleName(String styleName);
         String getStyleName();
 
+        /**
+         * Shows dialog.
+         */
         void show();
     }
 
     /**
-     * JavaDoc
+     * Information dialog.
      */
     interface MessageDialog {
         MessageDialog setCaption(String caption);
@@ -106,11 +109,14 @@ public interface Dialogs {
         MessageDialog setStyleName(String styleName);
         String getStyleName();
 
+        /**
+         * Shows dialog.
+         */
         void show();
     }
 
     /**
-     * JavaDoc
+     * Unhandled exception dialog.
      */
     interface ExceptionDialog {
         ExceptionDialog setThrowable(Throwable throwable);
@@ -122,6 +128,9 @@ public interface Dialogs {
         ExceptionDialog setMessage(String message);
         String getMessage();
 
+        /**
+         * Shows dialog.
+         */
         void show();
     }
 

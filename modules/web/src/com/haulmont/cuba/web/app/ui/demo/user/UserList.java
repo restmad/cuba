@@ -16,17 +16,22 @@
 
 package com.haulmont.cuba.web.app.ui.demo.user;
 
+import com.haulmont.cuba.gui.Dialogs;
+import com.haulmont.cuba.gui.Notifications;
+import com.haulmont.cuba.gui.Notifications.NotificationType;
 import com.haulmont.cuba.gui.Screens;
 import com.haulmont.cuba.gui.WebBrowserTools;
 import com.haulmont.cuba.gui.components.Button;
+import com.haulmont.cuba.gui.components.DialogAction;
 import com.haulmont.cuba.gui.components.Label;
 import com.haulmont.cuba.gui.components.actions.BaseAction;
-import com.haulmont.cuba.gui.screen.*;
+import com.haulmont.cuba.gui.screen.Screen;
+import com.haulmont.cuba.gui.screen.Subscribe;
+import com.haulmont.cuba.gui.screen.UiController;
 import com.haulmont.cuba.gui.screen.events.InitEvent;
 import com.haulmont.cuba.gui.xml.layout.ComponentsFactory;
 
 import javax.inject.Inject;
-import java.util.Collections;
 
 @UiController("user-list")
 public class UserList extends Screen {
@@ -34,6 +39,10 @@ public class UserList extends Screen {
     protected ComponentsFactory componentsFactory;
     @Inject
     protected Screens screens;
+    @Inject
+    protected Dialogs dialogs;
+    @Inject
+    protected Notifications notifications;
 
     @Inject
     protected WebBrowserTools webBrowserTools;
@@ -49,8 +58,23 @@ public class UserList extends Screen {
         button.setAction(new BaseAction("onClick")
                 .withCaption("Demo")
                 .withHandler(e -> {
-                    UserList newScreen = screens.create(UserList.class, OpenMode.THIS_TAB);
-                    screens.show(newScreen);
+
+                    dialogs.createOptionDialog()
+                            .setCaption("Choose your destiny!")
+                            .setMessage("Demo")
+                            .setActions(
+                                    new DialogAction(DialogAction.Type.OK).withHandler(actionPerformedEvent -> {
+                                        notifications.create()
+                                                .setCaption("Yep!")
+                                                .setDescription("Ooopsy !")
+                                                .setType(NotificationType.TRAY)
+                                                .setPosition(Notifications.Position.BOTTOM_LEFT)
+                                                .show();
+
+                                    }),
+                                    new DialogAction(DialogAction.Type.CANCEL)
+                            )
+                            .show();
                 })
         );
 
@@ -62,8 +86,6 @@ public class UserList extends Screen {
                 spacer
         );
         getWindow().expand(spacer);
-
-        webBrowserTools.showWebPage("http://ya.ru", Collections.emptyMap());
     }
 
     /*@Subscribe

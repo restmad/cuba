@@ -32,10 +32,6 @@ import java.util.Map;
  */
 public interface WindowManager extends Screens {
 
-    // todo create alias
-    @Deprecated
-    String NAME = "cuba_WindowManager";
-
     /*
      * Deprecated methods
      */

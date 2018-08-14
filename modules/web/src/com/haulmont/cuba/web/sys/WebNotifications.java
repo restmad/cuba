@@ -128,6 +128,7 @@ public class WebNotifications implements Notifications {
 
         @Override
         public Notification setPosition(Position position) {
+            this.position = position;
             return this;
         }
 
@@ -176,7 +177,7 @@ public class WebNotifications implements Notifications {
             vNotification.setHtmlContentAllowed(contentMode == ContentMode.HTML);
             vNotification.setStyleName(styleName);
 
-            // todo set position
+            vNotification.setPosition(com.vaadin.shared.Position.valueOf(position.name()));
 
             vNotification.show(ui.getPage());
         }

@@ -88,7 +88,7 @@ public class ExceptionDialog extends CubaWindow {
     }
 
     public ExceptionDialog(Throwable throwable, @Nullable String caption, @Nullable String message) {
-        final AppUI ui = AppUI.getCurrent();
+        AppUI ui = AppUI.getCurrent();
 
         String closeShortcut = clientConfig.getCloseShortcut();
         KeyCombination closeCombination = KeyCombination.create(closeShortcut);
@@ -203,8 +203,7 @@ public class ExceptionDialog extends CubaWindow {
 
         stackTraceTextArea = new TextArea();
         stackTraceTextArea.setSizeFull();
-//        vaadin8 implement
-//        stackTraceTextArea.setWordwrap(false);
+        stackTraceTextArea.setWordWrap(false);
         stackTraceTextArea.setValue(stackTrace);
         stackTraceTextArea.setStyleName(cubaLogContentClass);
         stackTraceTextArea.addStyleName(cubaCopyLogContentClass);
@@ -396,7 +395,6 @@ public class ExceptionDialog extends CubaWindow {
 
     protected void forceLogout() {
         App app = ((AppUI) getUI()).getApp();
-        WindowManager wm = app.getWindowManager();
         try {
             Connection connection = app.getConnection();
             if (connection.isConnected()) {

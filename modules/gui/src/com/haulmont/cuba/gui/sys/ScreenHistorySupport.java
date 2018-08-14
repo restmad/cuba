@@ -71,7 +71,7 @@ public class ScreenHistorySupport {
     public void saveScreenHistory(Window window, OpenMode openMode) {
         Security security = AppBeans.get(Security.NAME);
         if (security.isEntityOpPermitted(ScreenHistoryEntity.class, EntityOp.CREATE)
-                && window.getFrame() != null
+                && window.getFrame() != null // todo rewrite with Screen instead
                 && (window.getFrame() instanceof Window.Editor)
                 && openMode != OpenMode.DIALOG
                 && (screenIds == null || screenIds.contains(window.getId())))
