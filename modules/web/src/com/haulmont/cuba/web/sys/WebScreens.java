@@ -71,7 +71,6 @@ import com.haulmont.cuba.web.gui.components.mainwindow.WebAppWorkArea;
 import com.haulmont.cuba.web.gui.components.util.ShortcutListenerDelegate;
 import com.haulmont.cuba.web.gui.icons.IconResolver;
 import com.haulmont.cuba.web.widgets.*;
-import com.vaadin.event.Action;
 import com.vaadin.event.ShortcutAction;
 import com.vaadin.event.ShortcutListener;
 import com.vaadin.ui.CssLayout;
@@ -152,7 +151,7 @@ public class WebScreens implements Screens, WindowManager {
     }
 
     @Override
-    public <T extends Screen> T create(WindowInfo windowInfo, LaunchMode launchMode, ScreenOptions options) {
+    public Screen create(WindowInfo windowInfo, LaunchMode launchMode, ScreenOptions options) {
         checkNotNullArgument(windowInfo);
         checkNotNullArgument(launchMode);
         checkNotNullArgument(options);
@@ -178,6 +177,8 @@ public class WebScreens implements Screens, WindowManager {
         Class<T> resolvedScreenClass = (Class<T>) windowInfo.getScreenClass();
 
         Window window = createWindow(windowInfo, resolvedScreenClass, launchMode);
+
+        ui.beforeTopLevelWindowInit();
 
         T controller = createController(windowInfo, window, resolvedScreenClass, launchMode);
 
@@ -642,11 +643,21 @@ public class WebScreens implements Screens, WindowManager {
         notifications.create()
                 .setCaption(caption)
                 .setContentMode(Frame.NotificationType.isHTML(type) ? ContentMode.HTML : ContentMode.TEXT)
-                .setType(convertType(type))
+                .setType(convertNotificationType(type))
                 .show();
     }
 
-    protected NotificationType convertType(Frame.NotificationType type) {
+    @Override
+    public void showNotification(String caption, String description, Frame.NotificationType type) {
+        notifications.create()
+                .setCaption(caption)
+                .setDescription(description)
+                .setContentMode(Frame.NotificationType.isHTML(type) ? ContentMode.HTML : ContentMode.TEXT)
+                .setType(convertNotificationType(type))
+                .show();
+    }
+
+    protected NotificationType convertNotificationType(Frame.NotificationType type) {
         switch (type) {
             case TRAY:
             case TRAY_HTML:
@@ -670,33 +681,63 @@ public class WebScreens implements Screens, WindowManager {
     }
 
     @Override
-    public void showNotification(String caption, String description, Frame.NotificationType type) {
-        notifications.create()
-                .setCaption(caption)
-                .setDescription(description)
-                .setContentMode(Frame.NotificationType.isHTML(type) ? ContentMode.HTML : ContentMode.TEXT)
-                .setType(convertType(type))
-                .show();
-    }
-
-    @Override
     public void showMessageDialog(String title, String message, Frame.MessageType messageType) {
-        throw new UnsupportedOperationException();
+        Dialogs.MessageDialog messageDialog = dialogs.createMessageDialog()
+                .setCaption(title)
+                .setMessage(message)
+                .setType(convertMessageType(messageType.getMessageMode()))
+                .setContentMode(
+                        Frame.MessageMode.isHTML(messageType.getMessageMode()) ? ContentMode.HTML : ContentMode.TEXT
+                );
+
+        if (messageType.getWidth() != null) {
+            messageDialog.setWidth(messageType.getWidth() + messageType.getWidthUnit().getSymbol());
+        }
+        if (messageType.getModal() != null) {
+            messageDialog.setModal(messageType.getModal());
+        }
+        if (messageType.getCloseOnClickOutside() != null) {
+            messageDialog.setCloseOnClickOutside(messageType.getCloseOnClickOutside());
+        }
+        if (messageType.getMaximized() != null) {
+            messageDialog.setMaximized(messageType.getMaximized());
+        }
+
+        messageDialog.show();
+    }
+
+    protected Dialogs.MessageType convertMessageType(Frame.MessageMode messageMode) {
+        switch (messageMode) {
+            case CONFIRMATION:
+            case CONFIRMATION_HTML:
+                return Dialogs.MessageType.CONFIRMATION;
+
+            case WARNING:
+            case WARNING_HTML:
+                return Dialogs.MessageType.WARNING;
+
+            default:
+                throw new UnsupportedOperationException("Unsupported message type");
+        }
     }
 
     @Override
-    public void showOptionDialog(String title, String message, Frame.MessageType messageType, com.haulmont.cuba.gui.components.Action[] actions) {
+    public void showOptionDialog(String title, String message, Frame.MessageType messageType, Action[] actions) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public void showExceptionDialog(Throwable throwable) {
-        throw new UnsupportedOperationException();
+        showExceptionDialog(throwable, null, null);
     }
 
     @Override
     public void showExceptionDialog(Throwable throwable, @Nullable String caption, @Nullable String message) {
-        throw new UnsupportedOperationException();
+        dialogs.createExceptionDialog()
+                .setCaption(caption)
+                .setMessage(message)
+                .setThrowable(throwable)
+                .show();
     }
 
     @Override
@@ -787,6 +828,9 @@ public class WebScreens implements Screens, WindowManager {
             OpenMode openMode = (OpenMode) launchMode;
             switch (openMode) {
                 case ROOT:
+                    // should be changed
+                    ui.beforeTopLevelWindowInit();
+
                     window = componentsFactory.createComponent(RootWindow.NAME);
                     break;
 
@@ -1050,7 +1094,7 @@ public class WebScreens implements Screens, WindowManager {
                     Window oldWindow = oldBreadCrumbs.getCurrentWindow();
                     oldWindow.closeAndRun(MAIN_MENU_ACTION_ID, () -> {
                         // todo implement
-//                            showWindow(window, caption, description, WindowManager.OpenType.NEW_TAB, false)
+//                            showWindow(window, caption, message, WindowManager.OpenType.NEW_TAB, false)
                     });
                     return;
                 }
@@ -1081,7 +1125,7 @@ public class WebScreens implements Screens, WindowManager {
 
                 final int finalTabPosition = tabPosition;
                 oldWindow.closeAndRun(MAIN_MENU_ACTION_ID, () -> {
-                    showWindow(window, caption, description, WindowManager.OpenType.NEW_TAB, false);
+                    showWindow(window, caption, message, WindowManager.OpenType.NEW_TAB, false);
 
                     Window wrappedWindow = window;
                     if (window instanceof Window.Wrapper) {
@@ -1300,14 +1344,14 @@ public class WebScreens implements Screens, WindowManager {
             }
         });
 
-        vWindow.addActionHandler(new Action.Handler() {
+        vWindow.addActionHandler(new com.vaadin.event.Action.Handler() {
             @Override
-            public Action[] getActions(Object target, Object sender) {
+            public com.vaadin.event.Action[] getActions(Object target, Object sender) {
                 return new ShortcutAction[]{exitAction};
             }
 
             @Override
-            public void handleAction(Action action, Object sender, Object target) {
+            public void handleAction(com.vaadin.event.Action action, Object sender, Object target) {
                 if (action == exitAction) {
                     exitAction.handleAction(sender, target);
                 }
@@ -1480,7 +1524,7 @@ public class WebScreens implements Screens, WindowManager {
                 initialized = true;
             }
 
-            List<Action> actions = new ArrayList<>(3);
+            List<com.vaadin.event.Action> actions = new ArrayList<>(3);
 
             if (clientConfig.getManualScreenSettingsSaving()) {
                 actions.add(saveSettingsAction);
@@ -1514,51 +1558,6 @@ public class WebScreens implements Screens, WindowManager {
                     }
                 }
             }
-        }
-    }
-
-    public static class ScreenContextImpl implements ScreenContext {
-
-        protected final ScreenOptions options;
-        protected final WindowInfo windowInfo;
-
-        protected final Screens screens;
-        protected final Dialogs dialogs;
-        protected final Notifications notifications;
-
-        public ScreenContextImpl(WindowInfo windowInfo, ScreenOptions options,
-                                 Screens screens, Dialogs dialogs, Notifications notifications) {
-            this.windowInfo = windowInfo;
-            this.options = options;
-
-            this.screens = screens;
-            this.dialogs = dialogs;
-            this.notifications = notifications;
-        }
-
-        @Override
-        public ScreenOptions getScreenOptions() {
-            return options;
-        }
-
-        @Override
-        public WindowInfo getWindowInfo() {
-            return windowInfo;
-        }
-
-        @Override
-        public Screens getScreens() {
-            return screens;
-        }
-
-        @Override
-        public Dialogs getDialogs() {
-            return dialogs;
-        }
-
-        @Override
-        public Notifications getNotifications() {
-            return notifications;
         }
     }
 }

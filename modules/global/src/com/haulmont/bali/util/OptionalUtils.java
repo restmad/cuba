@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008-2017 Haulmont.
+ * Copyright (c) 2008-2018 Haulmont.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,19 @@
  * limitations under the License.
  */
 
-package com.haulmont.cuba.gui.components.mainwindow;
+package com.haulmont.bali.util;
 
-import com.haulmont.cuba.gui.components.RootWindow;
+import java.util.Optional;
+import java.util.function.Supplier;
 
-// todo remove
-public interface TopLevelWindowAttachListener {
-    void topLevelWindowAttached(RootWindow window);
+public final class OptionalUtils {
+    private OptionalUtils() {
+    }
+
+    public static <T> Optional<T> or(Optional<T> optional, Supplier<Optional<T>> supplier) {
+        if (optional.isPresent()) {
+            return optional;
+        }
+        else return supplier.get();
+    }
 }

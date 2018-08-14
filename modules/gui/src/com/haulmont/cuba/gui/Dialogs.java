@@ -44,7 +44,7 @@ public interface Dialogs {
         OptionDialog setMessage(String message);
         String getMessage();
 
-        OptionDialog setType(MessageType messageType);
+        OptionDialog setType(MessageType type);
         MessageType getType();
 
         OptionDialog setContentMode(ContentMode contentMode);
@@ -61,6 +61,9 @@ public interface Dialogs {
         float getHeight();
         SizeUnit getHeightSizeUnit();
 
+        boolean isMaximized();
+        OptionDialog setMaximized(boolean maximized);
+
         void show();
     }
 
@@ -74,7 +77,7 @@ public interface Dialogs {
         MessageDialog setMessage(String message);
         String getMessage();
 
-        MessageDialog setType(MessageType messageType);
+        MessageDialog setType(MessageType type);
         MessageType getType();
 
         MessageDialog setContentMode(ContentMode contentMode);
@@ -87,6 +90,15 @@ public interface Dialogs {
         MessageDialog setHeight(String height);
         float getHeight();
         SizeUnit getHeightSizeUnit();
+
+        boolean isModal();
+        MessageDialog setModal(boolean modal);
+
+        boolean isMaximized();
+        MessageDialog setMaximized(boolean maximized);
+
+        boolean isCloseOnClickOutside();
+        MessageDialog setCloseOnClickOutside(boolean closeOnClickOutside);
 
         void show();
     }
@@ -101,8 +113,10 @@ public interface Dialogs {
         ExceptionDialog setCaption(String caption);
         String getCaption();
 
-        ExceptionDialog setDescription(String description);
-        String getDescription();
+        ExceptionDialog setMessage(String message);
+        String getMessage();
+
+        void show();
     }
 
     /**

@@ -56,6 +56,9 @@ public class WebNotifications implements Notifications {
     public class NotificationImpl implements Notification {
         protected String caption;
         protected String description;
+        protected String styleName;
+
+        protected Position position = Position.MIDDLE_CENTER;
 
         protected ContentMode contentMode = ContentMode.TEXT;
         protected NotificationType notificationType = NotificationType.HUMANIZED;
@@ -88,6 +91,11 @@ public class WebNotifications implements Notifications {
         @Override
         public Notification setType(NotificationType notificationType) {
             this.notificationType = notificationType;
+
+            // todo set default position here
+
+            // todo set default timeout here
+
             return this;
         }
 
@@ -107,8 +115,28 @@ public class WebNotifications implements Notifications {
             return contentMode;
         }
 
+        @Override
+        public Notification setStyleName(String styleName) {
+            this.styleName = styleName;
+            return this;
+        }
+
+        @Override
+        public String getStyleName() {
+            return styleName;
+        }
+
+        @Override
+        public Notification setPosition(Position position) {
+            return this;
+        }
+
+        @Override
+        public Position getPosition() {
+            return position;
+        }
+
         protected com.vaadin.ui.Notification.Type convertType(NotificationType notificationType) {
-            com.vaadin.ui.Notification.Type vType;
             switch (notificationType) {
                 case TRAY:
                     return com.vaadin.ui.Notification.Type.TRAY_NOTIFICATION;
@@ -146,6 +174,9 @@ public class WebNotifications implements Notifications {
             setNotificationDelayMsec(vNotification, notificationType);
 
             vNotification.setHtmlContentAllowed(contentMode == ContentMode.HTML);
+            vNotification.setStyleName(styleName);
+
+            // todo set position
 
             vNotification.show(ui.getPage());
         }

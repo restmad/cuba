@@ -18,7 +18,8 @@
 package com.haulmont.cuba.web;
 
 import com.haulmont.cuba.core.global.*;
-import com.haulmont.cuba.gui.*;
+import com.haulmont.cuba.gui.Screens;
+import com.haulmont.cuba.gui.WindowManager;
 import com.haulmont.cuba.gui.components.Frame;
 import com.haulmont.cuba.gui.components.RootWindow;
 import com.haulmont.cuba.gui.config.WindowConfig;
@@ -317,6 +318,7 @@ public abstract class App {
      * @param topLevelWindowId target top level window id
      */
     public void navigateTo(String topLevelWindowId) {
+        // todo rework
         WebWindowManagerImpl wm = AppBeans.getPrototype(WebWindowManagerImpl.NAME);
         wm.setUi(AppUI.getCurrent());
 

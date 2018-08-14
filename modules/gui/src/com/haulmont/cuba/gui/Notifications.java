@@ -44,6 +44,12 @@ public interface Notifications {
         Notification setContentMode(ContentMode contentMode);
         ContentMode getContentMode();
 
+        Notification setStyleName(String styleName);
+        String getStyleName();
+
+        Notification setPosition(Position position);
+        Position getPosition();
+
         void show();
     }
 
@@ -52,5 +58,11 @@ public interface Notifications {
         HUMANIZED,
         WARNING,
         ERROR
+    }
+
+    enum Position {
+        TOP_LEFT, TOP_CENTER, TOP_RIGHT,
+        MIDDLE_LEFT, MIDDLE_CENTER, MIDDLE_RIGHT,
+        BOTTOM_LEFT, BOTTOM_CENTER, BOTTOM_RIGHT
     }
 }

@@ -41,7 +41,7 @@ public interface Screens {
     /**
      * JavaDoc
      */
-    <T extends Screen> T create(WindowInfo windowInfo, LaunchMode launchMode, ScreenOptions options);
+    Screen create(WindowInfo windowInfo, LaunchMode launchMode, ScreenOptions options);
 
     /**
      * JavaDoc
